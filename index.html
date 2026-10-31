@@ -12,11 +12,11 @@ body{padding:env(safe-area-inset-top) 0 env(safe-area-inset-bottom)}
 button,input,textarea{font:inherit;color:inherit;background:none;border:0;outline:0}
 .i{width:22px;height:22px}
 #root{height:100%}
-#app{height:100%;display:grid;grid-template-columns:minmax(0,1fr);grid-template-rows:minmax(0,1fr)}
+#app{position:fixed;inset:0;padding:env(safe-area-inset-top) 0 env(safe-area-inset-bottom);display:grid;grid-template-columns:minmax(0,1fr);grid-template-rows:minmax(0,1fr)}
 .list,.main{min-width:0;overflow:hidden;display:flex;flex-direction:column;min-height:0;background:var(--bg)}
 .main{position:fixed;inset:0;z-index:5;transform:translateX(100%);transition:.25s;padding:env(safe-area-inset-top) 0 env(safe-area-inset-bottom)}
 #app.chat .main{transform:none}
-.nav{display:flex;border-top:1px solid var(--ln);padding:6px 0}
+.nav{margin-top:auto;display:flex;border-top:1px solid var(--ln);padding:6px 0}
 .nav button{flex:1;display:flex;flex-direction:column;align-items:center;gap:2px;font-size:11px;color:var(--mu);padding:4px 0}.nav .on{color:#fff}
 .hd{display:flex;align-items:center;gap:10px;padding:14px 16px 8px}.hd h1{font-size:26px;flex:1}
 .sc{flex:1;overflow:auto}
@@ -102,7 +102,7 @@ if(tab==='contacts')h=hd('Контакты')+`<div class="sc">${contacts.length?
 if(tab==='search')h=hd('Поиск')+`<div class="srch"><input id="q" placeholder="Имя или @username" oninput="doSearch(this.value)"></div><div class="sc" id="res">${resHTML()}</div>`;
 if(tab==='me')h=hd('Профиль')+`<div class="sc"><div style="text-align:center;padding:8px">${av(prof,96)}<div><label class="sm" style="display:inline-block;margin-top:10px;cursor:pointer">Сменить аватарку<input type="file" accept="image/*" hidden onchange="upAv(this.files[0])"></label></div></div>
 <label class="fld"><small>Имя</small><input id="pn" value="${esc(prof.name)}"></label><label class="fld"><small>Имя пользователя</small><input id="pu" value="${esc(prof.username)}"></label><label class="fld"><small>О себе</small><textarea id="pb" rows="2">${esc(prof.bio)}</textarea></label>
-<div style="display:flex;gap:10px;padding:8px 16px"><button class="btn" style="flex:1" onclick="saveProf()">Сохранить</button><button class="sm" onclick="SB.auth.signOut().then(()=>location.reload())">Выйти</button></div><div class="sub" style="padding:6px 16px">${esc(me.email)}</div></div>`;
+<div style="display:flex;gap:10px;padding:8px 16px"><button class="btn" style="flex:1" onclick="saveProf()">Сохранить</button><button class="sm" onclick="SB.auth.signOut().then(()=>location.reload())">Выйти</button></div><div class="sub" style="padding:6px 16px">${esc(me.email)} · v3</div></div>`;
 const keep=document.activeElement?.id==='q'?$('#q').value:null;
 $('#list').innerHTML=h+nav();if(keep!==null){const q=$('#q');q.value=keep;q.focus()}}
 const resHTML=()=>found.map((p,i)=>row(p,p.name,'@'+p.username,`<button class="sm" onclick="event.stopPropagation();addC('${p.id}')">В контакты</button>`,`dm('${p.id}')`)).join('')||'<div class="sub" style="padding:16px">Введите имя — найдём людей в Logos</div>';
