@@ -11,8 +11,8 @@ html,body{height:100%;background:var(--bg);color:var(--tx);font:15px/1.35 -apple
 body{padding:env(safe-area-inset-top) 0 env(safe-area-inset-bottom)}
 button,input,textarea{font:inherit;color:inherit;background:none;border:0;outline:0}
 .i{width:22px;height:22px}
-#app{height:100%;display:grid;grid-template-columns:1fr;grid-template-rows:minmax(0,1fr)}
-.list,.main{display:flex;flex-direction:column;min-height:0;background:var(--bg)}
+#app{height:100%;display:grid;grid-template-columns:minmax(0,1fr);grid-template-rows:minmax(0,1fr)}
+.list,.main{min-width:0;overflow:hidden;display:flex;flex-direction:column;min-height:0;background:var(--bg)}
 .main{position:fixed;inset:0;z-index:5;transform:translateX(100%);transition:.25s;padding:env(safe-area-inset-top) 0 env(safe-area-inset-bottom)}
 #app.chat .main{transform:none}
 .nav{display:flex;border-top:1px solid var(--ln);padding:6px 0}
@@ -39,7 +39,7 @@ button,input,textarea{font:inherit;color:inherit;background:none;border:0;outlin
 .login{height:100%;display:flex;flex-direction:column;justify-content:center;gap:12px;padding:24px;max-width:420px;margin:auto}
 .login .fld{margin:0}.err{color:#f87171;font-size:13px;min-height:18px}
 .toast{position:fixed;top:calc(12px + env(safe-area-inset-top));left:50%;transform:translateX(-50%);background:#f2f2f2;color:#000;padding:8px 16px;border-radius:14px;z-index:30;font-weight:600;display:none}
-@media(min-width:900px){#app{grid-template-columns:380px 1fr}.list{border-right:1px solid var(--ln)}.main{position:static;transform:none!important;padding:0}.nav{order:-1;border-top:0;border-bottom:1px solid var(--ln)}.bk{display:none}.empty.on{display:flex}}
+@media(min-width:900px){#app{grid-template-columns:380px minmax(0,1fr)}.list{border-right:1px solid var(--ln)}.main{position:static;transform:none!important;padding:0}.nav{order:-1;border-top:0;border-bottom:1px solid var(--ln)}.bk{display:none}.empty.on{display:flex}}
 </style></head><body>
 <div id="root"></div><div class="toast" id="toast"></div>
 <script>
