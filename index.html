@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="ru"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes"><meta name="theme-color" content="#0a0a0a">
+<title>Logos</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
+<style>
+:root{color-scheme:dark;--bg:#0a0a0a;--s1:#141414;--s2:#1c1c1c;--s3:#272727;--tx:#f2f2f2;--mu:#8a8a8a;--ln:#222}
+*{box-sizing:border-box;margin:0;-webkit-tap-highlight-color:transparent}
+html,body{height:100%;background:var(--bg);color:var(--tx);font:15px/1.35 -apple-system,"Inter","Segoe UI",Roboto,sans-serif;overflow:hidden}
+body{padding:env(safe-area-inset-top) 0 env(safe-area-inset-bottom)}
+button,input,textarea{font:inherit;color:inherit;background:none;border:0;outline:0}
+.i{width:22px;height:22px}
+#app{height:100%;display:grid;grid-template-columns:1fr}
+.list,.main{display:flex;flex-direction:column;min-height:0;background:var(--bg)}
+.main{position:fixed;inset:0;z-index:5;transform:translateX(100%);transition:.25s;padding:env(safe-area-inset-top) 0 env(safe-area-inset-bottom)}
+#app.chat .main{transform:none}
+.nav{display:flex;border-top:1px solid var(--ln);padding:6px 0}
+.nav button{flex:1;display:flex;flex-direction:column;align-items:center;gap:2px;font-size:11px;color:var(--mu);padding:4px 0}.nav .on{color:#fff}
+.hd{display:flex;align-items:center;gap:10px;padding:14px 16px 8px}.hd h1{font-size:26px;flex:1}
+.sc{flex:1;overflow:auto}
+.row{display:flex;align-items:center;gap:12px;padding:9px 16px;cursor:pointer}.row:active,.row.on{background:var(--s1)}
+.b{flex:1;min-width:0}.n{font-weight:600}.sub{color:var(--mu);font-size:13.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.av{border-radius:50%;object-fit:cover;display:grid;place-items:center;font-weight:600;flex:none;background:linear-gradient(135deg,#444,#161616);color:#ddd}
+.srch{margin:6px 16px 10px;background:var(--s2);border-radius:16px;padding:0 14px;height:44px;display:flex;align-items:center}.srch input{flex:1}
+.btn{background:#f2f2f2;color:#000;border-radius:16px;height:46px;font-weight:600;padding:0 18px}
+.sm{background:var(--s3);border-radius:12px;padding:6px 12px;font-size:13px}
+.fld{display:block;margin:8px 16px;background:var(--s2);border-radius:14px;padding:10px 14px}.fld small{color:var(--mu);display:block;font-size:12px}.fld input,.fld textarea{width:100%;margin-top:2px}
+.top{display:flex;align-items:center;gap:10px;padding:10px 12px;border-bottom:1px solid var(--ln)}.top .t{flex:1;min-width:0}
+.ib{width:38px;height:38px;border-radius:12px;display:grid;place-items:center}
+.msgs{flex:1;overflow:auto;padding:12px;display:flex;flex-direction:column;gap:6px}
+.m{max-width:78%;background:var(--s2);border-radius:18px 18px 18px 6px;padding:8px 12px;align-self:flex-start;white-space:pre-wrap;word-break:break-word}
+.m.me{align-self:flex-end;background:var(--s3);border-radius:18px 18px 6px 18px}
+.m time{font-size:11px;color:var(--mu);margin-left:8px;float:right;margin-top:6px}
+.comp{display:flex;gap:8px;padding:8px 12px;border-top:1px solid var(--ln);align-items:center}
+.comp input{flex:1;background:var(--s2);border-radius:20px;height:42px;padding:0 16px}
+.sp{filter:blur(6px);cursor:pointer;background:#ffffff1a;border-radius:6px;padding:0 2px;transition:.2s}.sp.show{filter:none}.ro .comp{display:none}
+.empty{flex:1;display:none;align-items:center;justify-content:center;flex-direction:column;gap:12px;color:var(--mu)}
+.login{height:100%;display:flex;flex-direction:column;justify-content:center;gap:12px;padding:24px;max-width:420px;margin:auto}
+.login .fld{margin:0}.err{color:#f87171;font-size:13px;min-height:18px}
+.toast{position:fixed;top:calc(12px + env(safe-area-inset-top));left:50%;transform:translateX(-50%);background:#f2f2f2;color:#000;padding:8px 16px;border-radius:14px;z-index:30;font-weight:600;display:none}
+@media(min-width:900px){#app{grid-template-columns:380px 1fr}.list{border-right:1px solid var(--ln)}.main{position:static;transform:none!important;padding:0}.nav{order:-1;border-top:0;border-bottom:1px solid var(--ln)}.bk{display:none}.empty.on{display:flex}}
+</style></head><body>
+<div id="root"></div><div class="toast" id="toast"></div>
+<script>
+const SB=supabase.createClient('https://uasxejcgjwsccygepcgo.supabase.co','sb_publishable_zt6YOPPIMRD0aXVW5k_6sg_NJEHkrwb');
+const $=s=>document.querySelector(s),esc=s=>String(s??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const P={chat:'<path d="M21 12a8 8 0 0 1-11.6 7.1L4 20l1-4.6A8 8 0 1 1 21 12z"/>',users:'<circle cx="9" cy="8" r="3.5"/><path d="M2.5 20c.5-3.5 3.2-5.5 6.5-5.5s6 2 6.5 5.5M16 4.7a3.5 3.5 0 0 1 0 6.6M18 14.8c1.8.7 3 2.4 3.5 5.2"/>',search:'<circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/>',user:'<circle cx="12" cy="8" r="4"/><path d="M4 21c.7-4 4-6 8-6s7.3 2 8 6"/>',back:'<path d="m15 5-7 7 7 7"/>',send:'<path d="M4 12 20 4l-5 16-3-6.5z"/>'};
+const ic=n=>`<svg class="i" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">${P[n]}</svg>`;
+const LOGO=s=>`<svg width="${s}" height="${s}" viewBox="370 370 520 520"><path fill="#fff" d="M540 379H790C780 440 770 470 750 495C715 530 670 544 615 544C520 546 455 610 450 700H430C400 700 380 682 380 660V525C380 440 450 379 540 379Z"/><path fill="#fff" d="M792 511H815C850 511 876 538 876 570V665C876 730 810 790 725 790H620C595 790 580 795 575 797C540 812 500 838 472 872V760C472 690 540 636 615 636H650C730 636 785 580 792 511Z"/></svg>`;
+const av=(p,s=48)=>p?.avatar_url?`<img class="av" style="width:${s}px;height:${s}px" src="${esc(p.avatar_url)}">`:`<div class="av" style="width:${s}px;height:${s}px;font-size:${s/2.4}px">${esc(([...(p?.name||'?')][0]||'?').toUpperCase())}</div>`;
+let tm;const toast=t=>{const e=$('#toast');e.textContent=t;e.style.display='block';clearTimeout(tm);tm=setTimeout(()=>e.style.display='none',2200)};
+let me,prof,tab='chats',cur=null,chats=[],msgs=[],contacts=[],found=[];
+const wide=()=>innerWidth>=900;
+const fmt=d=>{if(!d)return'';const x=new Date(d),n=new Date();return x.toDateString()===n.toDateString()?x.toTimeString().slice(0,5):x.toLocaleDateString('ru',{day:'numeric',month:'short'})};
+const prev=l=>({text:l.body,photo:'📷 Фото',video:'🎬 Видео',voice:'🎤 Голосовое',circle:'⭕ Кружок',file:'📎 Файл',sticker:'🙂 Стикер'}[l.kind]||l.body||'');
+
+/* ---------- вход ---------- */
+const GI='<svg width="20" height="20" viewBox="0 0 48 48"><path fill="#EA4335" d="M24 9.5c3.5 0 6.6 1.2 9.1 3.6l6.8-6.8C35.8 2.4 30.3 0 24 0 14.6 0 6.5 5.4 2.6 13.2l7.9 6.1C12.4 13.6 17.7 9.5 24 9.5z"/><path fill="#4285F4" d="M46.5 24.5c0-1.6-.1-3.1-.4-4.5H24v9h12.7c-.6 3-2.3 5.5-4.8 7.2l7.6 5.9c4.4-4.1 7-10.1 7-17.6z"/><path fill="#FBBC05" d="M10.5 28.7A14.5 14.5 0 0 1 9.5 24c0-1.6.3-3.2.9-4.7l-7.9-6.1A24 24 0 0 0 0 24c0 3.9.9 7.5 2.6 10.8l7.9-6.1z"/><path fill="#34A853" d="M24 48c6.5 0 11.9-2.1 15.9-5.8l-7.6-5.9c-2.1 1.4-4.9 2.3-8.3 2.3-6.3 0-11.6-4.1-13.5-9.8l-7.9 6.1C6.5 42.6 14.6 48 24 48z"/></svg>';
+function login(mode='in',email=''){
+const up=mode==='up';
+$('#root').innerHTML=`<div class="login"><div style="text-align:center">${LOGO(90)}<h1 style="margin:10px 0 4px">Logos</h1><div class="sub">Общайся. Делись. Будь ближе.</div></div>
+<label class="fld"><small>Почта</small><input id="em" type="email" placeholder="you@mail.com" autocomplete="email" value="${esc(email)}"></label>
+<label class="fld"><small>Пароль</small><input id="pw" type="password" placeholder="Минимум 6 символов" autocomplete="${up?'new-password':'current-password'}"></label>
+<div class="err" id="er"></div><button class="btn" id="go">${up?'Создать аккаунт':'Войти'}</button>
+<div style="display:flex;justify-content:space-between"><button class="sub" id="sw">${up?'Уже есть аккаунт? Войти':'Создать аккаунт'}</button>${up?'':'<button class="sub" id="fg">Забыли пароль?</button>'}</div>
+<div class="sub" style="text-align:center">или</div>
+<button class="btn" style="background:var(--s2);color:#fff;display:flex;gap:10px;align-items:center;justify-content:center" onclick="oauth('google')">${GI}Войти через Google</button></div>`;
+const go=$('#go'),er=t=>$('#er').textContent=t;
+go.onclick=async()=>{const e=$('#em').value.trim(),p=$('#pw').value;if(!e||!p)return er('Введите почту и пароль');if(p.length<6)return er('Пароль минимум 6 символов');go.disabled=true;er('');
+if(up){const{data,error}=await SB.auth.signUp({email:e,password:p});go.disabled=false;if(error)return er(error.message);if(data.session)start(data.user);else er('Мы отправили письмо — подтвердите почту и войдите')}
+else{const{data,error}=await SB.auth.signInWithPassword({email:e,password:p});go.disabled=false;if(error)return er('Неверная почта или пароль');start(data.user)}};
+$('#pw').onkeydown=ev=>{if(ev.key==='Enter')go.click()};
+$('#sw').onclick=()=>login(up?'in':'up',$('#em').value);
+if($('#fg'))$('#fg').onclick=async()=>{const e=$('#em').value.trim();if(!e)return er('Введите почту');const{error}=await SB.auth.resetPasswordForEmail(e,{redirectTo:location.href.split('#')[0]});er(error?error.message:'Письмо для сброса пароля отправлено')}}
+async function oauth(provider){const{error}=await SB.auth.signInWithOAuth({provider,options:{redirectTo:location.href.split('#')[0].split('?')[0]}});if(error)toast('Вход через '+'Google'+' ещё не настроен')}
+
+/* ---------- запуск ---------- */
+async function start(u){me=u;
+let r=await SB.from('profiles').select('*').eq('id',me.id).single();prof=r.data||{id:me.id,name:'user'};
+$('#root').innerHTML=`<div id="app"><div class="list" id="list"></div><div class="main" id="main"></div></div>`;
+await loadChats();render();
+SB.channel('rt').on('postgres_changes',{event:'INSERT',schema:'public',table:'messages'},async p=>{const r=p.new;
+if(cur&&r.chat_id===cur.id&&!msgs.find(m=>m.id===r.id)){msgs.push(r);drawMsgs()}
+await loadChats();if(tab==='chats')drawList()})
+.on('postgres_changes',{event:'INSERT',schema:'public',table:'chat_members',filter:'user_id=eq.'+me.id},async()=>{await loadChats();if(tab==='chats')drawList()}).subscribe()}
+
+async function loadChats(){if(DEMO)return;
+const{data:mem}=await SB.from('chat_members').select('chat_id,chats(id,kind,title,avatar_url)').eq('user_id',me.id);
+const ids=(mem||[]).map(m=>m.chat_id);if(!ids.length){chats=[];return}
+const[{data:oth},{data:ms}]=await Promise.all([
+SB.from('chat_members').select('chat_id,profiles(id,name,username,avatar_url)').in('chat_id',ids).neq('user_id',me.id),
+SB.from('messages').select('chat_id,body,kind,created_at').in('chat_id',ids).order('created_at',{ascending:false}).limit(300)]);
+chats=mem.map(m=>{const c=m.chats,o=(oth||[]).find(x=>x.chat_id===c.id)?.profiles,l=(ms||[]).find(x=>x.chat_id===c.id);
+return{id:c.id,kind:c.kind,name:c.kind==='dm'?(o?.name||'Чат'):c.title,avatar_url:c.kind==='dm'?o?.avatar_url:c.avatar_url,sub:c.kind==='dm'&&o?.username?'@'+o.username:'',last:l?prev(l):'Нет сообщений',lt:l?.created_at||''}}).sort((a,b)=>b.lt>a.lt?1:-1)}
+
+/* ---------- экраны ---------- */
+const nav=()=>`<div class="nav">${[['chats','chat','Чаты'],['contacts','users','Контакты'],['search','search','Поиск'],['me','user','Профиль']].map(x=>`<button class="${tab===x[0]?'on':''}" onclick="go('${x[0]}')">${ic(x[1])}${x[2]}</button>`).join('')}</div>`;
+function go(t){tab=t;if(t==='contacts')loadContacts();render()}
+function render(){drawList();drawMain()}
+const row=(p,n,s,r,click)=>`<div class="row" onclick="${click}">${av(p)}<div class="b"><div class="n">${esc(n)}</div><div class="sub">${esc(s)}</div></div>${r||''}</div>`;
+function drawList(){const hd=t=>`<div class="hd"><h1>${t}</h1></div>`;let h='';
+if(tab==='chats')h=hd('Чаты')+`<div class="sc">${chats.length?chats.map(c=>row(c,c.name,c.last,`<span class="sub">${fmt(c.lt)}</span>`,`openChat('${c.id}')`)).join(''):'<div class="sub" style="padding:24px 16px">Чатов пока нет. Найдите человека во вкладке «Поиск».</div>'}</div>`;
+if(tab==='contacts')h=hd('Контакты')+`<div class="sc">${contacts.length?contacts.map((p,i)=>row(p,p.name,'@'+p.username,'',`dm('${p.id}')`)).join(''):'<div class="sub" style="padding:24px 16px">Контактов нет. Добавьте через «Поиск».</div>'}</div>`;
+if(tab==='search')h=hd('Поиск')+`<div class="srch"><input id="q" placeholder="Имя или @username" oninput="doSearch(this.value)"></div><div class="sc" id="res">${resHTML()}</div>`;
+if(tab==='me')h=hd('Профиль')+`<div class="sc"><div style="text-align:center;padding:8px">${av(prof,96)}<div><label class="sm" style="display:inline-block;margin-top:10px;cursor:pointer">Сменить аватарку<input type="file" accept="image/*" hidden onchange="upAv(this.files[0])"></label></div></div>
+<label class="fld"><small>Имя</small><input id="pn" value="${esc(prof.name)}"></label><label class="fld"><small>Имя пользователя</small><input id="pu" value="${esc(prof.username)}"></label><label class="fld"><small>О себе</small><textarea id="pb" rows="2">${esc(prof.bio)}</textarea></label>
+<div style="display:flex;gap:10px;padding:8px 16px"><button class="btn" style="flex:1" onclick="saveProf()">Сохранить</button><button class="sm" onclick="SB.auth.signOut().then(()=>location.reload())">Выйти</button></div><div class="sub" style="padding:6px 16px">${esc(me.email)}</div></div>`;
+const keep=document.activeElement?.id==='q'?$('#q').value:null;
+$('#list').innerHTML=h+nav();if(keep!==null){const q=$('#q');q.value=keep;q.focus()}}
+const resHTML=()=>found.map((p,i)=>row(p,p.name,'@'+p.username,`<button class="sm" onclick="event.stopPropagation();addC('${p.id}')">В контакты</button>`,`dm('${p.id}')`)).join('')||'<div class="sub" style="padding:16px">Введите имя — найдём людей в Logos</div>';
+let st;function doSearch(v){clearTimeout(st);st=setTimeout(async()=>{v=v.replace(/[,()%]/g,'').replace(/^@/,'').trim();if(v.length<2){found=[];$('#res').innerHTML=resHTML();return}
+if(DEMO){found=PEOPLE.filter(p=>(p.name+p.username).toLowerCase().includes(v.toLowerCase()));$('#res').innerHTML=resHTML();return}const{data}=await SB.from('profiles').select('id,name,username,avatar_url').or(`username.ilike.%${v}%,name.ilike.%${v}%`).neq('id',me.id).limit(20);found=data||[];$('#res').innerHTML=resHTML()},300)}
+async function loadContacts(){if(DEMO){drawList();return}const{data}=await SB.from('contacts').select('p:profiles!contact(id,name,username,avatar_url)').eq('owner',me.id);contacts=(data||[]).map(x=>x.p);if(tab==='contacts')drawList()}
+async function addC(id){if(DEMO)return toast('Добавлен в контакты');const{error}=await SB.from('contacts').upsert({contact:id});toast(error?'Не удалось':'Добавлен в контакты')}
+async function dm(id){if(DEMO){const c=chats.find(x=>x.pid===id);return c&&openChat(c.id)}const{data,error}=await SB.rpc('create_dm',{other:id});if(error)return toast('Ошибка чата');await loadChats();openChat(data)}
+
+const fx=t=>esc(t).replace(/\|\|(.+?)\|\|/g,'<span class="sp" onclick="this.classList.toggle(\'show\')">$1</span>');
+function spoil(){const i=$('#in'),a=i.selectionStart,b=i.selectionEnd;i.value=a===b?i.value+'||текст||':i.value.slice(0,a)+'||'+i.value.slice(a,b)+'||'+i.value.slice(b);i.focus()}
+function drawMain(){const m=$('#main');m.classList.toggle('ro',cur?.kind==='channel');
+if(!cur){m.innerHTML=`<div class="empty on">${LOGO(80)}<div>Выберите чат</div></div>`;return}
+m.innerHTML=`<div class="top"><button class="ib bk" onclick="closeChat()">${ic('back')}</button>${av(cur,40)}<div class="t"><div class="n">${esc(cur.name)}</div><div class="sub">${esc(cur.sub)}</div></div></div><div class="msgs" id="ms"></div><div class="comp"><input id="in" placeholder="Написать сообщение…" onkeydown="if(event.key==='Enter')send()"><button class="ib" style="background:var(--s2)" title="Скрытый текст" onclick="spoil()">◐</button><button class="ib" style="background:#f2f2f2;color:#000;border-radius:50%" onclick="send()">${ic('send')}</button></div>`;drawMsgs()}
+function drawMsgs(){const e=$('#ms');if(!e)return;e.innerHTML=msgs.map(m=>`<div class="m${m.sender_id===me.id?' me':''}">${m.sender_id?'':'<b>Logos</b><br>'}${fx(m.kind==='text'?m.body:prev(m))}<time>${fmt(m.created_at)}</time></div>`).join('');e.scrollTop=e.scrollHeight}
+async function openChat(id){cur=chats.find(c=>c.id===id);const{data}=DEMO?{data:DM[id]}:await SB.from('messages').select('*').eq('chat_id',id).order('created_at').limit(200);msgs=data||[];$('#app').classList.add('chat');drawMain();if(wide())$('#in')?.focus()}
+function closeChat(){cur=null;$('#app').classList.remove('chat');drawMain()}
+async function send(){const i=$('#in'),v=i.value.trim();if(!v||!cur)return;i.value='';
+const{data,error}=DEMO?{data:{id:Date.now(),chat_id:cur.id,sender_id:me.id,kind:'text',body:v,created_at:new Date().toISOString()}}:await SB.from('messages').insert({chat_id:cur.id,body:v,kind:'text'}).select().single();if(DEMO){cur.last=v;cur.lt=data.created_at}
+if(error)return toast('Не отправилось');if(!msgs.find(m=>m.id===data.id)){msgs.push(data);drawMsgs()}await loadChats();if(tab==='chats')drawList();i.focus()}
+
+/* ---------- профиль ---------- */
+async function saveProf(){if(DEMO)return toast('В демо не сохраняется');const u={name:$('#pn').value.trim()||prof.name,username:$('#pu').value.trim().replace(/^@/,'').toLowerCase(),bio:$('#pb').value.trim()};
+const{error}=await SB.from('profiles').update(u).eq('id',me.id);if(error)return toast(error.code==='23505'?'Это имя занято':'Ошибка');Object.assign(prof,u);toast('Сохранено')}
+async function upAv(f){if(DEMO)return toast('В демо не сохраняется');if(!f)return;const bm=await createImageBitmap(f),s=Math.min(bm.width,bm.height),c=document.createElement('canvas');c.width=c.height=320;
+c.getContext('2d').drawImage(bm,(bm.width-s)/2,(bm.height-s)/2,s,s,0,0,320,320);const blob=await new Promise(r=>c.toBlob(r,'image/jpeg',.85));
+const path=`${me.id}/${Date.now()}.jpg`;const{error}=await SB.storage.from('avatars').upload(path,blob,{contentType:'image/jpeg'});if(error)return toast('Не загрузилось');
+const url=SB.storage.from('avatars').getPublicUrl(path).data.publicUrl;await SB.from('profiles').update({avatar_url:url}).eq('id',me.id);prof.avatar_url=url;toast('Аватарка обновлена');drawList()}
+
+const DEMO=false,PEOPLE=[],DM={};
+(async()=>{const{data:{session}}=await SB.auth.getSession();session?start(session.user):login()})();
+</script></body></html>
