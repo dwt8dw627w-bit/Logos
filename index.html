@@ -11,7 +11,7 @@ html,body{height:100%;background:var(--bg);color:var(--tx);font:15px/1.35 -apple
 body{padding:env(safe-area-inset-top) 0 env(safe-area-inset-bottom)}
 button,input,textarea{font:inherit;color:inherit;background:none;border:0;outline:0}
 .i{width:22px;height:22px}
-#app{height:100%;display:grid;grid-template-columns:1fr}
+#app{height:100%;display:grid;grid-template-columns:1fr;grid-template-rows:minmax(0,1fr)}
 .list,.main{display:flex;flex-direction:column;min-height:0;background:var(--bg)}
 .main{position:fixed;inset:0;z-index:5;transform:translateX(100%);transition:.25s;padding:env(safe-area-inset-top) 0 env(safe-area-inset-bottom)}
 #app.chat .main{transform:none}
@@ -56,16 +56,13 @@ const fmt=d=>{if(!d)return'';const x=new Date(d),n=new Date();return x.toDateStr
 const prev=l=>({text:l.body,photo:'📷 Фото',video:'🎬 Видео',voice:'🎤 Голосовое',circle:'⭕ Кружок',file:'📎 Файл',sticker:'🙂 Стикер'}[l.kind]||l.body||'');
 
 /* ---------- вход ---------- */
-const GI='<svg width="20" height="20" viewBox="0 0 48 48"><path fill="#EA4335" d="M24 9.5c3.5 0 6.6 1.2 9.1 3.6l6.8-6.8C35.8 2.4 30.3 0 24 0 14.6 0 6.5 5.4 2.6 13.2l7.9 6.1C12.4 13.6 17.7 9.5 24 9.5z"/><path fill="#4285F4" d="M46.5 24.5c0-1.6-.1-3.1-.4-4.5H24v9h12.7c-.6 3-2.3 5.5-4.8 7.2l7.6 5.9c4.4-4.1 7-10.1 7-17.6z"/><path fill="#FBBC05" d="M10.5 28.7A14.5 14.5 0 0 1 9.5 24c0-1.6.3-3.2.9-4.7l-7.9-6.1A24 24 0 0 0 0 24c0 3.9.9 7.5 2.6 10.8l7.9-6.1z"/><path fill="#34A853" d="M24 48c6.5 0 11.9-2.1 15.9-5.8l-7.6-5.9c-2.1 1.4-4.9 2.3-8.3 2.3-6.3 0-11.6-4.1-13.5-9.8l-7.9 6.1C6.5 42.6 14.6 48 24 48z"/></svg>';
 function login(mode='in',email=''){
 const up=mode==='up';
 $('#root').innerHTML=`<div class="login"><div style="text-align:center">${LOGO(90)}<h1 style="margin:10px 0 4px">Logos</h1><div class="sub">Общайся. Делись. Будь ближе.</div></div>
 <label class="fld"><small>Почта</small><input id="em" type="email" placeholder="you@mail.com" autocomplete="email" value="${esc(email)}"></label>
 <label class="fld"><small>Пароль</small><input id="pw" type="password" placeholder="Минимум 6 символов" autocomplete="${up?'new-password':'current-password'}"></label>
 <div class="err" id="er"></div><button class="btn" id="go">${up?'Создать аккаунт':'Войти'}</button>
-<div style="display:flex;justify-content:space-between"><button class="sub" id="sw">${up?'Уже есть аккаунт? Войти':'Создать аккаунт'}</button>${up?'':'<button class="sub" id="fg">Забыли пароль?</button>'}</div>
-<div class="sub" style="text-align:center">или</div>
-<button class="btn" style="background:var(--s2);color:#fff;display:flex;gap:10px;align-items:center;justify-content:center" onclick="oauth('google')">${GI}Войти через Google</button></div>`;
+<div style="display:flex;justify-content:space-between"><button class="sub" id="sw">${up?'Уже есть аккаунт? Войти':'Создать аккаунт'}</button>${up?'':'<button class="sub" id="fg">Забыли пароль?</button>'}</div></div>`;
 const go=$('#go'),er=t=>$('#er').textContent=t;
 go.onclick=async()=>{const e=$('#em').value.trim(),p=$('#pw').value;if(!e||!p)return er('Введите почту и пароль');if(p.length<6)return er('Пароль минимум 6 символов');go.disabled=true;er('');
 if(up){const{data,error}=await SB.auth.signUp({email:e,password:p});go.disabled=false;if(error)return er(error.message);if(data.session)start(data.user);else er('Мы отправили письмо — подтвердите почту и войдите')}
@@ -73,7 +70,6 @@ else{const{data,error}=await SB.auth.signInWithPassword({email:e,password:p});go
 $('#pw').onkeydown=ev=>{if(ev.key==='Enter')go.click()};
 $('#sw').onclick=()=>login(up?'in':'up',$('#em').value);
 if($('#fg'))$('#fg').onclick=async()=>{const e=$('#em').value.trim();if(!e)return er('Введите почту');const{error}=await SB.auth.resetPasswordForEmail(e,{redirectTo:location.href.split('#')[0]});er(error?error.message:'Письмо для сброса пароля отправлено')}}
-async function oauth(provider){const{error}=await SB.auth.signInWithOAuth({provider,options:{redirectTo:location.href.split('#')[0].split('?')[0]}});if(error)toast('Вход через '+'Google'+' ещё не настроен')}
 
 /* ---------- запуск ---------- */
 async function start(u){me=u;
