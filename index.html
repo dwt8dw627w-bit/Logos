@@ -40,6 +40,19 @@ button,input,textarea{font:inherit;color:inherit;background:none;border:0;outlin
 .login{height:100%;display:flex;flex-direction:column;justify-content:center;gap:12px;padding:24px;max-width:420px;margin:auto}
 .login .fld{margin:0}.err{color:#f87171;font-size:13px;min-height:18px}
 .toast{position:fixed;top:calc(12px + env(safe-area-inset-top));left:50%;transform:translateX(-50%);background:#f2f2f2;color:#000;padding:8px 16px;border-radius:14px;z-index:30;font-weight:600;display:none}
+.msgs{-webkit-overflow-scrolling:touch}
+.m{border-radius:22px 22px 22px 8px;padding:9px 14px;transition:transform .2s}.m.me{border-radius:22px 22px 8px 22px}
+.pop{animation:pop .24s cubic-bezier(.2,.8,.2,1)}@keyframes pop{from{opacity:0;transform:translateY(10px) scale(.95)}}
+.ph{display:block;width:240px;max-width:100%;border-radius:16px;margin-bottom:4px;cursor:zoom-in}
+.rq{border-left:3px solid #fff;padding:3px 8px;margin-bottom:5px;font-size:12.5px;color:var(--mu);background:#ffffff0d;border-radius:8px;cursor:pointer}.rq b{color:#fff;display:block}.rq div{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.rpl{display:flex;align-items:center;gap:8px;padding:8px 14px;border-top:1px solid var(--ln);font-size:13px;animation:fi .2s}
+.flash{animation:fl 1s}@keyframes fl{30%{background:#555}}
+button,.row,.nav button{transition:transform .12s,background .2s,opacity .2s}button:active{transform:scale(.94)}
+.main{transition:transform .34s cubic-bezier(.22,.8,.2,1)}.comp input{border-radius:22px}
+.bn{height:130px;background:linear-gradient(135deg,#3a3a3a,#111) center/cover;position:relative;margin-bottom:54px}
+.avw{position:absolute;left:16px;bottom:-46px;border:4px solid var(--bg);border-radius:50%;background:var(--bg)}
+.ov{position:fixed;inset:0;z-index:25;background:var(--bg);overflow:auto;padding-top:env(safe-area-inset-top);animation:fi .2s}@keyframes fi{from{opacity:0}}
+.imgov{position:fixed;inset:0;z-index:40;background:#000e;display:grid;place-items:center;animation:fi .2s}.imgov img{max-width:100%;max-height:100%}
 @media(min-width:900px){#app{grid-template-columns:380px minmax(0,1fr)}.list{border-right:1px solid var(--ln)}.main{position:static;transform:none!important;padding:0}.nav{order:-1;border-top:0;border-bottom:1px solid var(--ln)}.bk{display:none}.empty.on{display:flex}}
 </style></head><body>
 <div id="root"></div><div class="toast" id="toast"></div>
@@ -52,6 +65,7 @@ const LOGO=s=>`<svg width="${s}" height="${s}" viewBox="370 370 520 520"><path f
 const av=(p,s=48)=>p?.avatar_url?`<img class="av" style="width:${s}px;height:${s}px" src="${esc(p.avatar_url)}">`:`<div class="av" style="width:${s}px;height:${s}px;font-size:${s/2.4}px">${esc(([...(p?.name||'?')][0]||'?').toUpperCase())}</div>`;
 let tm;const toast=t=>{const e=$('#toast');e.textContent=t;e.style.display='block';clearTimeout(tm);tm=setTimeout(()=>e.style.display='none',2200)};
 let me,prof,tab='chats',cur=null,chats=[],msgs=[],contacts=[],found=[];
+let rp=null,nw=null,online=new Set();const at=u=>u?'@'+u:'';
 const wide=()=>innerWidth>=900;
 const fmt=d=>{if(!d)return'';const x=new Date(d),n=new Date();return x.toDateString()===n.toDateString()?x.toTimeString().slice(0,5):x.toLocaleDateString('ru',{day:'numeric',month:'short'})};
 const prev=l=>({text:l.body,photo:'📷 Фото',video:'🎬 Видео',voice:'🎤 Голосовое',circle:'⭕ Кружок',file:'📎 Файл',sticker:'🙂 Стикер'}[l.kind]||l.body||'');
@@ -76,9 +90,9 @@ if($('#fg'))$('#fg').onclick=async()=>{const e=$('#em').value.trim();if(!e)retur
 async function start(u){me=u;
 let r=await SB.from('profiles').select('*').eq('id',me.id).single();prof=r.data||{id:me.id,name:'user'};
 $('#root').innerHTML=`<div id="app"><div class="list" id="list"></div><div class="main" id="main"></div></div>`;
-await loadChats();render();
+await loadChats();render();live();
 SB.channel('rt').on('postgres_changes',{event:'INSERT',schema:'public',table:'messages'},async p=>{const r=p.new;
-if(cur&&r.chat_id===cur.id&&!msgs.find(m=>m.id===r.id)){msgs.push(r);drawMsgs()}
+if(cur&&r.chat_id===cur.id&&!msgs.find(m=>m.id===r.id)){nw=r.id;msgs.push(r);drawMsgs()}
 await loadChats();if(tab==='chats')drawList()})
 .on('postgres_changes',{event:'INSERT',schema:'public',table:'chat_members',filter:'user_id=eq.'+me.id},async()=>{await loadChats();if(tab==='chats')drawList()}).subscribe()}
 
@@ -86,10 +100,10 @@ async function loadChats(){if(DEMO)return;
 const{data:mem}=await SB.from('chat_members').select('chat_id,chats(id,kind,title,avatar_url)').eq('user_id',me.id);
 const ids=(mem||[]).map(m=>m.chat_id);if(!ids.length){chats=[];return}
 const[{data:oth},{data:ms}]=await Promise.all([
-SB.from('chat_members').select('chat_id,profiles(id,name,username,avatar_url)').in('chat_id',ids).neq('user_id',me.id),
+SB.from('chat_members').select('chat_id,profiles(id,name,username,avatar_url,last_seen,bio,banner_url)').in('chat_id',ids).neq('user_id',me.id),
 SB.from('messages').select('chat_id,body,kind,created_at').in('chat_id',ids).order('created_at',{ascending:false}).limit(300)]);
 chats=mem.map(m=>{const c=m.chats,o=(oth||[]).find(x=>x.chat_id===c.id)?.profiles,l=(ms||[]).find(x=>x.chat_id===c.id);
-return{id:c.id,kind:c.kind,name:c.kind==='dm'?(o?.name||'Чат'):c.title,avatar_url:c.kind==='dm'?o?.avatar_url:c.avatar_url,sub:c.kind==='dm'&&o?.username?'@'+o.username:'',last:l?prev(l):'Нет сообщений',lt:l?.created_at||''}}).sort((a,b)=>b.lt>a.lt?1:-1)}
+return{pid:o?.id,ls:o?.last_seen,bio:o?.bio,banner:o?.banner_url,user:o?.username,id:c.id,kind:c.kind,name:c.kind==='dm'?(o?.name||'Чат'):c.title,avatar_url:c.kind==='dm'?o?.avatar_url:c.avatar_url,sub:c.kind==='dm'&&o?.username?o.username:'',last:l?prev(l):'Нет сообщений',lt:l?.created_at||''}}).sort((a,b)=>b.lt>a.lt?1:-1)}
 
 /* ---------- экраны ---------- */
 const nav=()=>`<div class="nav">${[['chats','chat','Чаты'],['contacts','users','Контакты'],['search','search','Поиск'],['me','user','Профиль']].map(x=>`<button class="${tab===x[0]?'on':''}" onclick="go('${x[0]}')">${ic(x[1])}${x[2]}</button>`).join('')}</div>`;
@@ -98,14 +112,14 @@ function render(){drawList();drawMain()}
 const row=(p,n,s,r,click)=>`<div class="row" onclick="${click}">${av(p)}<div class="b"><div class="n">${esc(n)}</div><div class="sub">${esc(s)}</div></div>${r||''}</div>`;
 function drawList(){const hd=t=>`<div class="hd"><h1>${t}</h1></div>`;let h='';
 if(tab==='chats')h=hd('Чаты')+`<div class="sc">${chats.length?chats.map(c=>row(c,c.name,c.last,`<span class="sub">${fmt(c.lt)}</span>`,`openChat('${c.id}')`)).join(''):'<div class="sub" style="padding:24px 16px">Чатов пока нет. Найдите человека во вкладке «Поиск».</div>'}</div>`;
-if(tab==='contacts')h=hd('Контакты')+`<div class="sc">${contacts.length?contacts.map((p,i)=>row(p,p.name,'@'+p.username,'',`dm('${p.id}')`)).join(''):'<div class="sub" style="padding:24px 16px">Контактов нет. Добавьте через «Поиск».</div>'}</div>`;
-if(tab==='search')h=hd('Поиск')+`<div class="srch"><input id="q" placeholder="Имя или @username" oninput="doSearch(this.value)"></div><div class="sc" id="res">${resHTML()}</div>`;
-if(tab==='me')h=hd('Профиль')+`<div class="sc"><div style="text-align:center;padding:8px">${av(prof,96)}<div><label class="sm" style="display:inline-block;margin-top:10px;cursor:pointer">Сменить аватарку<input type="file" accept="image/*" hidden onchange="upAv(this.files[0])"></label></div></div>
-<label class="fld"><small>Имя</small><input id="pn" value="${esc(prof.name)}"></label><label class="fld"><small>Имя пользователя</small><input id="pu" value="${esc(prof.username)}"></label><label class="fld"><small>О себе</small><textarea id="pb" rows="2">${esc(prof.bio)}</textarea></label>
-<div style="display:flex;gap:10px;padding:8px 16px"><button class="btn" style="flex:1" onclick="saveProf()">Сохранить</button><button class="sm" onclick="SB.auth.signOut().then(()=>location.reload())">Выйти</button></div><div class="sub" style="padding:6px 16px">${esc(me.email)} · v3</div></div>`;
+if(tab==='contacts')h=hd('Контакты')+`<div class="sc">${contacts.length?contacts.map((p,i)=>row(p,p.name,at(p.username),'',`dm('${p.id}')`)).join(''):'<div class="sub" style="padding:24px 16px">Контактов нет. Добавьте через «Поиск».</div>'}</div>`;
+if(tab==='search')h=hd('Поиск')+`<div class="srch"><input id="q" placeholder="Имя пользователя или имя" oninput="doSearch(this.value)"></div><div class="sc" id="res">${resHTML()}</div>`;
+if(tab==='me')h=hd('Профиль')+`<div class="sc"><div class="bn" style="${prof.banner_url?`background-image:url(${esc(prof.banner_url)})`:''}"><div class="avw">${av(prof,92)}</div></div><div style="padding:0 16px"><div style="font-size:20px;font-weight:700">${esc(prof.name)}</div><div class="sub">@${esc(prof.username)}</div>${prof.bio?`<div style="margin-top:6px">${esc(prof.bio)}</div>`:''}<div style="display:flex;gap:8px;margin-top:10px"><label class="sm" style="cursor:pointer">Аватарка<input type="file" accept="image/*" hidden onchange="upAv(this.files[0])"></label><label class="sm" style="cursor:pointer">Баннер<input type="file" accept="image/*" hidden onchange="upBn(this.files[0])"></label></div></div>
+<label class="fld"><small>Имя</small><input id="pn" value="${esc(prof.name)}"></label><label class="fld"><small>Имя пользователя</small><input id="pu" value="@${esc(prof.username)}"></label><label class="fld"><small>О себе</small><textarea id="pb" rows="2">${esc(prof.bio)}</textarea></label>
+<div style="display:flex;gap:10px;padding:8px 16px"><button class="btn" style="flex:1" onclick="saveProf()">Сохранить</button><button class="sm" onclick="SB.auth.signOut().then(()=>location.reload())">Выйти</button></div><div class="sub" style="padding:6px 16px">${esc(me.email)} · v5</div></div>`;
 const keep=document.activeElement?.id==='q'?$('#q').value:null;
 $('#list').innerHTML=h+nav();if(keep!==null){const q=$('#q');q.value=keep;q.focus()}}
-const resHTML=()=>found.map((p,i)=>row(p,p.name,'@'+p.username,`<button class="sm" onclick="event.stopPropagation();addC('${p.id}')">В контакты</button>`,`dm('${p.id}')`)).join('')||'<div class="sub" style="padding:16px">Введите имя — найдём людей в Logos</div>';
+const resHTML=()=>found.map((p,i)=>row(p,p.name,at(p.username),`<button class="sm" onclick="event.stopPropagation();addC('${p.id}')">В контакты</button>`,`dm('${p.id}')`)).join('')||'<div class="sub" style="padding:16px">Введите имя — найдём людей в Logos</div>';
 let st;function doSearch(v){clearTimeout(st);st=setTimeout(async()=>{v=v.replace(/[,()%]/g,'').replace(/^@/,'').trim();if(v.length<2){found=[];$('#res').innerHTML=resHTML();return}
 if(DEMO){found=PEOPLE.filter(p=>(p.name+p.username).toLowerCase().includes(v.toLowerCase()));$('#res').innerHTML=resHTML();return}const{data}=await SB.from('profiles').select('id,name,username,avatar_url').or(`username.ilike.%${v}%,name.ilike.%${v}%`).neq('id',me.id).limit(20);found=data||[];$('#res').innerHTML=resHTML()},300)}
 async function loadContacts(){if(DEMO){drawList();return}const{data}=await SB.from('contacts').select('p:profiles!contact(id,name,username,avatar_url)').eq('owner',me.id);contacts=(data||[]).map(x=>x.p);if(tab==='contacts')drawList()}
@@ -116,21 +130,47 @@ const fx=t=>esc(t).replace(/\|\|(.+?)\|\|/g,'<span class="sp" onclick="this.clas
 function spoil(){const i=$('#in'),a=i.selectionStart,b=i.selectionEnd;i.value=a===b?i.value+'||текст||':i.value.slice(0,a)+'||'+i.value.slice(a,b)+'||'+i.value.slice(b);i.focus()}
 function drawMain(){const m=$('#main');m.classList.toggle('ro',cur?.kind==='channel');
 if(!cur){m.innerHTML=`<div class="empty on">${LOGO(80)}<div>Выберите чат</div></div>`;return}
-m.innerHTML=`<div class="top"><button class="ib bk" onclick="closeChat()">${ic('back')}</button>${av(cur,40)}<div class="t"><div class="n">${esc(cur.name)}</div><div class="sub">${esc(cur.sub)}</div></div></div><div class="msgs" id="ms"></div><div class="comp"><input id="in" placeholder="Написать сообщение…" onkeydown="if(event.key==='Enter')send()"><button class="ib" style="background:var(--s2)" title="Скрытый текст" onclick="spoil()">◐</button><button class="ib" style="background:#f2f2f2;color:#000;border-radius:50%" onclick="send()">${ic('send')}</button></div>`;drawMsgs()}
-function drawMsgs(){const e=$('#ms');if(!e)return;e.innerHTML=msgs.map(m=>`<div class="m${m.sender_id===me.id?' me':''}">${m.sender_id?'':'<b>Logos</b><br>'}${fx(m.kind==='text'?m.body:prev(m))}<time>${fmt(m.created_at)}</time></div>`).join('');e.scrollTop=e.scrollHeight}
-async function openChat(id){cur=chats.find(c=>c.id===id);const{data}=DEMO?{data:DM[id]}:await SB.from('messages').select('*').eq('chat_id',id).order('created_at').limit(200);msgs=data||[];$('#app').classList.add('chat');drawMain();if(wide())$('#in')?.focus()}
+m.innerHTML=`<div class="top"><button class="ib bk" onclick="closeChat()">${ic('back')}</button>${av(cur,40)}<div class="t" onclick="showP()" style="cursor:pointer"><div class="n">${esc(cur.name)}</div><div class="sub" id="st">${esc(status(cur))}</div></div></div><div class="msgs" id="ms"></div><div id="rpb"></div><div class="comp"><label class="ib" style="background:var(--s2);cursor:pointer">${ic('clip')}<input type="file" accept="image/*" hidden onchange="sendPhoto(this.files[0]);this.value=''"></label><input id="in" placeholder="Написать сообщение…" onkeydown="if(event.key==='Enter')send()"><button class="ib" style="background:var(--s2)" title="Скрытый текст" onclick="spoil()">◐</button><button class="ib" style="background:#f2f2f2;color:#000;border-radius:50%" onclick="send()">${ic('send')}</button></div>`;drawMsgs();swInit();drawRp()}
+function drawMsgs(){const e=$('#ms');if(!e)return;e.innerHTML=msgs.map(mh).join('');e.scrollTo({top:e.scrollHeight,behavior:nw?'smooth':'auto'});nw=null}
+async function openChat(id){rp=null;cur=chats.find(c=>c.id===id);const{data}=DEMO?{data:DM[id]}:await SB.from('messages').select('*').eq('chat_id',id).order('created_at').limit(200);msgs=data||[];$('#app').classList.add('chat');drawMain();if(wide())$('#in')?.focus()}
 function closeChat(){cur=null;$('#app').classList.remove('chat');drawMain()}
-async function send(){const i=$('#in'),v=i.value.trim();if(!v||!cur)return;i.value='';
-const{data,error}=DEMO?{data:{id:Date.now(),chat_id:cur.id,sender_id:me.id,kind:'text',body:v,created_at:new Date().toISOString()}}:await SB.from('messages').insert({chat_id:cur.id,body:v,kind:'text'}).select().single();if(DEMO){cur.last=v;cur.lt=data.created_at}
-if(error)return toast('Не отправилось');if(!msgs.find(m=>m.id===data.id)){msgs.push(data);drawMsgs()}await loadChats();if(tab==='chats')drawList();i.focus()}
+async function send(){const i=$('#in'),v=i.value.trim();if(!v||!cur)return;i.value='';await ins({kind:'text',body:v});i.focus()}
 
 /* ---------- профиль ---------- */
 async function saveProf(){if(DEMO)return toast('В демо не сохраняется');const u={name:$('#pn').value.trim()||prof.name,username:$('#pu').value.trim().replace(/^@/,'').toLowerCase(),bio:$('#pb').value.trim()};
 const{error}=await SB.from('profiles').update(u).eq('id',me.id);if(error)return toast(error.code==='23505'?'Это имя занято':'Ошибка');Object.assign(prof,u);toast('Сохранено')}
-async function upAv(f){if(DEMO)return toast('В демо не сохраняется');if(!f)return;const bm=await createImageBitmap(f),s=Math.min(bm.width,bm.height),c=document.createElement('canvas');c.width=c.height=320;
-c.getContext('2d').drawImage(bm,(bm.width-s)/2,(bm.height-s)/2,s,s,0,0,320,320);const blob=await new Promise(r=>c.toBlob(r,'image/jpeg',.85));
-const path=`${me.id}/${Date.now()}.jpg`;const{error}=await SB.storage.from('avatars').upload(path,blob,{contentType:'image/jpeg'});if(error)return toast('Не загрузилось');
-const url=SB.storage.from('avatars').getPublicUrl(path).data.publicUrl;await SB.from('profiles').update({avatar_url:url}).eq('id',me.id);prof.avatar_url=url;toast('Аватарка обновлена');drawList()}
+
+
+/* ---------- фото, ответы, статус, профили ---------- */
+async function img(f,w,h){const bm=await createImageBitmap(f);let cw,ch,sx=0,sy=0,sw=bm.width,sh=bm.height;
+if(h){cw=w;ch=h;const k=Math.max(w/bm.width,h/bm.height);sw=w/k;sh=h/k;sx=(bm.width-sw)/2;sy=(bm.height-sh)/2}else{const k=Math.min(1,w/Math.max(bm.width,bm.height));cw=Math.round(bm.width*k);ch=Math.round(bm.height*k)}
+const c=document.createElement('canvas');c.width=cw;c.height=ch;c.getContext('2d').drawImage(bm,sx,sy,sw,sh,0,0,cw,ch);return new Promise(r=>c.toBlob(r,'image/jpeg',.85))}
+async function up(bucket,blob){const path=`${me.id}/${Date.now()}.jpg`;const{error}=await SB.storage.from(bucket).upload(path,blob,{contentType:'image/jpeg'});return error?null:SB.storage.from(bucket).getPublicUrl(path).data.publicUrl}
+async function upAv(f){if(!f)return;const url=await up('avatars',await img(f,320,320));if(!url)return toast('Не загрузилось');await SB.from('profiles').update({avatar_url:url}).eq('id',me.id);prof.avatar_url=url;toast('Аватарка обновлена');drawList()}
+async function upBn(f){if(!f)return;const url=await up('avatars',await img(f,1000,400));if(!url)return toast('Не загрузилось');const{error}=await SB.from('profiles').update({banner_url:url}).eq('id',me.id);if(error)return toast('Нужно обновить базу (logos-update.sql)');prof.banner_url=url;toast('Баннер обновлён');drawList()}
+async function ins(r){const{data,error}=await SB.from('messages').insert({chat_id:cur.id,reply_to:rp?.id||null,...r}).select().single();if(error)return toast('Не отправилось');rp=null;drawRp();if(!msgs.find(m=>m.id===data.id)){nw=data.id;msgs.push(data);drawMsgs()}await loadChats();if(tab==='chats')drawList()}
+async function sendPhoto(f){if(!f||!cur)return;toast('Отправка фото…');const url=await up('media',await img(f,1280));if(!url)return toast('Не загрузилось');await ins({kind:'photo',media_url:url})}
+function mh(m,i){const mine=m.sender_id===me.id;let q='';
+if(m.reply_to){const r=msgs.find(x=>x.id===m.reply_to);q=r?`<div class="rq" onclick="event.stopPropagation();jump(${r.id})"><b>${r.sender_id===me.id?'Вы':esc(r.sender_id?cur.name:'Logos')}</b><div>${esc(prev(r))}</div></div>`:'<div class="rq"><div>Сообщение недоступно</div></div>'}
+const b=m.kind==='photo'&&m.media_url?`<img class="ph" src="${esc(m.media_url)}" onclick="view(this.src)">`+(m.body?`<div>${fx(m.body)}</div>`:''):fx(m.kind==='text'?m.body:prev(m));
+return `<div class="m${mine?' me':''}${m.id===nw?' pop':''}" id="m${m.id}" data-i="${i}" ondblclick="setRp(${i})">${m.sender_id?'':'<b>Logos</b><br>'}${q}${b}<time>${fmt(m.created_at)}</time></div>`}
+function setRp(i){if(cur?.kind==='channel')return;rp=msgs[i];drawRp();$('#in')?.focus()}
+function drawRp(){const e=$('#rpb');if(!e)return;e.innerHTML=rp?`<div class="rpl"><div class="b"><b>Ответ ${rp.sender_id===me.id?'себе':esc(rp.sender_id?cur.name:'Logos')}</b><div class="sub">${esc(prev(rp))}</div></div><button onclick="rp=null;drawRp()">✕</button></div>`:''}
+function jump(id){const e=$('#m'+id);if(!e)return;e.scrollIntoView({behavior:'smooth',block:'center'});e.classList.remove('flash');void e.offsetWidth;e.classList.add('flash')}
+let sw=null;
+function swInit(){const ms=$('#ms');if(!ms)return;
+ms.ontouchstart=ev=>{const m=ev.target.closest('.m');sw=m?{m,x:ev.touches[0].clientX,y:ev.touches[0].clientY,d:0}:null};
+ms.ontouchmove=ev=>{if(!sw)return;const dx=ev.touches[0].clientX-sw.x,dy=ev.touches[0].clientY-sw.y;if(!sw.d&&Math.abs(dy)>Math.abs(dx)){sw=null;return}if(dx<0){sw.d=Math.min(-dx,80);sw.m.style.transition='none';sw.m.style.transform=`translateX(${-sw.d}px)`}};
+ms.ontouchend=()=>{if(!sw)return;const{m,d}=sw;m.style.transition='transform .2s';m.style.transform='';if(d>55){setRp(+m.dataset.i);navigator.vibrate?.(10)}sw=null}}
+function view(u){const o=document.createElement('div');o.className='imgov';o.innerHTML=`<img src="${esc(u)}">`;o.onclick=()=>o.remove();document.body.appendChild(o)}
+function ago(ls){const d=new Date(ls),n=new Date(),s=(n-d)/1000;if(s<70)return'в сети';const hm=d.toTimeString().slice(0,5);if(s<3600)return`был(а) ${Math.round(s/60)} мин. назад`;if(d.toDateString()===n.toDateString())return`был(а) в ${hm}`;if(d.toDateString()===new Date(n-864e5).toDateString())return`был(а) вчера в ${hm}`;return`был(а) ${d.toLocaleDateString('ru',{day:'numeric',month:'short'})}`}
+function status(c){if(c.kind!=='dm')return c.kind==='channel'?'канал':'группа';if(online.has(c.pid))return'в сети';return c.ls?ago(c.ls):''}
+function drawStatus(){const e=$('#st');if(e&&cur){cur=chats.find(c=>c.id===cur.id)||cur;e.textContent=status(cur)}}
+const beat=()=>SB.from('profiles').update({last_seen:new Date().toISOString()}).eq('id',me.id);
+function live(){beat();setInterval(async()=>{beat();await loadChats();drawStatus()},30000);document.addEventListener('visibilitychange',()=>{if(!document.hidden)beat()});
+const pc=SB.channel('online',{config:{presence:{key:me.id}}});pc.on('presence',{event:'sync'},()=>{online=new Set(Object.keys(pc.presenceState()));drawStatus()}).subscribe(async s=>{if(s==='SUBSCRIBED')await pc.track({at:Date.now()})})}
+function showP(){const c=cur;if(!c||c.kind!=='dm')return;const o=document.createElement('div');o.className='ov';
+o.innerHTML=`<div class="bn" style="${c.banner?`background-image:url(${esc(c.banner)})`:''}"><button class="ib" style="position:absolute;left:10px;top:10px;background:#0008;border-radius:50%" onclick="this.closest('.ov').remove()">${ic('back')}</button><div class="avw">${av(c,92)}</div></div><div style="padding:0 16px"><div style="font-size:22px;font-weight:700">${esc(c.name)}</div><div class="sub">${esc(status(c))}</div><div style="margin:12px 0 2px;color:var(--mu);font-size:12px">Имя пользователя</div><div>@${esc(c.user||'')}</div>${c.bio?`<div style="margin:12px 0 2px;color:var(--mu);font-size:12px">О себе</div><div>${esc(c.bio)}</div>`:''}</div>`;document.body.appendChild(o)}
 
 const DEMO=false,PEOPLE=[],DM={};
 (async()=>{const{data:{session}}=await SB.auth.getSession();session?start(session.user):login()})();
