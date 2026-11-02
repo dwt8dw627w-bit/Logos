@@ -624,7 +624,7 @@ function rowInit(){const L=$('#list');
 L.addEventListener('click',e=>{clearTimeout(tapT);if(e.target.closest('.acts'))return;if(openRow){e.stopPropagation();e.preventDefault();closeRow();return}if(wasOpen){wasOpen=false;e.stopPropagation();e.preventDefault();return}const r=e.target.closest('.sr .row');if(r&&r.dataset.id&&!swiped)openChat(r.dataset.id)},true);
 L.addEventListener('touchstart',e=>{if(e.target.closest('.acts')){rs=null;return}const r=e.target.closest('.sr .row');wasOpen=!!openRow;if(!r){closeRow();rs=null;return}if(openRow&&openRow!==r)closeRow();rs={r,x:e.touches[0].clientX,y:e.touches[0].clientY,o:openRow===r?-210:0,m:0,g:false}},{passive:true});
 L.addEventListener('touchmove',e=>{if(!rs)return;const dx=e.touches[0].clientX-rs.x,dy=e.touches[0].clientY-rs.y;if(!rs.g){if(Math.abs(dy)>Math.abs(dx)){rs=null;return}if(Math.abs(dx)>8){rs.g=true;rs.r.parentElement.classList.add('sw')}else return}swiped=true;rs.m=Math.max(-230,Math.min(0,rs.o+dx));rs.r.style.transition='none';rs.r.style.transform=`translateX(${rs.m}px)`},{passive:true});
-L.addEventListener('touchend',()=>{setTimeout(()=>swiped=false,60);if(!rs)return;const{r,m,g}=rs;rs=null;if(!g){if(!wasOpen&&r.dataset.id){clearTimeout(tapT);tapT=setTimeout(()=>openChat(r.dataset.id),380)}return}r.style.transition='';if(m<-90){r.style.transform='translateX(-210px)';openRow=r}else{if(openRow===r)openRow=null;shut(r)}})}
+L.addEventListener('touchend',()=>{setTimeout(()=>swiped=false,60);if(!rs)return;const{r,m,g}=rs;rs=null;if(!g){if(!wasOpen&&r.dataset.id){clearTimeout(tapT);tapT=setTimeout(()=>openChat(r.dataset.id),0)}return}r.style.transition='';if(m<-90){r.style.transform='translateX(-210px)';openRow=r}else{if(openRow===r)openRow=null;shut(r)}})}
 function updNav(){const n=$('#tb');if(!n)return;const T=[['chats','chat','Чаты'],['contacts','users','Контакты'],['settings','gear','Настройки']];
 if(!n.firstChild)n.innerHTML=`<div class="tbp"><i class="tbl"></i>${T.map(x=>`<button onclick="go('${x[0]}')">${ic(x[1])}<span>${x[2]}</span>${x[0]==='chats'?'<b class="tbb"></b>':''}</button>`).join('')}</div><button class="tbs" onclick="go('search')">${ic('search')}</button>`;
 const i=tab==='search'?-1:Math.max(0,T.findIndex(x=>x[0]===tab)),l=n.querySelector('.tbl');l.style.opacity=i<0?0:1;if(i>=0)l.style.transform=`translateX(${i*100}%)`;
@@ -1137,7 +1137,7 @@ if(PIN())setTimeout(lockUI,0);
 /* ---- v14.2 ---- */
 Object.assign(P,{pencil:'<path d="M4 20l1-4L16.5 4.5a2 2 0 0 1 3 3L8 19z"/><path d="M14.5 6.5l3 3"/>',wall:'<rect x="3.5" y="4.5" width="17" height="15" rx="3.5"/><path d="M3.8 16.5l4.6-4.2 3 2.6 2.4-2 5.4 4.8"/><path d="M16.5 7.5v3M15 9h3"/>',gridm:'<rect x="4" y="4" width="7" height="7" rx="2"/><rect x="13" y="4" width="7" height="7" rx="2"/><rect x="4" y="13" width="7" height="7" rx="2"/><rect x="13" y="13" width="7" height="7" rx="2"/>',stor:'<circle cx="12" cy="12" r="8.5" stroke-dasharray="3.4 2.6"/><circle cx="12" cy="12" r="3.4"/>',mic2:'<rect x="9" y="3.5" width="6" height="11" rx="3"/><path d="M5.5 11.5a6.5 6.5 0 0 0 13 0M12 18v2.5"/>'});
 /* капля как в TG: зажал и тащишь */
-(()=>{let d=null,sup=0;const T=['chats','contacts','calls','settings'];
+(()=>{let d=null,sup=0;const T=['chats','calls','contacts','settings'];
 document.addEventListener('pointerdown',e=>{const p=e.target.closest?.('.tbp');if(!p||!(tab in TO))return;const l=p.querySelector('.tbl'),b=l.getBoundingClientRect(),w=b.width,inside=e.clientX>=b.left&&e.clientX<=b.right;d={p,l,w,x0:e.clientX,org:b.left-TO[tab]*w,off:inside?b.left-e.clientX:-w/2,mv:0,pos:TO[tab]*w}});
 document.addEventListener('pointermove',e=>{if(!d)return;if(!d.mv&&Math.abs(e.clientX-d.x0)<5)return;if(!d.mv){d.mv=1;d.l.classList.add('drag');d.p.classList.add('dragging');d.l.style.transition='box-shadow .25s,scale .3s cubic-bezier(.3,1.5,.5,1)';vib(8)}const np=Math.max(0,Math.min(3*d.w,e.clientX+d.off-d.org)),k0=Math.round(d.pos/d.w);d.pos=np;d.l.style.transform=`translateX(${np}px)`;const k=Math.round(np/d.w);if(k!==k0)vib(6);d.p.querySelectorAll('button').forEach((b,i)=>b.classList.toggle('on',i===k))});
 const up=()=>{if(!d)return;const D=d;d=null;if(!D.mv)return;sup=Date.now();const k=Math.round(D.pos/D.w);D.l.classList.remove('drag');D.p.classList.remove('dragging');D.l.style.transition='';D.l.style.transform=`translateX(${k*D.w}px)`;vib(10);if(T[k]!==tab)go(T[k]);else updNav()};
@@ -1251,7 +1251,7 @@ document.querySelectorAll('.cam').forEach(b=>b.innerHTML=ic('circle'));
 </script>
 <style>
 /* фон чата без точек */
-.main.wp .msgs{background-image:none!important}.pvw{background-image:none!important}.pvw *{background-image:none!important}
+.main.wp .msgs{background-image:none!important}
 /* строка ввода: плавное появление кнопки отправки */
 .comp{backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px)}
 .comp input#in{transition:box-shadow .3s,background .3s;border-radius:24px}.comp input#in:focus{box-shadow:0 0 0 3px #ffffff14}
@@ -1295,9 +1295,9 @@ return `<div class="hd"><h1>Звонки</h1>${CALLS.length?`<button class="ib" 
 window.cfs=v=>{cf=v;drawList()};window.clrCalls=()=>{PF.cc=new Date().toISOString();savePF();drawList();updNav();toast('История звонков очищена')};
 window.callBack=async(id,v)=>{await openChat(id);startCall(!!v)};
 /* --- навигация: 4 вкладки, один поиск --- */
-TO.calls=2;TO.settings=3;
-updNav=function(){const n=$('#tb');if(!n)return;const T=[['chats','chat','Чаты'],['contacts','users','Контакты'],['calls','cphone','Звонки'],['settings','gear','Настройки']];
-if(n.dataset.v!=='4'){n.dataset.v='4';n.innerHTML=`<div class="tbp"><i class="tbl"></i>${T.map(x=>`<button onclick="go('${x[0]}')">${ic(x[1])}<span>${x[2]}</span>${x[0]==='chats'||x[0]==='calls'?'<b class="tbb"></b>':''}</button>`).join('')}</div>`}
+TO.calls=1;TO.contacts=2;TO.settings=3;
+updNav=function(){const n=$('#tb');if(!n)return;const T=[['chats','chat','Чаты'],['calls','cphone','Звонки'],['contacts','users','Контакты'],['settings','gear','Настройки']];
+if(n.dataset.v!=='5'){n.dataset.v='5';n.innerHTML=`<div class="tbp"><i class="tbl"></i>${T.map(x=>`<button onclick="go('${x[0]}')">${ic(x[1])}<span>${x[2]}</span>${x[0]==='chats'||x[0]==='calls'?'<b class="tbb"></b>':''}</button>`).join('')}</div>`}
 const at=tab==='search'?(sFrom||'chats'):tab,i=Math.max(0,T.findIndex(x=>x[0]===at)),l=n.querySelector('.tbl');l.style.opacity=1;l.style.transform=`translateX(${i*100}%)`;
 n.querySelectorAll('.tbp button').forEach((b,k)=>b.classList.toggle('on',k===i));
 const u=chats.reduce((a,c)=>a+(c.muted?0:c.un||0),0),m=missedN(),bb=n.querySelectorAll('.tbb');
@@ -1349,4 +1349,137 @@ const _ci2=callInit;callInit=function(){_ci2();try{SB.channel('calls-rt').on('po
 .tk.pp svg{animation:tkp .4s cubic-bezier(.3,1.7,.5,1)}@keyframes tkp{from{transform:scale(.4);opacity:.3}}
 .row{transition:background .2s,transform .2s cubic-bezier(.3,1.5,.5,1)}.row:active{transform:scale(.98)}
 </style>
+<style>
+/* ===== v16: компактно, современно ===== */
+*{-webkit-tap-highlight-color:transparent}button,.row,.it,.tl,.snb{touch-action:manipulation}
+.pvw::before{display:none!important}
+.pvw{height:60px;padding:13px 6px 5px;gap:3px}.pvw u{height:13px}.pvw u.m{background:var(--me)!important}
+.thg{gap:8px}.tl{padding:5px 5px 6px;border-radius:14px;font-size:12px}
+.hd{padding:10px 16px 4px}.hd h1{font-size:28px}
+.row{padding:7px 14px;gap:11px}.sr .row::after{left:76px}
+.srch{padding:2px 14px 6px!important}
+.sbar{background:none!important;border:0!important;box-shadow:none!important;margin:0!important;padding:2px 14px 8px!important;gap:12px}
+.sty small{font-size:10.5px}
+/* свайп чата */
+.acts{top:0!important;bottom:0!important;padding:5px 8px 5px 0;gap:6px;align-items:stretch}
+.acts button{width:60px!important;border-radius:18px!important;font-size:10.5px;font-weight:600}
+.acts .i{width:22px!important;height:22px!important}
+.sr:not(.sw) .acts{visibility:hidden}.sr.out .acts{display:none!important}.sr{contain:layout paint}
+/* шторки */
+.shb{padding:6px 14px calc(14px + env(safe-area-inset-bottom))!important;border-radius:26px 26px 0 0!important}
+.sht{font-size:16px!important;margin-bottom:6px!important}.pl2{margin:9px 2px 4px!important;font-size:12px!important}
+.tgr{padding:9px 2px!important}.tgs{width:44px;height:26px}.tgs::after{width:20px;height:20px}.tgs.on::after{transform:translateX(18px)}
+.sng{grid-template-columns:repeat(4,1fr)!important;gap:6px!important}
+.snb{padding:8px 2px!important;font-size:11.5px!important;border-radius:11px!important}
+.seg button{padding:7px 4px!important;font-size:13px!important}
+.fld input[type=date]{text-align:left;-webkit-appearance:none;min-height:22px;display:block}
+.pfh{display:flex;align-items:center;gap:12px;margin-bottom:10px}.pfh>div{display:flex;gap:8px;flex-wrap:wrap}
+.pfg{display:grid;grid-template-columns:1fr 1fr;gap:8px}.pfg .fld{margin:0!important;padding:8px 12px;border-radius:14px}.pfg .w2{grid-column:1/-1}
+/* создание группы / канала */
+.gk{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px}
+.gk button{display:grid;gap:2px;justify-items:start;text-align:left;padding:12px;border-radius:18px;background:var(--s2);border:2px solid transparent;transition:border-color .25s,background .25s,transform .2s}
+.gk button.on{border-color:var(--ac);background:var(--s3)}.gk i{width:36px;height:36px;border-radius:12px;display:grid;place-items:center;background:var(--s3);margin-bottom:4px}.gk button.on i{background:var(--ac);color:var(--acx)}
+.gk b{font-size:15px}.gk small{color:var(--mu);font-size:11.5px}
+.gnr{display:flex;gap:10px;align-items:center}.gnr .fld{margin:0!important}
+.gav{width:58px;height:58px;border-radius:50%;flex:none;display:grid;place-items:center;font-size:24px;font-weight:700;color:#fff;background:var(--s3);transition:background .3s;box-shadow:inset 0 0 0 1px #ffffff1f}
+.gsr{width:100%;height:42px;margin:10px 0 6px;border-radius:21px;background:var(--s2);padding:0 16px;border:1px solid var(--ln)}
+.gch{display:flex;gap:6px;flex-wrap:wrap}.gch span{padding:4px 10px;border-radius:14px;background:var(--ac);color:var(--acx);font-size:12px;font-weight:600;animation:v14in .25s both}
+.gpl{max-height:30vh!important}.gp{padding:6px 4px!important}
+/* питомец */
+.main>.pet{position:relative;z-index:2}
+.pet{display:flex;align-items:center;gap:10px;margin:6px 10px 0;padding:5px 12px 5px 8px;border-radius:18px;background:var(--s1);border:1px solid var(--ln);cursor:pointer;flex:none;transition:transform .2s}.pet:active{transform:scale(.98)}
+.pav{width:38px;height:38px;flex:none}.pi{flex:1;min-width:0}.pi b{font-size:13.5px;display:flex;align-items:center;gap:6px}.pi em{font-style:normal;font-size:10.5px;font-weight:600;color:var(--mu);background:var(--s3);padding:1px 7px;border-radius:8px}
+.pbar{height:5px;border-radius:3px;background:var(--s3);overflow:hidden;margin-top:4px}.pbar i{display:block;height:100%;border-radius:3px;background:linear-gradient(90deg,var(--ac),var(--ac2));transition:width .8s cubic-bezier(.22,.95,.25,1)}.pbar.big{height:8px;margin:8px 0 4px}
+.pst{font-size:13px;font-weight:700;color:var(--mu);white-space:nowrap}.pst.ok{color:#ffa23d}
+.psv .bd{transform-box:fill-box;transform-origin:50% 100%;animation:pbob 2.6s ease-in-out infinite}.psv .pe{transform-box:fill-box;transform-origin:center;animation:pblink 4.2s infinite}.psv .tw{animation:ptw 1.8s ease-in-out infinite;transform-box:fill-box;transform-origin:center}.psv .au{animation:pau 3s ease-in-out infinite;transform-box:fill-box;transform-origin:center}
+@keyframes pbob{50%{transform:scale(1.045,.95)}}@keyframes pblink{0%,92%,100%{transform:scaleY(1)}95%{transform:scaleY(.08)}}@keyframes ptw{50%{opacity:.2;transform:scale(.6)}}@keyframes pau{50%{opacity:.4;transform:scale(1.06)}}
+.pbig{position:relative;display:grid;place-items:center;margin:4px auto 0;width:170px;height:170px;cursor:pointer}.pbig.jmp .psv{animation:pjmp .55s cubic-bezier(.3,1.6,.5,1)}@keyframes pjmp{30%{transform:translateY(-26px) scale(.94,1.08)}60%{transform:translateY(0) scale(1.1,.9)}}
+.pfx span{position:absolute;left:50%;top:40%;font-size:18px;animation:pfl 1s ease-out forwards;pointer-events:none}@keyframes pfl{to{transform:translate(var(--dx),-90px) scale(1.3);opacity:0}}
+.pnm{display:flex;justify-content:center;align-items:center;gap:6px;font-size:20px;font-weight:800;cursor:pointer}.pnm .i{width:16px;height:16px;opacity:.6}
+.psub{text-align:center;color:var(--mu);font-size:12.5px}
+.pgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:10px 0}.pgrid>div{background:var(--s2);border-radius:14px;padding:9px 4px;text-align:center}.pgrid b{display:block;font-size:19px}.pgrid small{color:var(--mu);font-size:10.5px}
+.pphr{text-align:center;font-size:13.5px;margin:4px 8px 10px;min-height:20px}
+.prd{display:grid;grid-template-columns:repeat(6,1fr);gap:4px}.prd>div{display:grid;justify-items:center;opacity:.35;filter:grayscale(1)}.prd>div.on{opacity:1;filter:none}.prd small{font-size:8.5px;color:var(--mu)}.prd .psv .bd,.prd .psv .pe{animation:none}
+/* звонок */
+.cl{color:#fff!important;--tx:#fff;--mu:#ffffffa6;background:#050507!important;padding:calc(env(safe-area-inset-top) + 52px) 20px calc(env(safe-area-inset-bottom) + 30px)!important}
+.clbg{background:none!important;opacity:1!important;overflow:hidden}
+.clbg::before{content:'';position:absolute;inset:-25%;background:var(--cav,none) center/cover,radial-gradient(60% 40% at 50% 20%,var(--ac),transparent 70%);filter:blur(64px) saturate(1.5);opacity:.5;animation:clbm 9s ease-in-out infinite alternate}
+.clbg::after{content:'';position:absolute;inset:0;background:linear-gradient(#0000 25%,#000d 100%)}
+@keyframes clbm{to{transform:scale(1.15) rotate(6deg)}}
+.cltop::before{content:'Logos · звонок';font-size:11.5px;letter-spacing:.14em;text-transform:uppercase;opacity:.55;margin-bottom:22px}
+.clav,.clav .av{width:148px!important;height:148px!important}.clav .av{box-shadow:0 0 0 4px #ffffff22,0 24px 60px #000a}
+.cln{font-size:30px!important;font-weight:800!important;letter-spacing:-.5px}
+.cls{padding:6px 16px;border-radius:20px;background:#ffffff17;-webkit-backdrop-filter:blur(12px);backdrop-filter:blur(12px);color:#fff!important;font-size:14px!important}
+.clb{gap:14px!important;padding:14px 20px;border-radius:44px;background:#ffffff12;-webkit-backdrop-filter:blur(26px);backdrop-filter:blur(26px);border:1px solid #ffffff1a;align-items:flex-start!important}
+.clk{color:#ffffffb8!important;font-size:11px!important}.clk button{width:62px!important;height:62px!important;background:#ffffff1f}.clk .red{background:#ef3f55!important}.clk .grn{background:#22c55e!important}.clk .tog.on{background:#fff!important;color:#111!important}
+</style>
+<script>
+/* ===== v16 ===== */
+(function(){
+Object.assign(P,{
+chat:'<path d="M4 6.5A3.5 3.5 0 0 1 7.5 3h9A3.5 3.5 0 0 1 20 6.5v6a3.5 3.5 0 0 1-3.5 3.5H12l-4.3 3.7c-.6.5-1.7.1-1.7-.7V16A3.5 3.5 0 0 1 4 12.5z"/>',
+cphone:'<path d="M6.6 3.5h2.3a1 1 0 0 1 1 .8l.7 3.2a1 1 0 0 1-.3.9L8.9 9.7a12 12 0 0 0 5.4 5.4l1.3-1.4a1 1 0 0 1 .9-.3l3.2.7a1 1 0 0 1 .8 1v2.3a2 2 0 0 1-2.1 2C10.8 19 5 13.2 4.6 5.6a2 2 0 0 1 2-2.1z"/>',
+users:'<circle cx="12" cy="8.2" r="3.7"/><path d="M4.6 20c.4-4 3.4-6.2 7.4-6.2s7 2.2 7.4 6.2"/>'});
+document.querySelectorAll('.tbp').forEach(e=>e.parentElement&&0);
+/* --- истории наверх, без серой плашки --- */
+const _c3=chatsHTML;chatsHTML=function(){let h=_c3();if(arch)return h;try{const sb=storiesBar();if(!sb||h.indexOf(sb)<0)return h;h=h.replace(sb,'');const i=h.indexOf('<div class="srch"');return i<0?h+sb:h.slice(0,i)+sb+h.slice(i)}catch(e){return h}};
+/* --- профиль без города, компактно --- */
+sheetProf=function(){const f=(l,i,v,x='',c='')=>`<label class="fld ${c}"><small>${l}</small><input id="${i}" value="${esc(v)}" ${x}></label>`;
+sheet('Профиль',`<div class="pfh">${av(prof,60)}<div><label class="sm" style="cursor:pointer">Фото<input type="file" accept="image/*" hidden onchange="upAv(this.files[0])"></label><label class="sm" style="cursor:pointer">Баннер<input type="file" accept="image/*" hidden onchange="upBn(this.files[0])"></label></div></div><div class="pfg">${f('Имя','pn',prof.name||'','','w2')}${f('Имя пользователя','pu','@'+(prof.username||''))}${f('Телефон','pph',prof.phone||'','type="tel" placeholder="+7 …"')}${f('Дата рождения','pbd',prof.birthday||'','type="date"')}${f('Статус','pst',prof.status||'','maxlength="40" placeholder="на связи"')}${f('Ссылка','pws',prof.website||'','maxlength="80" placeholder="https://"','w2')}<label class="fld w2"><small>О себе</small><textarea id="pb" rows="2">${esc(prof.bio||'')}</textarea></label></div><button class="btn" style="width:100%;margin-top:10px" onclick="saveProf()">Сохранить</button>`)};
+/* --- звонок: фон из аватарки --- */
+const _cu=callUI;callUI=function(){_cu();const o=$('#call');if(o&&CL&&CL.avatar&&!o.dataset.a){o.dataset.a=1;o.style.setProperty('--cav','url("'+String(CL.avatar).replace(/"/g,'')+'")')}};
+/* --- переименование людей (видно только вам) --- */
+const nickApply=()=>{const n=PF.nick||{};chats.forEach(c=>{if(c.kind==='dm'&&c.pid&&n[c.pid]){c.rn=c.rn||c.name;c.name=n[c.pid]}});contacts.forEach(p=>{if(p&&n[p.id]){p.rn=p.rn||p.name;p.name=n[p.id]}})};
+const _lc9=loadChats;loadChats=async function(){await _lc9.apply(this,arguments);nickApply()};
+const _lcc=loadContacts;loadContacts=async function(){await _lcc.apply(this,arguments);nickApply();if(tab==='contacts')drawList()};
+window.renameC=pid=>{const c=chats.find(x=>x.pid===pid);if(!c)return;closeSheet(true);sheet('Переименовать',`<div class="sub" style="white-space:normal;margin-bottom:6px">Новое имя увидите только вы. Собеседник останется со своим.</div><label class="fld"><small>Имя</small><input id="rnm" maxlength="40" value="${esc(c.name)}"></label><button class="btn" style="width:100%;margin-top:6px" onclick="renameSave('${pid}')">Сохранить</button>${PF.nick?.[pid]?`<button class="btn" style="width:100%;margin-top:8px;background:var(--s3);color:var(--tx)" onclick="renameSave('${pid}',1)">Вернуть настоящее имя</button>`:''}`);setTimeout(()=>$('#rnm')?.select(),380)};
+window.renameSave=(pid,reset)=>{const v=reset?'':($('#rnm')?.value||'').trim();PF.nick=PF.nick||{};if(v)PF.nick[pid]=v;else delete PF.nick[pid];savePF();
+const c=chats.find(x=>x.pid===pid),p=contacts.find(x=>x&&x.id===pid);[c,p].forEach(o=>{if(o){const orig=o.rn||o.name;o.rn=orig;o.name=v||orig}});
+if(cur&&cur.pid===pid){cur.name=c.name;const n=$('#main .top .n');if(n)n.textContent=c.name}closeSheet();drawList();vib(10);toast(v?'Переименовано':'Имя возвращено')};
+const _sc9=sheetChat;sheetChat=function(){_sc9();if(cur?.kind==='dm'&&cur.pid){$('#sh .shc')?.insertAdjacentHTML('afterbegin',`<button class="xch" onclick="renameC('${cur.pid}')">${ic('pencil')}Переименовать</button>`)}};
+/* --- создание группы / канала --- */
+window.gKind=k=>{GK=k;document.querySelectorAll('.gk button').forEach(b=>b.classList.toggle('on',b.dataset.k===k));const i=$('#gnm');if(i)i.placeholder=k==='group'?'Например: Друзья':'Например: Новости';const t=$('.sht');if(t)t.textContent=k==='group'?'Новая группа':'Новый канал';gAv();vib(8)};
+window.gAv=()=>{const e=$('#gav');if(!e)return;const n=($('#gnm')?.value||'').trim();e.textContent=n?[...n][0].toUpperCase():(GK==='group'?'👥':'📢');e.style.background=n?zgrad(n):''};
+window.gChips=()=>{const e=$('#gch');if(!e)return;e.innerHTML=[...GS].map(id=>{const p=contacts.find(x=>x&&x.id===id);return p?`<span>${esc(p.name)}</span>`:''}).join('')};
+const _gt=gTog;window.gTog=(id,el)=>{_gt(id,el);gChips()};
+window.gFilter=v=>{v=v.toLowerCase().trim();document.querySelectorAll('.gpl .gp').forEach(r=>r.style.display=!v||r.dataset.q.includes(v)?'':'none')};
+window.newGroup=k=>{GK=k||'group';GS=new Set();sheet('Новая группа',`<div class="gk"><button data-k="group" onclick="gKind('group')"><i>${ic('users')}</i><b>Группа</b><small>Пишут все участники</small></button><button data-k="channel" onclick="gKind('channel')"><i>${ic('send')}</i><b>Канал</b><small>Пишете только вы</small></button></div><div class="gnr"><div class="gav" id="gav">👥</div><label class="fld" style="flex:1"><small>Название</small><input id="gnm" maxlength="60" oninput="gAv()"></label></div>${contacts.length?`<input class="gsr" placeholder="Поиск по контактам" oninput="gFilter(this.value)"><div class="gch" id="gch"></div><div class="gpl">${contacts.map(p=>`<div class="row gp" data-q="${esc(((p.name||'')+' '+(p.username||'')).toLowerCase())}" onclick="gTog('${p.id}',this)">${av(p,38)}<div class="b"><div class="n">${esc(p.name)}</div><div class="sub">${at(p.username)}</div></div><i class="gck"></i></div>`).join('')}</div>`:'<div class="sub" style="padding:10px 2px;white-space:normal">Добавьте людей в контакты, чтобы пригласить их. Можно создать и пустой чат.</div>'}<button class="btn" id="gok" style="width:100%;margin-top:10px" onclick="gMake()">Создать</button>`);gKind(GK)};
+/* --- питомец чата --- */
+const PS=[[0,'Яйцо'],[25,'Малыш'],[100,'Подросток'],[260,'Юноша'],[600,'Взрослый'],[1300,'Легенда']],PET={},PH={happy:['Ура, ты сегодня писал(а)! 💛','Я так рад, что вы общаетесь!','Расту с каждым сообщением!'],wait:['Напиши сегодня, чтобы не потерять серию!','Я немного скучаю… напиши что-нибудь','Серия ждёт тебя!'],sad:['Мне грустно… давно не писали','Напиши что-нибудь, и я оживу','Серия прервалась, начнём заново?']};
+let PU=0;const D='#1a1a24';
+window.petSvg=function(st,mood,sz){const id='pg'+(++PU),r=20+st*2.4,cy=64-st*.7,ex=r*.4,ey=cy-r*.08;
+let s=`<svg class="psv" viewBox="0 0 100 100" width="${sz}" height="${sz}"><defs><radialGradient id="${id}" cx="35%" cy="25%" r="85%"><stop offset="0" style="stop-color:var(--ac2)"/><stop offset=".55" style="stop-color:var(--ac)"/><stop offset="1" style="stop-color:var(--ac)"/></radialGradient></defs>`;
+if(st>=5)s+=`<circle class="au" cx="50" cy="52" r="46" style="fill:var(--ac)" opacity=".2"/>`;
+s+='<g class="bd">';
+if(st===0){s+=`<path d="M50 16C67 16 79 44 79 63c0 15-13 23-29 23S21 78 21 63C21 44 33 16 50 16z" fill="url(#${id})"/><path d="M29 60l8-7 6 7 8-8 7 7 9-6" stroke="${D}" stroke-opacity=".3" stroke-width="3" fill="none" stroke-linecap="round" stroke-linejoin="round"/><ellipse cx="40" cy="34" rx="5" ry="8" fill="#fff" opacity=".35" transform="rotate(-20 40 34)"/><path d="M39 72q4 3.5 8 0M54 72q4 3.5 8 0" stroke="${D}" stroke-width="2.6" fill="none" stroke-linecap="round"/>`}
+else{
+if(st>=2)s+=`<ellipse cx="${50-r*.45}" cy="${cy+r*.88}" rx="8" ry="5" style="fill:var(--ac2)"/><ellipse cx="${50+r*.45}" cy="${cy+r*.88}" rx="8" ry="5" style="fill:var(--ac2)"/><ellipse cx="${50-r*.98}" cy="${cy+5}" rx="5.5" ry="9" transform="rotate(25 ${50-r*.98} ${cy+5})" style="fill:var(--ac)"/><ellipse cx="${50+r*.98}" cy="${cy+5}" rx="5.5" ry="9" transform="rotate(-25 ${50+r*.98} ${cy+5})" style="fill:var(--ac)"/>`;
+if(st>=3)s+=`<path d="M${50-r*.75} ${cy-r*.55}l-5-14 13 7z M${50+r*.75} ${cy-r*.55}l5-14-13 7z" style="fill:var(--ac2)"/>`;
+s+=`<ellipse cx="50" cy="${cy}" rx="${r}" ry="${r*.92}" fill="url(#${id})"/>`;
+if(st<=3)s+=`<path d="M50 ${cy-r*.9}q-1-9 4-12" stroke="${D}" stroke-opacity=".5" stroke-width="2.4" fill="none" stroke-linecap="round"/><path d="M54 ${cy-r*.9-12}q9-5 12 2-6 5-12-2z" style="fill:var(--ac2)"/>`;
+if(st===4)s+=`<path d="M${50-r*.62} ${cy+r*.72}q${r*.62} 8 ${r*1.24} 0" stroke="#ff5d8f" stroke-width="5" fill="none" stroke-linecap="round"/>`;
+if(st>=5)s+=`<path d="M${50-13} ${cy-r*.88}l-3-13 8 6 8-10 8 10 8-6-3 13z" fill="#ffd23f" stroke="#e0a800" stroke-width="1.5" stroke-linejoin="round"/><path class="tw" d="M${50+r+2} ${cy-r}l2 5 5 2-5 2-2 5-2-5-5-2 5-2z" fill="#fff"/><path class="tw" style="animation-delay:.7s" d="M${50-r-6} ${cy-4}l1.6 4 4 1.6-4 1.6-1.6 4-1.6-4-4-1.6 4-1.6z" fill="#fff"/>`;
+s+=`<ellipse cx="${50-r*.45}" cy="${cy-r*.45}" rx="${r*.22}" ry="${r*.13}" fill="#fff" opacity=".3" transform="rotate(-30 ${50-r*.45} ${cy-r*.45})"/>`;
+s+=`<g class="pe"><ellipse cx="${50-ex}" cy="${ey}" rx="5.2" ry="${mood==='sad'?4.6:5.8}" fill="#fff"/><ellipse cx="${50+ex}" cy="${ey}" rx="5.2" ry="${mood==='sad'?4.6:5.8}" fill="#fff"/><circle cx="${50-ex+(mood==='wait'?1:0)}" cy="${ey+(mood==='sad'?1.5:mood==='wait'?-1.5:.5)}" r="2.8" fill="${D}"/><circle cx="${50+ex+(mood==='wait'?1:0)}" cy="${ey+(mood==='sad'?1.5:mood==='wait'?-1.5:.5)}" r="2.8" fill="${D}"/></g>`;
+if(mood==='sad')s+=`<path d="M${50-ex-5} ${ey-9}l9 3M${50+ex+5} ${ey-9}l-9 3" stroke="${D}" stroke-width="2" stroke-linecap="round"/><path d="M${50-7} ${cy+r*.5}q7-6 14 0" stroke="${D}" stroke-width="2.6" fill="none" stroke-linecap="round"/><path d="M${50+ex+2} ${ey+7}q-2 4 0 6q2-2 0-6z" fill="#7ec8ff"/>`;
+else if(mood==='wait')s+=`<ellipse cx="50" cy="${cy+r*.46}" rx="3.2" ry="3.8" fill="${D}"/>`;
+else s+=`<path d="M${50-8} ${cy+r*.34}q8 9 16 0" stroke="${D}" stroke-width="2.8" fill="none" stroke-linecap="round"/><circle cx="${50-r*.66}" cy="${cy+r*.28}" r="3.6" fill="#ff7aa8" opacity=".5"/><circle cx="${50+r*.66}" cy="${cy+r*.28}" r="3.6" fill="#ff7aa8" opacity=".5"/>`}
+return s+'</g></svg>'};
+const pname=id=>(PF.pn||{})[id]||'Логи';
+function petStat(id){const d=PET[id];if(!d)return null;const t=new Date(),today=d.days.has(t.toDateString());let s=0,x=new Date(t);if(!today)x.setDate(x.getDate()-1);while(d.days.has(x.toDateString())){s++;x.setDate(x.getDate()-1)}
+const pts=d.total+Math.min(s,60)*12;let st=0;PS.forEach((p,i)=>{if(pts>=p[0])st=i});const nx=PS[st+1],b=PS[st][0];
+return{today,s,pts,st,total:d.total,pr:nx?Math.round((pts-b)/(nx[0]-b)*100):100,need:nx?nx[0]-pts:0,mood:today?'happy':s>0?'wait':'sad'}}
+function petDraw(){const e=$('#pet');if(!e||!cur)return;const s=petStat(cur.id);if(!s){e.innerHTML=`<div class="pav">${petSvg(0,'happy',38)}</div><div class="pi"><b>${esc(pname(cur.id))}</b><div class="pbar"><i style="width:0"></i></div></div>`;return}
+e.innerHTML=`<div class="pav">${petSvg(s.st,s.mood,38)}</div><div class="pi"><b>${esc(pname(cur.id))}<em>ур. ${s.st+1}</em></b><div class="pbar"><i style="width:${s.pr}%"></i></div></div><div class="pst${s.today?' ok':''}">${s.today?'🔥':'💤'} ${s.s}</div>`}
+async function petLoad(id){const d=PET[id];if(d&&Date.now()-d.t<60000)return;try{const r=await SB.from('messages').select('created_at',{count:'exact'}).eq('chat_id',id).order('created_at',{ascending:false}).limit(1500);if(r.error)return;const a=r.data||[];PET[id]={days:new Set(a.map(x=>new Date(x.created_at).toDateString())),total:r.count??a.length,t:Date.now()};if(cur?.id===id)petDraw()}catch(e){}}
+const _am9=addMsg;addMsg=function(m){const r=_am9(m);try{const d=cur&&PET[cur.id];if(d&&m.id!==d.last){d.last=m.id;const o=petStat(cur.id).st;d.total++;d.days.add(new Date().toDateString());const n=petStat(cur.id);petDraw();if(n.st>o){toast('🎉 '+pname(cur.id)+' вырос: '+PS[n.st][1]);tone('magic',.8);vib([30,40,30])}}}catch(e){}return r};
+window.sheetPet=function(){if(!cur)return;const s=petStat(cur.id)||{st:0,mood:'happy',s:0,total:0,pr:0,need:0,pts:0};
+sheet('Питомец чата',`<div class="pbig" onclick="petTap(this)">${petSvg(s.st,s.mood,150)}<div class="pfx"></div></div><div class="pnm" onclick="petName()">${esc(pname(cur.id))} ${ic('pencil')}</div><div class="psub">${PS[s.st][1]} · уровень ${s.st+1}</div><div class="pbar big"><i style="width:${s.pr}%"></i></div><div class="psub">${s.need?`До стадии «${PS[s.st+1][1]}» осталось ${s.need} оч.`:'Максимальная стадия!'}</div><div class="pgrid"><div><b>${s.s}</b><small>дней подряд</small></div><div><b>${s.total}</b><small>сообщений</small></div><div><b>${s.pts}</b><small>очков роста</small></div></div><div class="pphr" id="pphr">${PH[s.mood][0]}</div><div class="prd">${PS.map((p,i)=>`<div class="${i<=s.st?'on':''}">${petSvg(i,'happy',40)}<small>${p[1]}</small></div>`).join('')}</div><div class="psub" style="margin-top:10px">Пишитесь каждый день: серия даёт очки, и питомец растёт. Пропустите день — он загрустит.</div>`)};
+window.petTap=el=>{el.classList.remove('jmp');void el.offsetWidth;el.classList.add('jmp');const f=el.querySelector('.pfx');for(let i=0;i<6;i++){const h=document.createElement('span');h.textContent=['❤️','💛','✨','💜'][i%4];h.style.setProperty('--dx',(Math.random()*90-45)+'px');h.style.animationDelay=i*70+'ms';f.appendChild(h);setTimeout(()=>h.remove(),1200)}tone('pop',.5);vib(10);const s=petStat(cur.id),a=PH[s?s.mood:'happy'],p=$('#pphr');if(p)p.textContent=a[Math.floor(Math.random()*a.length)]};
+window.petName=()=>{closeSheet(true);sheet('Имя питомца',`<label class="fld"><small>Как его зовут?</small><input id="pnm2" maxlength="16" value="${esc(pname(cur.id))}"></label><button class="btn" style="width:100%;margin-top:8px" onclick="petSaveName()">Сохранить</button>`);setTimeout(()=>$('#pnm2')?.select(),380)};
+window.petSaveName=()=>{const v=($('#pnm2')?.value||'').trim();PF.pn=PF.pn||{};if(v)PF.pn[cur.id]=v;else delete PF.pn[cur.id];savePF();closeSheet();petDraw();vib(8)};
+const _dm9=drawMain;drawMain=function(){_dm9();return;const m=$('#main');if(!m||!cur||cur.kind==='channel')return;const t=m.querySelector('.top');if(!t||m.querySelector('#pet'))return;t.insertAdjacentHTML('afterend','<div class="pet" id="pet" onclick="sheetPet()"></div>');petDraw();petLoad(cur.id)};
+if(typeof applyPF==='function')applyPF();
+})();
+</script>
 </body></html>
