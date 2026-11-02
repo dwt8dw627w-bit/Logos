@@ -557,7 +557,7 @@ if(k>-1)msgs[k]=data;if(el){el.id='m'+data.id;const tk=el.querySelector('.tk');i
 await loadChats();if(tab==='chats')drawList()}
 
 /* ---------- профиль ---------- */
-async function saveProf0(){const u={name:$('#pn').value.trim()||prof.name,username:$('#pu').value.trim().replace(/^@/,'').toLowerCase(),bio:$('#pb').value.trim(),phone:$('#pph').value.trim()};
+async function saveProf0(){{const _u=($('#pu')?.value||'').trim().replace(/^@/,'').toLowerCase();if(_u&&!/^[a-z0-9_]{3,32}$/.test(_u))return toast('Ник: 3–32 символа, только a-z, 0-9 и _')}const u={name:$('#pn').value.trim()||prof.name,username:($('#pu').value||'').trim().replace(/^@/,'').toLowerCase().replace(/[^a-z0-9_]/g,''),bio:$('#pb').value.trim(),phone:$('#pph').value.trim()};
 let r=await SB.from('profiles').update(u).eq('id',me.id);
 if(r.error&&r.error.code!=='23505'){const{phone,...u2}=u;r=await SB.from('profiles').update(u2).eq('id',me.id);if(!r.error){PF.phone=phone;savePF();Object.assign(prof,u2);prof.phone=phone;toast('Телефон сохранён только у вас (нужен logos-update5.sql)');closeSheet();drawList();return}}
 if(r.error)return toast(r.error.code==='23505'?'Это имя занято':'Ошибка');Object.assign(prof,u);toast('Сохранено');closeSheet();drawList()}
@@ -878,7 +878,7 @@ function setSk(v,el){PF.sk=v;savePF();mark(el);tone(v);vib(8)}
 function sheetPriv(){const v=PV(),g=k=>v[k]||'all';sheet('Конфиденциальность',`<div class="pl2">Кто видит мой номер телефона</div>${seg([['all','Все'],['contacts','Контакты'],['nobody','Никто']],g('phone'),"setPv.bind(null,'phone')")}<div class="pl2">Кто видит время захода</div>${seg([['all','Все'],['nobody','Никто']],g('seen'),"setPv.bind(null,'seen')")}<div class="pl2">Кто видит день рождения</div>${seg([['all','Все'],['nobody','Никто']],g('bday'),"setPv.bind(null,'bday')")}<div class="pl2">Кто видит моё имя пользователя</div>${seg([['all','Все'],['nobody','Никто']],g('user'),"setPv.bind(null,'user')")}<div class="pl2">Безопасность</div>${tg('pb','Скрывать экран при сворачивании')}<button class="btn" style="width:100%;background:var(--s3);color:var(--tx);margin-top:8px" onclick="sheetPw()">Сменить пароль</button>`)}
 function sheetPw(){sheet('Сменить пароль',`<label class="fld"><small>Новый пароль</small><input id="np1" type="password" autocomplete="new-password" placeholder="Минимум 6 символов"></label><label class="fld"><small>Повторите пароль</small><input id="np2" type="password" autocomplete="new-password"></label><button class="btn" style="width:100%;margin-top:8px" onclick="savePw()">Сохранить</button>`)}
 async function savePw(){const a=$('#np1').value,b=$('#np2').value;if(a.length<6)return toast('Минимум 6 символов');if(a!==b)return toast('Пароли не совпадают');const{error}=await SB.auth.updateUser({password:a});if(error)return toast(error.message);closeSheet();toast('Пароль изменён')}
-function sheetAbout(){sheet('Logos',`<div style="text-align:center;padding:8px 0 4px">${LOGO(64)}<div style="font-weight:700;margin-top:8px">Logos v14.4</div><div class="sub">${esc(me.email)}</div></div>`)}
+function sheetAbout(){sheet('Logos',`<div style="text-align:center;padding:8px 0 4px">${LOGO(64)}<div style="font-weight:700;margin-top:8px">Logos v14.5</div><div class="sub">${esc(me.email)}</div></div>`)}
 
 /* ---- звонки: WebRTC, сигналы идут через Supabase Realtime (ничего в базе менять не нужно) ---- */
 const ICE={iceServers:[{urls:['stun:stun.l.google.com:19302','stun:stun1.l.google.com:19302']},{urls:['turn:openrelay.metered.ca:80','turn:openrelay.metered.ca:443','turn:openrelay.metered.ca:443?transport=tcp'],username:'openrelayproject',credential:'openrelayproject'}]};
@@ -1228,5 +1228,45 @@ new MutationObserver(()=>{const c=document.querySelector('#lc[data-t=search], #l
 .btn,.ib,.sm,.b2{transition:transform .2s cubic-bezier(.3,1.6,.5,1),opacity .2s,background .2s}.btn:active,.ib:active,.sm:active,.b2:active{transform:scale(.94)}
 .btn{border-radius:16px;min-height:50px;font-weight:600}
 .shb{border-radius:30px 30px 0 0;background:linear-gradient(180deg,#1d1d1f,var(--s1))}
+</style>
+<script>
+/* v14.5 */
+(function(){
+/* ники: только a-z 0-9 _ , без пробелов */
+const fixU=t=>{const v=t.value.replace(/^@/,'').toLowerCase().replace(/[^a-z0-9_]/g,'').slice(0,32);if(v!==t.value)t.value=v};
+document.addEventListener('focusin',e=>{const t=e.target;if(t.id==='pu'){t.setAttribute('autocapitalize','none');t.setAttribute('autocorrect','off');t.setAttribute('spellcheck','false');t.maxLength=32;fixU(t)}});
+document.addEventListener('input',e=>{if(e.target.id==='pu')fixU(e.target)},true);
+document.addEventListener('keydown',e=>{if(e.target.id==='pu'&&e.key===' ')e.preventDefault()},true);
+/* клавиатура не закрывается при отправке */
+['mousedown','pointerdown'].forEach(ev=>document.addEventListener(ev,e=>{if(e.target.closest&&e.target.closest('.snd'))e.preventDefault()},true));
+const _s=send;send=async function(){const i=document.getElementById('in');const p=_s.apply(this,arguments);try{i&&i.focus({preventScroll:true})}catch(x){}return p};
+/* звонки: сброс «залипшего» звонка и повторной подписки */
+setInterval(()=>{if(CL&&!CL.born)CL.born=Date.now()},300);
+const _os=onSig;onSig=async function(m){if(m&&m.t==='invite'&&CL&&CL.id!==m.id){const age=Date.now()-(CL.born||Date.now());if(!document.getElementById('call')||(CL.state==='ring'&&age>52000)||(CL.state==='conn'&&age>40000&&!(CL.pc&&CL.pc.connectionState==='connected'))){try{clearInterval(CL.iv);clearTimeout(CL.to2);clearInterval(CL.tm);CL.pc&&CL.pc.close();CL.stream&&CL.stream.getTracks().forEach(t=>t.stop())}catch(e){}ringStop();CL=null;const o=document.getElementById('call');o&&o.remove()}}return _os(m)};
+const _ci=callInit;callInit=function(){try{inbox&&SB.removeChannel(inbox)}catch(e){}_ci()};
+/* новая иконка кружка */
+Object.assign(P,{circle:'<circle cx="12" cy="12" r="9.4"/><circle cx="12" cy="12" r="5.4"/><circle cx="12" cy="12" r="1.7" fill="currentColor"/><path d="M17.6 6.4h.01" stroke-width="2.8"/>'});
+document.querySelectorAll('.cam').forEach(b=>b.innerHTML=ic('circle'));
+})();
+</script>
+<style>
+/* фон чата без точек */
+.main.wp .msgs{background-image:none!important}.pvw{background-image:none!important}.pvw *{background-image:none!important}
+/* строка ввода: плавное появление кнопки отправки */
+.comp{backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px)}
+.comp input#in{transition:box-shadow .3s,background .3s;border-radius:24px}.comp input#in:focus{box-shadow:0 0 0 3px #ffffff14}
+.cact,.cact .cam,.cact .mic,.cact .snd,.stb{transition:all .38s cubic-bezier(.22,.95,.25,1)!important;will-change:transform,opacity,width}
+.cact{contain:layout}
+.comp.has .snd{box-shadow:0 4px 16px #0006;animation:sndp .4s cubic-bezier(.3,1.7,.5,1)}
+@keyframes sndp{from{transform:scale(.4) rotate(-40deg)}}
+/* кнопка кружка */
+.cact .cam{background:linear-gradient(135deg,#ffffff26,#ffffff0a);border:1px solid #ffffff26;border-radius:50%}
+.cact .cam .i{animation:camb 3.2s ease-in-out infinite}
+@keyframes camb{0%,100%{transform:scale(1) rotate(0)}50%{transform:scale(1.12) rotate(90deg)}}
+.cact .cam:active{transform:scale(.85)}
+/* сообщения появляются плавно */
+.mr.pop .m{animation:msgin .42s cubic-bezier(.22,.95,.25,1)}
+@keyframes msgin{from{opacity:0;transform:translateY(14px) scale(.92)}}
+.msgs{scroll-behavior:smooth;-webkit-overflow-scrolling:touch;overscroll-behavior:contain}
 </style>
 </body></html>
