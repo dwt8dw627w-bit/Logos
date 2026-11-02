@@ -1137,9 +1137,9 @@ if(PIN())setTimeout(lockUI,0);
 /* ---- v14.2 ---- */
 Object.assign(P,{pencil:'<path d="M4 20l1-4L16.5 4.5a2 2 0 0 1 3 3L8 19z"/><path d="M14.5 6.5l3 3"/>',wall:'<rect x="3.5" y="4.5" width="17" height="15" rx="3.5"/><path d="M3.8 16.5l4.6-4.2 3 2.6 2.4-2 5.4 4.8"/><path d="M16.5 7.5v3M15 9h3"/>',gridm:'<rect x="4" y="4" width="7" height="7" rx="2"/><rect x="13" y="4" width="7" height="7" rx="2"/><rect x="4" y="13" width="7" height="7" rx="2"/><rect x="13" y="13" width="7" height="7" rx="2"/>',stor:'<circle cx="12" cy="12" r="8.5" stroke-dasharray="3.4 2.6"/><circle cx="12" cy="12" r="3.4"/>',mic2:'<rect x="9" y="3.5" width="6" height="11" rx="3"/><path d="M5.5 11.5a6.5 6.5 0 0 0 13 0M12 18v2.5"/>'});
 /* капля как в TG: зажал и тащишь */
-(()=>{let d=null,sup=0;const T=['chats','contacts','settings'];
+(()=>{let d=null,sup=0;const T=['chats','contacts','calls','settings'];
 document.addEventListener('pointerdown',e=>{const p=e.target.closest?.('.tbp');if(!p||!(tab in TO))return;const l=p.querySelector('.tbl'),b=l.getBoundingClientRect(),w=b.width,inside=e.clientX>=b.left&&e.clientX<=b.right;d={p,l,w,x0:e.clientX,org:b.left-TO[tab]*w,off:inside?b.left-e.clientX:-w/2,mv:0,pos:TO[tab]*w}});
-document.addEventListener('pointermove',e=>{if(!d)return;if(!d.mv&&Math.abs(e.clientX-d.x0)<5)return;if(!d.mv){d.mv=1;d.l.classList.add('drag');d.p.classList.add('dragging');d.l.style.transition='box-shadow .25s,scale .3s cubic-bezier(.3,1.5,.5,1)';vib(8)}const np=Math.max(0,Math.min(2*d.w,e.clientX+d.off-d.org)),k0=Math.round(d.pos/d.w);d.pos=np;d.l.style.transform=`translateX(${np}px)`;const k=Math.round(np/d.w);if(k!==k0)vib(6);d.p.querySelectorAll('button').forEach((b,i)=>b.classList.toggle('on',i===k))});
+document.addEventListener('pointermove',e=>{if(!d)return;if(!d.mv&&Math.abs(e.clientX-d.x0)<5)return;if(!d.mv){d.mv=1;d.l.classList.add('drag');d.p.classList.add('dragging');d.l.style.transition='box-shadow .25s,scale .3s cubic-bezier(.3,1.5,.5,1)';vib(8)}const np=Math.max(0,Math.min(3*d.w,e.clientX+d.off-d.org)),k0=Math.round(d.pos/d.w);d.pos=np;d.l.style.transform=`translateX(${np}px)`;const k=Math.round(np/d.w);if(k!==k0)vib(6);d.p.querySelectorAll('button').forEach((b,i)=>b.classList.toggle('on',i===k))});
 const up=()=>{if(!d)return;const D=d;d=null;if(!D.mv)return;sup=Date.now();const k=Math.round(D.pos/D.w);D.l.classList.remove('drag');D.p.classList.remove('dragging');D.l.style.transition='';D.l.style.transform=`translateX(${k*D.w}px)`;vib(10);if(T[k]!==tab)go(T[k]);else updNav()};
 document.addEventListener('pointerup',up);document.addEventListener('pointercancel',up);
 document.addEventListener('click',e=>{if(Date.now()-sup<350){e.stopPropagation();e.preventDefault()}},true)})();
@@ -1268,5 +1268,85 @@ document.querySelectorAll('.cam').forEach(b=>b.innerHTML=ic('circle'));
 .mr.pop .m{animation:msgin .42s cubic-bezier(.22,.95,.25,1)}
 @keyframes msgin{from{opacity:0;transform:translateY(14px) scale(.92)}}
 .msgs{scroll-behavior:smooth;-webkit-overflow-scrolling:touch;overscroll-behavior:contain}
+</style>
+<script>
+/* ===== v15: звонки, галочки, группы/каналы ===== */
+(function(){
+Object.assign(P,{cphone:'<path d="M5 4h4l2 5-2.5 1.5a11 11 0 0 0 5 5L15 13l5 2v4a2 2 0 0 1-2 2A16 16 0 0 1 3 6a2 2 0 0 1 2-2z"/>',cplus:'<path d="M12 5v14M5 12h14"/>',cvid:'<rect x="3" y="6" width="12" height="12" rx="2.5"/><path d="m15 10 6-3v10l-6-3"/>'});
+const RD={},GM={};let CALLS=[],cf='all',CSP='',GK='group',GS=new Set();
+const isCall=b=>typeof b==='string'&&/^(?:(?:Видеозвонок|Звонок)(?:, [\d:]+)?|Звонок (?:отклонён|завершён)|(?:Пропущенный|Отменённый) звонок|Абонент занят|Не удалось соединиться)$/.test(b);
+function cinfo(m){const mine=m.sender_id===me.id,b=m.body,v=/^Видео/.test(b),d=(b.match(/, ([\d:]+)$/)||[])[1]||'',vt=v?' видеозвонок':' звонок';let t,miss=0;
+if(d)t=(mine?'Исходящий':'Входящий')+vt;
+else if(/отклонён/.test(b))t=mine?'Собеседник отклонил':'Вы отклонили';
+else if(/Пропущенный|Отменённый/.test(b)){if(mine)t='Нет ответа';else{t='Пропущенный'+vt;miss=1}}
+else if(/занят/.test(b)){t=mine?'Абонент занят':'Пропущенный звонок';miss=!mine?1:0}
+else t=mine?'Не удалось соединиться':'Звонок завершён';
+return{mine,t,miss,d,v}}
+/* --- сообщения о звонках в чате --- */
+const _bh=bodyH;bodyH=function(m){if(m.kind==='text'&&isCall(m.body)){const c=cinfo(m);return `<div class="cmb${c.miss?' ms':''}" onclick="event.stopPropagation();goCalls()"><span class="cmi">${ic('cphone')}</span><div><b>${c.t}</b><small>${c.mine?'↗':'↙'} ${c.d||'Открыть звонки'}</small></div></div>`}return _bh(m)};
+window.goCalls=()=>{if(!wide())closeChat();go('calls')};
+/* --- данные звонков --- */
+window.loadCalls=async function(){if(typeof DEMO!=='undefined'&&DEMO)return;const ids=chats.filter(c=>c.kind==='dm').map(c=>c.id);if(!ids.length){CALLS=[];updNav();return}
+const r=await SB.from('messages').select('id,chat_id,sender_id,body,created_at').in('chat_id',ids).eq('kind','text').or('body.ilike.%звонок%,body.eq.Абонент занят,body.eq.Не удалось соединиться').order('created_at',{ascending:false}).limit(300);
+CALLS=(r.data||[]).filter(m=>isCall(m.body)).map(m=>({...m,ch:chats.find(c=>c.id===m.chat_id),i:cinfo(m)})).filter(x=>x.ch);if(tab==='calls')drawList();updNav()};
+const missedN=()=>CALLS.filter(x=>x.i.miss&&new Date(x.created_at)>new Date(PF.cs||0)&&(!PF.cc||new Date(x.created_at)>new Date(PF.cc))).length;
+function callsHTML(){const L=CALLS.filter(x=>(!PF.cc||new Date(x.created_at)>new Date(PF.cc))&&(cf==='all'||x.i.miss));
+return `<div class="hd"><h1>Звонки</h1>${CALLS.length?`<button class="ib" onclick="clrCalls()">${ic('trash')}</button>`:''}</div><div class="seg"><button class="${cf==='all'?'on':''}" onclick="cfs('all')">Все</button><button class="${cf==='miss'?'on':''}" onclick="cfs('miss')">Пропущенные</button></div><div class="sc">`+(L.length?L.map((x,k)=>`<div class="row crow${x.i.miss&&new Date(x.created_at)>new Date(CSP||0)?' nw':''}" style="animation-delay:${Math.min(k,10)*30}ms" onclick="openChat('${x.chat_id}')">${av(x.ch,48)}<div class="b"><div class="n${x.i.miss?' red':''}">${esc(x.ch.name)}</div><div class="sub"><span class="cdir${x.i.miss?' red':''}">${x.i.mine?'↗':'↙'}</span> ${x.i.t}${x.i.d?', '+x.i.d:''}</div></div><div class="rt"><span class="sub">${fmt(x.created_at)}</span></div><button class="ib cbk" onclick="event.stopPropagation();callBack('${x.chat_id}',${x.i.v?1:0})">${ic(x.i.v?'cvid':'cphone')}</button></div>`).join(''):zem('cphone',cf==='miss'?'Пропущенных нет':'Звонков пока нет','Здесь появятся все ваши звонки, включая пропущенные','',''))+`</div>`}
+window.cfs=v=>{cf=v;drawList()};window.clrCalls=()=>{PF.cc=new Date().toISOString();savePF();drawList();updNav();toast('История звонков очищена')};
+window.callBack=async(id,v)=>{await openChat(id);startCall(!!v)};
+/* --- навигация: 4 вкладки, один поиск --- */
+TO.calls=2;TO.settings=3;
+updNav=function(){const n=$('#tb');if(!n)return;const T=[['chats','chat','Чаты'],['contacts','users','Контакты'],['calls','cphone','Звонки'],['settings','gear','Настройки']];
+if(n.dataset.v!=='4'){n.dataset.v='4';n.innerHTML=`<div class="tbp"><i class="tbl"></i>${T.map(x=>`<button onclick="go('${x[0]}')">${ic(x[1])}<span>${x[2]}</span>${x[0]==='chats'||x[0]==='calls'?'<b class="tbb"></b>':''}</button>`).join('')}</div>`}
+const at=tab==='search'?(sFrom||'chats'):tab,i=Math.max(0,T.findIndex(x=>x[0]===at)),l=n.querySelector('.tbl');l.style.opacity=1;l.style.transform=`translateX(${i*100}%)`;
+n.querySelectorAll('.tbp button').forEach((b,k)=>b.classList.toggle('on',k===i));
+const u=chats.reduce((a,c)=>a+(c.muted?0:c.un||0),0),m=missedN(),bb=n.querySelectorAll('.tbb');
+bb[0].textContent=u>99?'99+':u;bb[0].classList.toggle('s',!!u);bb[1].textContent=m>99?'99+':m;bb[1].classList.toggle('s',!!m&&tab!=='calls')};
+const _go2=go;go=function(t){if(t==='calls'&&tab!=='calls'){CSP=PF.cs||'';loadCalls();setTimeout(()=>{if(tab==='calls'){PF.cs=new Date().toISOString();savePF();updNav()}},1800)}return _go2(t)};
+const _dl2=drawList;drawList=function(){if(tab!=='calls'){_dl2();if(tab==='contacts'){const h=$('#lc .hd');if(h&&!h.querySelector('.ib'))h.insertAdjacentHTML('beforeend',`<button class="ib" onclick="newGroup()">${ic('cplus')}</button>`)}return}
+openRow=null;const l=$('#lc');l.innerHTML=callsHTML();l.dataset.t='calls';lastTab='calls';updNav()};
+const _ch=chatsHTML;chatsHTML=function(){return _ch().replace('<h1>Чаты</h1></div>',`<h1>Чаты</h1><button class="ib" aria-label="Создать группу или канал" onclick="newGroup()">${ic('cplus')}</button></div>`)};
+/* --- мгновенные галочки --- */
+markRead=function(){if(!cur||document.hidden)return;beatT();if(cur.un){cur.un=0;if(tab==='chats')drawList()}
+const lm=msgs.length?+new Date(msgs[msgs.length-1].created_at):0,at=new Date(Math.max(Date.now(),lm||0)).toISOString();
+SB.from('chat_members').update({last_read:at}).eq('chat_id',cur.id).eq('user_id',me.id).then(()=>{});
+if(cur.kind==='dm'&&cur.pid)sig(cur.pid,{t:'read',chat:cur.id,at})};
+const _am=addMsg;addMsg=function(m){const r=_am(m);if(m.sender_id!==me.id)Promise.resolve().then(markRead);return r};
+refreshTicks=function(){document.querySelectorAll('#ms .tk').forEach(e=>{const rd=!!(cur?.olr&&new Date(cur.olr)>=new Date(e.dataset.t)),s=rd?'1':'0',o=e.dataset.r;if(o===s)return;e.dataset.r=s;if(o===undefined&&!rd)return;e.innerHTML=tickSvg(rd);if(o==='0'&&rd)e.classList.add('pp')})};
+const _os2=onSig;onSig=async function(m){if(m&&m.t==='read'){const a=+new Date(m.at);if(a){RD[m.chat]=Math.max(RD[m.chat]||0,a);const iso=new Date(RD[m.chat]).toISOString(),c=chats.find(x=>x.id===m.chat);if(c){c.olr=iso;c.lr=!!(c.lm&&c.lt&&RD[m.chat]>=+new Date(c.lt))}if(cur&&cur.id===m.chat){cur.olr=iso;refreshTicks()}if(tab==='chats')drawList()}return}return _os2(m)};
+const _lc2=loadChats;loadChats=async function(){await _lc2();chats.forEach(c=>{const r=RD[c.id];if(r&&(!c.olr||r>+new Date(c.olr))){c.olr=new Date(r).toISOString();c.lr=!!(c.lm&&c.lt&&r>=+new Date(c.lt))}if(isCall(c.last))c.last='📞 '+c.last})};
+document.addEventListener('visibilitychange',()=>{if(!document.hidden)markRead()});addEventListener('focus',()=>markRead());
+setInterval(async()=>{if(!cur||cur.kind!=='dm'||document.hidden)return;const l=msgs[msgs.length-1];if(!l||l.sender_id!==me.id||l.pending||(cur.olr&&new Date(cur.olr)>=new Date(l.created_at)))return;
+const r=await SB.from('chat_members').select('last_read').eq('chat_id',cur.id).neq('user_id',me.id).limit(1),lr=r.data?.[0]?.last_read;if(lr&&(!cur.olr||new Date(lr)>new Date(cur.olr))){cur.olr=lr;refreshTicks()}},3000);
+/* --- группы и каналы --- */
+window.gKind=(k,el)=>{GK=k;document.querySelectorAll('#gseg button').forEach(b=>b.classList.toggle('on',b.dataset.k===k));const h=$('#gh');if(h)h.textContent=k==='group'?'Группа: все участники могут писать.':'Канал: писать можете только вы, остальные читают.';vib(8)};
+window.gTog=(id,el)=>{GS.has(id)?GS.delete(id):GS.add(id);el.classList.toggle('on',GS.has(id));vib(6)};
+window.newGroup=k=>{GK=k||'group';GS=new Set();sheet('Новый чат',`<div class="seg" id="gseg"><button data-k="group" onclick="gKind('group')">Группа</button><button data-k="channel" onclick="gKind('channel')">Канал</button></div><label class="fld"><small>Название</small><input id="gnm" maxlength="60" placeholder="Например: Друзья"></label><div class="sub" id="gh" style="white-space:normal;margin:0 2px 8px"></div><div class="gpl">${contacts.length?contacts.map(p=>`<div class="row gp" onclick="gTog('${p.id}',this)">${av(p,40)}<div class="b"><div class="n">${esc(p.name)}</div><div class="sub">${at(p.username)}</div></div><i class="gck"></i></div>`).join(''):'<div class="sub" style="padding:12px;white-space:normal">Добавьте людей в контакты, чтобы пригласить их. Можно создать и пустой чат.</div>'}</div><button class="btn" id="gok" style="width:100%;margin-top:12px" onclick="gMake()">Создать</button>`);gKind(GK)};
+window.gMake=async()=>{const t=($('#gnm')?.value||'').trim();if(!t)return toast('Введите название');const b=$('#gok');b.disabled=true;b.textContent='Создаём…';
+const{data,error}=await SB.rpc('create_group',{k:GK,t,members:[...GS]});if(error){b.disabled=false;b.textContent='Создать';return toast('Запустите logos-update9.sql в Supabase')}
+closeSheet();await loadChats();go('chats');openChat(data)};
+const _mh=mh;mh=function(m,i){let h=_mh(m,i);if(cur&&cur.kind==='group'&&m.sender_id&&m.sender_id!==me.id&&!(msgs[i-1]&&msgs[i-1].sender_id===m.sender_id)){const n=(GM[cur.id]||{})[m.sender_id];if(n)h=h.replace(/<div class="m( [^"]*)?">/,s=>s+'<b class="gn">'+esc(n)+'</b>')}return h};
+const _dm0=drawMain;drawMain=function(){_dm0();const m=$('#main');if(m&&cur?.kind==='channel')m.classList.toggle('ro',!['owner','admin'].includes(cur.role));
+if(cur?.kind==='group'&&!GM[cur.id]){const id=cur.id;GM[id]={};SB.from('chat_members').select('user_id,profiles(name)').eq('chat_id',id).then(r=>{(r.data||[]).forEach(x=>GM[id][x.user_id]=x.profiles?.name);if(cur?.id===id)drawMsgs()})}};
+/* --- пропущенные в реальном времени --- */
+const _ci2=callInit;callInit=function(){_ci2();try{SB.channel('calls-rt').on('postgres_changes',{event:'INSERT',schema:'public',table:'messages'},p=>{const r=p.new;if(r&&isCall(r.body)){if(r.sender_id!==me.id&&cinfo(r).miss){toast('📞 Пропущенный звонок');vib([60,40,60])}setTimeout(loadCalls,400)}}).subscribe()}catch(e){}loadCalls()};
+})();
+</script>
+<style>
+/* ===== v15 ===== */
+.tbl{width:calc((100% - 8px)/4)!important}.tbp button{font-size:10px;min-width:0}.tbs{display:none!important}
+.tbb{position:absolute;top:3px;left:calc(50% + 6px)}
+.srch:has(input){background:none!important;border:0!important;box-shadow:none!important;border-radius:0!important;height:auto!important;padding:6px 14px 10px!important}
+.srch:has(input):focus-within{box-shadow:none!important}
+.seg{display:flex;gap:4px;margin:4px 16px 10px;padding:4px;background:var(--s2);border-radius:14px}.seg button{flex:1;height:36px;border-radius:11px;font-weight:600;color:var(--mu);transition:background .25s,color .25s,box-shadow .25s}.seg button.on{background:var(--s3);color:var(--tx);box-shadow:0 2px 8px #0004}
+.red{color:#ff5a67!important}.cdir{font-weight:700}
+.crow{animation:v14in .4s cubic-bezier(.22,.9,.25,1) both}.crow .cbk{background:var(--s2);margin-left:6px;flex:none}.crow.nw{background:#ff5a670f}
+.cmb{display:flex;align-items:center;gap:10px;min-width:190px;cursor:pointer;padding:2px 0;transition:opacity .2s}.cmb:active{opacity:.65}
+.cmb .cmi{width:40px;height:40px;border-radius:50%;display:grid;place-items:center;background:#ffffff26;flex:none}.cmb.ms .cmi{background:#ff5a6733;color:#ff5a67}.cmb.ms b{color:#ff5a67}
+.cmb b{display:block;font-size:15px}.cmb small{opacity:.7;font-size:12.5px}
+.gn{display:block;font-size:12.5px;color:var(--ac);margin-bottom:2px}
+.gpl{max-height:34vh;overflow:auto}.gp{position:relative}.gck{width:24px;height:24px;border-radius:50%;border:2px solid #ffffff40;flex:none;transition:.25s}.gp.on .gck{background:var(--ac);border-color:var(--ac);box-shadow:inset 0 0 0 4px var(--bg)}
+.tk.pp svg{animation:tkp .4s cubic-bezier(.3,1.7,.5,1)}@keyframes tkp{from{transform:scale(.4);opacity:.3}}
+.row{transition:background .2s,transform .2s cubic-bezier(.3,1.5,.5,1)}.row:active{transform:scale(.98)}
 </style>
 </body></html>
