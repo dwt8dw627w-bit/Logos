@@ -1899,88 +1899,212 @@ loadChats=function(){if(fl){again=true;return fl}fl=(async()=>{try{do{again=fals
 syncFab();
 })();
 </script>
-<script>if(!window.supabase){document.body.insertAdjacentHTML('beforeend','<div style="position:fixed;inset:0;z-index:999;background:#0a0a0a;color:#f2f2f2;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;font:16px -apple-system,sans-serif;text-align:center;padding:30px">Не удалось загрузить библиотеку.<br>Проверьте интернет.<button onclick="location.reload()" style="padding:12px 24px;border:0;border-radius:14px;font:600 16px inherit;background:#f2f2f2;color:#0a0a0a">Обновить</button></div>')}</script><!-- ===== v19: ФИКС ОШИБОК, ИМБОВАЯ СТЕКЛЯШКА, СВАЙПЫ ===== -->
+<script>if(!window.supabase){document.body.insertAdjacentHTML('beforeend','<div style="position:fixed;inset:0;z-index:999;background:#0a0a0a;color:#f2f2f2;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;font:16px -apple-system,sans-serif;text-align:center;padding:30px">Не удалось загрузить библиотеку.<br>Проверьте интернет.<button onclick="location.reload()" style="padding:12px 24px;border:0;border-radius:14px;font:600 16px inherit;background:#f2f2f2;color:#0a0a0a">Обновить</button></div>')}</script><!-- ===== v20: ФИНАЛЬНЫЙ ФИКС (ЗАПИСЬ ПО ЗАЖАТИЮ, СВАЙПЫ, ПЛАВНОСТЬ) ===== -->
 <style>
-  /* 1. Фикс свайпа: кнопки ровные, текст не сплющивается */
+  /* 1. СВАЙП: Идеально ровные кнопки (как в iOS) */
   .sr { overflow: hidden !important; contain: layout paint; }
-  .sr .acts { right: 0; top: 0; bottom: 0; display: flex; align-items: center; padding-right: 12px; gap: 8px; opacity: 0; pointer-events: none; visibility: hidden; transition: opacity 0.2s; }
+  .sr .acts { 
+    right: 0; top: 0; bottom: 0; display: flex; align-items: center; 
+    padding-right: 12px; gap: 6px; opacity: 0; pointer-events: none; visibility: hidden; 
+    transition: opacity 0.2s; 
+  }
   .sr.sw .acts { opacity: 1; pointer-events: auto; visibility: visible; }
-  .acts button { width: 64px !important; height: calc(100% - 12px) !important; border-radius: 16px !important; display: flex; flex-direction: column; justify-content: center; align-items: center; gap: 4px; font-size: 10.5px; font-weight: 600; color: #fff; border: none; }
+  .acts button { 
+    width: 64px !important; height: calc(100% - 10px) !important; 
+    border-radius: 14px !important; display: flex !important; 
+    flex-direction: column !important; justify-content: center !important; 
+    align-items: center !important; gap: 4px !important; 
+    font-size: 10px !important; font-weight: 600 !important; 
+    color: #fff !important; border: none !important;
+    transform: none !important; /* Убираем старое сплющивание */
+  }
   .acts .i { width: 20px !important; height: 20px !important; }
   .sr .row { position: relative; z-index: 2; background: var(--bg); transition: transform 0.25s cubic-bezier(0.2, 0.8, 0.2, 1); }
   
-  /* 2. Имбовая стеклянная панель (как в iOS) */
+  /* 2. ПЛАВНОСТЬ: Убираем лагающее размытие */
+  .shb, .comp, .dlg > div, .top { backdrop-filter: none !important; -webkit-backdrop-filter: none !important; }
+  .shb { background: var(--s1) !important; }
+  
+  /* 3. ИМБОВАЯ СТЕКЛЯШКА ТОЛЬКО НА ТАББАРЕ (легкая, не лагает) */
   .tbp {
-    background: linear-gradient(135deg, rgba(255,255,255,0.12), rgba(255,255,255,0.02)) !important;
-    -webkit-backdrop-filter: blur(28px) saturate(200%) !important;
-    backdrop-filter: blur(28px) saturate(200%) !important;
-    border: 1px solid rgba(255,255,255,0.18) !important;
-    box-shadow: 0 12px 40px rgba(0,0,0,0.6), inset 0 1px 0 rgba(255,255,255,0.25) !important;
+    background: linear-gradient(135deg, rgba(255,255,255,0.1), rgba(255,255,255,0.02)) !important;
+    -webkit-backdrop-filter: blur(16px) saturate(150%) !important;
+    backdrop-filter: blur(16px) saturate(150%) !important;
+    border: 1px solid rgba(255,255,255,0.15) !important;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.2) !important;
   }
   .tbl {
-    background: linear-gradient(180deg, rgba(255,255,255,0.22), rgba(255,255,255,0.08)) !important;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.35) !important;
+    background: linear-gradient(180deg, rgba(255,255,255,0.2), rgba(255,255,255,0.05)) !important;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.3), inset 0 1px 0 rgba(255,255,255,0.3) !important;
   }
-  
-  /* 3. Фикс плашки ошибки (чтоб не перекрывала шапку) */
-  .toast { z-index: 9999 !important; }
+
+  /* 4. ЗАПИСЬ КАК В ТГ */
+  .tg-rec-ui { 
+    position: fixed; bottom: 80px; left: 50%; transform: translateX(-50%); 
+    width: calc(100% - 32px); max-width: 400px; background: var(--s2); 
+    border-radius: 30px; padding: 12px; display: flex; flex-direction: column; 
+    box-shadow: 0 10px 40px #000a; z-index: 100; animation: up .3s ease; 
+  }
+  .tg-bar { display: flex; align-items: center; gap: 12px; }
+  .tg-bar .rwv { flex: 1; display: flex; align-items: center; gap: 2px; height: 24px; overflow: hidden; }
+  .tg-bar .rwv i { flex: 1; height: 20%; border-radius: 2px; background: var(--ac); transition: height .1s; }
+  .tg-hint { position: absolute; top: -40px; left: 50%; transform: translateX(-50%); background: #ff3b30; color: #fff; padding: 4px 12px; border-radius: 12px; font-size: 12px; font-weight: 600; opacity: 0; transition: .2s; white-space: nowrap; pointer-events: none; }
+  .tg-circle-rec { position: fixed; bottom: 100px; right: 20px; width: 140px; height: 140px; border-radius: 50%; overflow: hidden; background: #111; box-shadow: 0 10px 30px #000a, 0 0 0 3px var(--ac); z-index: 100; animation: popIn .3s ease; cursor: pointer; }
+  .tg-circle-rec video { width: 100%; height: 100%; object-fit: cover; transform: scaleX(-1); }
+  .tg-ct { position: absolute; bottom: 8px; left: 50%; transform: translateX(-50%); background: #000a; color: #fff; font-size: 12px; font-weight: 700; padding: 2px 10px; border-radius: 10px; }
+  @keyframes popIn { from { transform: scale(0.3) translateY(50px); opacity: 0; } }
 </style>
 
 <script>
 (() => {
-  // 1. Исправляем ошибку "Can't find variable: giftOf"
+  // 1. ФИКС ЧАТОВ (чтобы сообщения прогружались)
   window.giftOf = function(m) {
     if (!m || m.kind !== 'text' || typeof m.body !== 'string') return null;
     const match = m.body.match(/^\[gift:(\w+)\]$/);
-    return match && window.GFT ? window.GFT.find(g => g.k === match[1]) || null : null;
+    return match && window.GBY ? window.GBY[match[1]] || null : null;
   };
 
-  window.gsvg = function(g, cls='') {
-    return `<svg class="${cls}" viewBox="0 0 120 120">${g.s}</svg>`;
-  };
-
-  // 2. Безопасный рендер сообщений (чат больше не будет пустым)
   const _prevBodyH = window.bodyH;
   window.bodyH = function(m) {
     try {
       const g = window.giftOf(m);
-      if (g) {
-        const mine = m.sender_id === me.id;
-        const who = mine ? 'Вы подарили' : (cur && cur.kind === 'dm' ? esc(cur.name) + ' дарит вам' : 'Вам подарили');
-        return `<div class="gcard" style="--g1:${g.c[0]};--g2:${g.c[1]}"><i class="gsp"></i><i class="gsp"></i><i class="gsp"></i>${window.gsvg(g, 'gi')}<b>${g.n}</b><small>${who}</small></div>`;
-      }
+      if (g) return `<div class="gcard" style="--g1:${g.c[0]};--g2:${g.c[1]}"><b>${g.n}</b></div>`;
       return _prevBodyH.apply(this, arguments);
-    } catch (e) {
-      console.error('Ошибка рендера сообщения:', e);
-      return esc(m.body || '');
+    } catch (e) { return esc(m.body || ''); }
+  };
+
+  // 2. МГНОВЕННАЯ ЗАПИСЬ (Голосовые и Кружки)
+  // Переопределяем кнопки в композере, чтобы они работали на зажатие
+  const _oldDrawMain = window.drawMain;
+  window.drawMain = function() {
+    _oldDrawMain();
+    const cam = document.querySelector('.cact .cam');
+    const mic = document.querySelector('.cact .mic');
+    
+    if (mic) {
+      mic.removeAttribute('onclick');
+      mic.onpointerdown = (e) => { e.preventDefault(); window.startRec('voice'); };
+      mic.onpointerup = (e) => { e.preventDefault(); window.stopRec(); };
+      mic.onpointerleave = (e) => { if(e.buttons) window.stopRec(); };
+    }
+    if (cam) {
+      cam.removeAttribute('onclick');
+      cam.onpointerdown = (e) => { e.preventDefault(); window.startRec('circle'); };
+      cam.onpointerup = (e) => { e.preventDefault(); window.stopRec(); };
+      cam.onpointerleave = (e) => { if(e.buttons) window.stopRec(); };
     }
   };
 
-  // 3. Красивые иконки для нижней панели
-  if (window.P) {
-    P.chat = '<path d="M12 20.5c4.8 0 8.7-3.2 8.7-7.2S16.8 6.1 12 6.1 3.3 9.3 3.3 13.3c0 1.6.6 3.1 1.6 4.3l-1.1 3.2 3.7-1.4c1.3.7 2.8 1.1 4.5 1.1z" fill="currentColor" fill-opacity=".2"/><path d="M12 20.5c4.8 0 8.7-3.2 8.7-7.2S16.8 6.1 12 6.1 3.3 9.3 3.3 13.3c0 1.6.6 3.1 1.6 4.3l-1.1 3.2 3.7-1.4c1.3.7 2.8 1.1 4.5 1.1z"/><path d="M8.5 13h.01M12 13h.01M15.5 13h.01" stroke-width="2.5"/>';
-    P.cphone = '<path d="M15.5 14.2l-1.9 1.9c-2-1-3.8-2.8-4.8-4.8l1.9-1.9c.5-.5.6-1.2.3-1.8l-1.5-3c-.3-.6-1-1-1.7-.8l-2.5.6C4 4.4 4 5.3 4 6.2c0 8.4 7.4 15.8 15.8 15.8.9 0 1.8-.1 1.8-1.2l.6-2.5c.2-.7-.2-1.4-.8-1.7l-3-1.5c-.6-.3-1.3-.2-1.8.3z" fill="currentColor" fill-opacity=".2"/><path d="M15.5 14.2l-1.9 1.9c-2-1-3.8-2.8-4.8-4.8l1.9-1.9c.5-.5.6-1.2.3-1.8l-1.5-3c-.3-.6-1-1-1.7-.8l-2.5.6C4 4.4 4 5.3 4 6.2c0 8.4 7.4 15.8 15.8 15.8.9 0 1.8-.1 1.8-1.2l.6-2.5c.2-.7-.2-1.4-.8-1.7l-3-1.5c-.6-.3-1.3-.2-1.8.3z"/>';
-    P.users = '<circle cx="12" cy="8" r="4" fill="currentColor" fill-opacity=".2"/><path d="M6 20v-2c0-2.5 2-4 6-4s6 1.5 6 4v2H6z" fill="currentColor" fill-opacity=".2"/><circle cx="12" cy="8" r="4"/><path d="M6 20v-2c0-2.5 2-4 6-4s6 1.5 6 4v2H6z"/>';
-    P.gear = '<circle cx="12" cy="12" r="3.5" fill="currentColor" fill-opacity=".2"/><circle cx="12" cy="12" r="3.5"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/>';
-  }
+  let StartY = 0, IsCancel = false;
 
-  // Обновляем навбар с новыми иконками
-  if (window.updNav) {
-    const _oldNav = window.updNav;
-    window.updNav = function() {
-      _oldNav();
-      document.querySelectorAll('.tbp button').forEach(b => {
-        const txt = b.querySelector('span')?.textContent;
-        if (txt === 'Чаты') b.innerHTML = window.NAVCHAT + b.innerHTML.slice(b.innerHTML.indexOf('<span'));
-        else if (txt === 'Звонки') b.innerHTML = ic('cphone') + b.innerHTML.slice(b.innerHTML.indexOf('<span'));
-        else if (txt === 'Контакты') b.innerHTML = ic('users') + b.innerHTML.slice(b.innerHTML.indexOf('<span'));
-        else if (txt === 'Настройки') b.innerHTML = ic('gear') + b.innerHTML.slice(b.innerHTML.indexOf('<span'));
-      });
-    };
-  }
+  window.startRec = async function(kind) {
+    if (window.R || !window.cur || !window.canRec()) return;
+    
+    // Если это кружок, сразу запускаем запись
+    if (kind === 'voice') {
+      try { window.recVoice(); } catch(e) {}
+      
+      // Добавляем UI плашку снизу
+      setTimeout(() => {
+        if (!window.R) return;
+        const el = document.createElement('div');
+        el.className = 'tg-rec-ui';
+        el.id = 'tg-rec-ui';
+        el.innerHTML = `
+          <div class="tg-hint" id="tg-hint">← Сдвиньте для отмены</div>
+          <div class="tg-bar">
+            <div style="width:10px;height:10px;border-radius:50%;background:#ff4d4d;animation:rpl 1s infinite"></div>
+            <div class="rtm" id="rtm" style="font-size:15px;font-weight:600;min-width:40px">0:00</div>
+            <div class="rwv" id="rwv">${'<i></i>'.repeat(36)}</div>
+            <button class="sbtn" style="width:36px;height:36px;border-radius:50%;background:var(--ac);color:var(--acx);display:grid;place-items:center;pointer-events:none">${ic('send')}</button>
+          </div>`;
+        document.body.appendChild(el);
+        
+        // Вешаем слежение за пальцем на весь экран
+        const move = (e) => {
+          if (!window.R) return;
+          const y = e.touches ? e.touches[0].clientY : e.clientY;
+          if (StartY === 0) StartY = y;
+          const dy = StartY - y;
+          const hint = document.getElementById('tg-hint');
+          if (dy > 60) {
+            IsCancel = true;
+            if (hint) { hint.style.opacity = 1; hint.textContent = 'Отпустите для отмены'; }
+            el.style.background = '#ff3b3022';
+          } else {
+            IsCancel = false;
+            if (hint) hint.style.opacity = 0;
+            el.style.background = 'var(--s2)';
+          }
+        };
+        window.addEventListener('pointermove', move);
+        window.addEventListener('touchmove', move, { passive: true });
+        window._recMove = move;
+      }, 50);
+    } 
+    else if (kind === 'circle') {
+      try { window.recCircle(); } catch(e) {}
+      setTimeout(() => {
+        if (!window.R) return;
+        const o = document.createElement('div');
+        o.className = 'tg-circle-rec';
+        o.id = 'tg-circle';
+        o.innerHTML = `<video id="tg-cv" autoplay playsinline muted></video><div class="tg-ct" id="tg-ct">0:00</div>`;
+        document.body.appendChild(o);
+        const v = document.getElementById('tg-cv');
+        if (v && window.R.st) { v.srcObject = window.R.st; v.play().catch(()=>{}); }
+        window._tgCircleTimer = setInterval(() => {
+          if (window.R && window.R.t0) {
+            const c = document.getElementById('tg-ct');
+            if (c) c.textContent = mmss((Date.now() - window.R.t0) / 1000);
+          }
+        }, 500);
+      }, 50);
+    }
+    
+    StartY = 0; IsCancel = false;
+  };
 
-  console.log('✅ v19 Успешно загружен: исправлены чаты, свайпы и добавлена имбовая стекляшка!');
+  window.stopRec = function() {
+    if (!window.R) return;
+    
+    // Убираем UI
+    document.getElementById('tg-rec-ui')?.remove();
+    document.getElementById('tg-circle')?.remove();
+    clearInterval(window._tgCircleTimer);
+    
+    // Отписываемся от слежения за пальцем
+    if (window._recMove) {
+      window.removeEventListener('pointermove', window._recMove);
+      window.removeEventListener('touchmove', window._recMove);
+      window._recMove = null;
+    }
+
+    // Отправляем или отменяем
+    if (IsCancel) {
+      if (window.recCancel) window.recCancel();
+      toast('Запись отменена');
+    } else {
+      if (window.R.phase === 'rec') {
+        if (window.recStop) window.recStop();
+      } else {
+        // Если палец убрали слишком быстро
+        if (window.recCancel) window.recCancel();
+      }
+    }
+  };
+
+  // Защита от старого интерфейса
+  const _oldKill = window.recKill;
+  window.recKill = function() {
+    document.getElementById('tg-rec-ui')?.remove();
+    document.getElementById('tg-circle')?.remove();
+    clearInterval(window._tgCircleTimer);
+    if (_oldKill) _oldKill.apply(this, arguments);
+  };
+
+  console.log('✅ v20: Запись по зажатию и свайпы включены');
 })();
 </script>
-<!-- ===== /v19 ===== -->
+<!-- ===== /v20 ===== -->
 </body></html>
