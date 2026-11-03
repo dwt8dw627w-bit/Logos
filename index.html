@@ -391,7 +391,7 @@ html[data-theme=ios],.pvw[data-theme=ios]{color-scheme:light;--bg:#fff;--s1:#f2f
 .stcv canvas{width:100%;height:100%;display:block;touch-action:none}
 .stp{flex:1;overflow:auto;padding:6px 16px calc(16px + env(safe-area-inset-bottom))}
 .sted .seg{overflow:auto}.sted .seg button{padding:9px 10px;white-space:nowrap}
-.sws{display:flex;gap:8px;flex-wrap:wrap;margin:10px 0 2px}.sw{width:30px;height:30px;border-radius:50%;border:3px solid transparent;box-shadow:inset 0 0 0 1px #ffffff30}.sw.on{border-color:var(--tx)}
+.sws{display:flex;gap:8px;flex-wrap:wrap;margin:10px 0 2px}.sws .sw{width:30px;height:30px;border-radius:50%;border:3px solid transparent;box-shadow:inset 0 0 0 1px #ffffff30}.sws .sw.on{border-color:var(--tx)}
 .edb{display:flex;gap:8px;margin-top:10px;flex-wrap:wrap}.edb .on2{background:var(--ac);color:var(--acx)}
 
 /* ---- v14 ---- */
@@ -1949,6 +1949,34 @@ syncFab();
 .gfx-b svg{animation:gSend 1.1s cubic-bezier(.2,1.4,.4,1) both}
 @keyframes gRing{from{transform:scale(.3);opacity:1}to{transform:scale(1.7);opacity:0}}
 @keyframes gSend{from{transform:translateY(160px) scale(.2) rotate(-25deg);opacity:0}60%{opacity:1}}
+
+/* ===== фикс: свайп-кнопки квадратные, без круглой обрезки ===== */
+.sr,.sr.sw{border-radius:0!important;width:100%!important;height:auto;clip-path:none!important}
+.sr .acts{padding:0!important;gap:0!important;top:0!important;bottom:0!important;border-radius:0!important;clip-path:none!important}
+.sr .acts button{width:76px!important;min-width:76px!important;max-width:76px!important;border-radius:0!important;font-size:11px!important;gap:6px;box-shadow:none!important}
+.sr .acts .i{width:24px!important;height:24px!important}
+/* ===== подарки: красивые карточки ===== */
+.gfg{gap:12px}
+.gfc{overflow:hidden;padding:16px 6px 12px;border-radius:26px;background:linear-gradient(180deg,#ffffff10,#ffffff04),var(--s2)}
+.gfc::before{content:'';position:absolute;left:50%;top:40%;width:96px;height:96px;margin:-48px 0 0 -48px;border-radius:50%;background:radial-gradient(circle,var(--rc),transparent 66%);opacity:.34;pointer-events:none}
+.gfc::after{content:'';position:absolute;inset:-30% -60%;background:linear-gradient(105deg,transparent 42%,#ffffff2e 50%,transparent 58%);transform:translateX(-70%);animation:gShine 4.2s ease-in-out infinite;pointer-events:none}
+.gfc:nth-child(3n+2)::after{animation-delay:.9s}.gfc:nth-child(3n)::after{animation-delay:1.8s}
+.gfc svg{position:relative;z-index:1;width:66px;height:66px;filter:drop-shadow(0 7px 8px #0007) drop-shadow(0 0 9px var(--rc));animation:gFl 3.6s ease-in-out infinite}
+.gfc:nth-child(2n) svg{animation-delay:-1.2s}.gfc:nth-child(3n) svg{animation-delay:-2.2s}
+.gfc b,.gfc em,.gfc i{position:relative;z-index:1}
+.gfc b{font-size:13.5px;font-weight:700;margin-top:2px}
+.gfc em{font-style:normal;font-size:9.5px;font-weight:800;letter-spacing:.7px;text-transform:uppercase;color:var(--rc);padding:2px 8px;border-radius:999px;background:#00000030;border:1px solid var(--rc)}
+.gfc i{margin-top:2px;padding:3px 9px;border-radius:999px;background:#00000026}
+.gfc i svg{width:14px;height:14px;animation:none;filter:none}
+.gfc.on{transform:translateY(-3px) scale(1.03)}.gfc.on svg{transform:none}
+.gfc[data-r=l]{background:linear-gradient(160deg,#ffc83a22,#8b5cf622 60%,#ff7eb622),var(--s2)}
+@keyframes gFl{0%,100%{transform:translateY(0) rotate(-2deg)}50%{transform:translateY(-4px) rotate(2deg)}}
+/* подарок в чате */
+.gcard{width:222px;padding:18px 14px 15px;border-radius:30px;background-image:repeating-conic-gradient(from 0deg at 50% 46%,#ffffff17 0 7deg,transparent 7deg 18deg),radial-gradient(circle at 50% 42%,#ffffff40,transparent 62%),linear-gradient(150deg,var(--g1),var(--g2))}
+.gcard svg.gi{width:116px;height:116px;filter:drop-shadow(0 12px 14px #0007) drop-shadow(0 0 14px var(--rc))}
+.gcard b{font-size:18px;font-weight:800;margin-top:6px;text-shadow:0 2px 8px #0006}
+.gcard small{font-size:12.5px;margin-top:3px;opacity:.92}
+.gcard .gtag{position:relative;z-index:1;display:inline-block;font-style:normal;font-size:10px;font-weight:800;letter-spacing:.7px;text-transform:uppercase;padding:3px 11px;border-radius:999px;background:#00000040;border:1px solid #ffffff4d;margin-bottom:2px}
 </style>
 <script>
 (()=>{
