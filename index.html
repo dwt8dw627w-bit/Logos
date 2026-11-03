@@ -1899,206 +1899,88 @@ loadChats=function(){if(fl){again=true;return fl}fl=(async()=>{try{do{again=fals
 syncFab();
 })();
 </script>
-<script>if(!window.supabase){document.body.insertAdjacentHTML('beforeend','<div style="position:fixed;inset:0;z-index:999;background:#0a0a0a;color:#f2f2f2;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;font:16px -apple-system,sans-serif;text-align:center;padding:30px">Не удалось загрузить библиотеку.<br>Проверьте интернет.<button onclick="location.reload()" style="padding:12px 24px;border:0;border-radius:14px;font:600 16px inherit;background:#f2f2f2;color:#0a0a0a">Обновить</button></div>')}</script><!-- ===== v18: МЕГА-ОБНОВЛЕНИЕ (Подарки, Кружки, Лаги) ===== -->
+<script>if(!window.supabase){document.body.insertAdjacentHTML('beforeend','<div style="position:fixed;inset:0;z-index:999;background:#0a0a0a;color:#f2f2f2;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;font:16px -apple-system,sans-serif;text-align:center;padding:30px">Не удалось загрузить библиотеку.<br>Проверьте интернет.<button onclick="location.reload()" style="padding:12px 24px;border:0;border-radius:14px;font:600 16px inherit;background:#f2f2f2;color:#0a0a0a">Обновить</button></div>')}</script><!-- ===== v19: ФИКС ОШИБОК, ИМБОВАЯ СТЕКЛЯШКА, СВАЙПЫ ===== -->
 <style>
-/* 1. ФИКС ЛАГОВ (убираем тяжелое стекло) */
-.tbp, .tbs, .nav, .shb, .comp, .dlg > div, .clb, .top {
-    -webkit-backdrop-filter: none !important;
-    backdrop-filter: none !important;
-}
-.tbp { background-color: #1c1c1c !important; }
-.tbs { background-color: #1c1c1c !important; }
-.shb { background: var(--s1) !important; }
-.msgs { scroll-behavior: auto !important; }
-
-/* 2. НОВЫЙ ИНТЕРФЕЙС ГОЛОСОВЫХ (TG-СТИЛЬ) */
-.tg-rec-ui { position: fixed; bottom: 80px; left: 50%; transform: translateX(-50%); width: calc(100% - 32px); max-width: 400px; background: var(--s2); border-radius: 30px; padding: 8px 12px; display: flex; flex-direction: column; gap: 4px; box-shadow: 0 10px 40px #000a; z-index: 100; animation: up .3s cubic-bezier(.2,.8,.2,1); transition: background .2s; }
-.tg-bar { display: flex; align-items: center; gap: 12px; }
-.tg-bar .rwv { flex: 1; display: flex; align-items: center; gap: 2px; height: 24px; overflow: hidden; }
-.tg-bar .rwv i { flex: 1; min-width: 2px; height: 20%; border-radius: 2px; background: var(--ac); transition: height .1s; }
-.tg-hint { position: absolute; top: -40px; left: 50%; transform: translateX(-50%); background: #ff3b30; color: #fff; padding: 4px 12px; border-radius: 12px; font-size: 12px; font-weight: 600; opacity: 0; transition: .2s; white-space: nowrap; pointer-events: none; }
-
-/* 3. НОВЫЙ КРУЖОК (ВЫЛЕТАЕТ В УГЛУ) */
-.tg-circle-rec { position: fixed; bottom: 100px; right: 20px; width: 140px; height: 140px; border-radius: 50%; overflow: hidden; background: #111; box-shadow: 0 10px 30px #000a, 0 0 0 3px var(--ac); z-index: 100; animation: popIn .4s cubic-bezier(.3,1.6,.5,1); cursor: pointer; }
-.tg-circle-rec video { width: 100%; height: 100%; object-fit: cover; transform: scaleX(-1); }
-.tg-ct { position: absolute; bottom: 8px; left: 50%; transform: translateX(-50%); background: #000a; color: #fff; font-size: 12px; font-weight: 700; padding: 2px 10px; border-radius: 10px; font-variant-numeric: tabular-nums; }
-@keyframes popIn { from { transform: scale(0.3) translateY(50px); opacity: 0; } }
-
-/* 4. КРАСИВЫЕ ПОДАРКИ */
-.gfg { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
-.gfc { display: flex; flex-direction: column; align-items: center; gap: 4px; padding: 12px 4px 10px; border: 2px solid transparent; border-radius: 22px; background: linear-gradient(180deg, #ffffff0d, #0000 70%), var(--s2); box-shadow: inset 0 0 0 1.5px var(--rc), 0 6px 18px -10px var(--rc); color: var(--tx); transition: transform .35s cubic-bezier(.3,1.8,.5,1), box-shadow .2s; }
-.gfc:active { transform: scale(.9); }
-.gfc.on { background: linear-gradient(180deg, #ffffff1a, #0000 70%), var(--s3); box-shadow: inset 0 0 0 2px var(--rc), 0 0 22px -4px var(--rc); transform: translateY(-2px); }
-.gfc svg { width: 54px; height: 54px; filter: drop-shadow(0 5px 6px #0004); transition: transform .45s cubic-bezier(.3,1.8,.5,1); }
-.gfc.on svg { transform: scale(1.14) rotate(-4deg); }
-.gfc b { font-size: 13px; }
-.gfc em { font-style: normal; font-size: 9px; font-weight: 800; letter-spacing: .5px; text-transform: uppercase; color: var(--rc); }
-.gfc i { display: flex; align-items: center; gap: 4px; font-style: normal; font-size: 12px; color: var(--mu); font-variant-numeric: tabular-nums; }
+  /* 1. Фикс свайпа: кнопки ровные, текст не сплющивается */
+  .sr { overflow: hidden !important; contain: layout paint; }
+  .sr .acts { right: 0; top: 0; bottom: 0; display: flex; align-items: center; padding-right: 12px; gap: 8px; opacity: 0; pointer-events: none; visibility: hidden; transition: opacity 0.2s; }
+  .sr.sw .acts { opacity: 1; pointer-events: auto; visibility: visible; }
+  .acts button { width: 64px !important; height: calc(100% - 12px) !important; border-radius: 16px !important; display: flex; flex-direction: column; justify-content: center; align-items: center; gap: 4px; font-size: 10.5px; font-weight: 600; color: #fff; border: none; }
+  .acts .i { width: 20px !important; height: 20px !important; }
+  .sr .row { position: relative; z-index: 2; background: var(--bg); transition: transform 0.25s cubic-bezier(0.2, 0.8, 0.2, 1); }
+  
+  /* 2. Имбовая стеклянная панель (как в iOS) */
+  .tbp {
+    background: linear-gradient(135deg, rgba(255,255,255,0.12), rgba(255,255,255,0.02)) !important;
+    -webkit-backdrop-filter: blur(28px) saturate(200%) !important;
+    backdrop-filter: blur(28px) saturate(200%) !important;
+    border: 1px solid rgba(255,255,255,0.18) !important;
+    box-shadow: 0 12px 40px rgba(0,0,0,0.6), inset 0 1px 0 rgba(255,255,255,0.25) !important;
+  }
+  .tbl {
+    background: linear-gradient(180deg, rgba(255,255,255,0.22), rgba(255,255,255,0.08)) !important;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.35) !important;
+  }
+  
+  /* 3. Фикс плашки ошибки (чтоб не перекрывала шапку) */
+  .toast { z-index: 9999 !important; }
 </style>
 
 <script>
 (() => {
-  const nf = window.nf || (n => (+n||0).toLocaleString('ru-RU'));
-  const mmss = s => { s = Math.max(0, Math.round(s||0)); return Math.floor(s/60) + ':' + String(s%60).padStart(2, '0'); };
+  // 1. Исправляем ошибку "Can't find variable: giftOf"
+  window.giftOf = function(m) {
+    if (!m || m.kind !== 'text' || typeof m.body !== 'string') return null;
+    const match = m.body.match(/^\[gift:(\w+)\]$/);
+    return match && window.GFT ? window.GFT.find(g => g.k === match[1]) || null : null;
+  };
 
-  /* ===== 1. ОГРОМНЫЙ СПИСОК ПОДАРКОВ (цены снижены) ===== */
-  const GFT = [
-    {k:'rose', n:'Роза', p:10, c:['#ff5d8f','#a3124f'], r:'c', s:`<path d="M60 66V110" stroke="#2fb96a" stroke-width="5" stroke-linecap="round"/><path d="M60 94c-14-2-22-10-24-20 12 0 22 6 24 20z" fill="#1c8a4b"/><path d="M60 100c12-1 20-8 22-17-11 0-20 5-22 17z" fill="#1c8a4b"/><path d="M60 14c-18 0-30 12-30 28 0 14 11 26 30 26s30-12 30-26c0-16-12-28-30-28z" fill="#e5214f"/><ellipse cx="48" cy="28" rx="9" ry="5" fill="#fff" opacity=".4" transform="rotate(-25 48 28)"/>`},
-    {k:'heart', n:'Сердце', p:20, c:['#ff6b81','#b0124a'], r:'c', s:`<path d="M60 108C22 84 10 62 10 42 10 26 22 16 36 16c10 0 19 6 24 15 5-9 14-15 24-15 14 0 26 10 26 26 0 20-12 42-50 66z" fill="#ff3d71"/><path d="M26 38c2-8 9-12 16-10" stroke="#fff" stroke-width="6" stroke-linecap="round" fill="none" opacity=".55"/>`},
-    {k:'star', n:'Звезда', p:30, c:['#ffd75e','#f08a0c'], r:'c', s:`<path d="M60 10l14 34 37 4-28 24 8 37-31-19-31 19 8-37-28-24 37-4z" fill="#ffc83a" stroke="#e08a00" stroke-width="3" stroke-linejoin="round"/><circle cx="60" cy="60" r="8" fill="#fff" opacity=".4"/>`},
-    {k:'bear', n:'Мишка', p:50, c:['#c98d5a','#6b3f22'], r:'c', s:`<circle cx="28" cy="32" r="16" fill="#9a6234"/><circle cx="92" cy="32" r="16" fill="#9a6234"/><circle cx="28" cy="32" r="8" fill="#f2c9a0"/><circle cx="92" cy="32" r="8" fill="#f2c9a0"/><circle cx="60" cy="60" r="40" fill="#d9a070"/><ellipse cx="60" cy="74" rx="18" ry="14" fill="#f6d7b4"/><ellipse cx="60" cy="67" rx="6.5" ry="4.5" fill="#4a2a14"/><path d="M60 71.5v5M53 78c3 3 11 3 14 0" stroke="#4a2a14" stroke-width="2.6" fill="none" stroke-linecap="round"/><circle cx="44" cy="54" r="4.5" fill="#2b170a"/><circle cx="76" cy="54" r="4.5" fill="#2b170a"/><path d="M60 102l-12 8 3-13M60 102l12 8-3-13" fill="#ff4d7a"/><circle cx="60" cy="102" r="4.5" fill="#e0264f"/>`},
-    {k:'cake', n:'Торт', p:70, c:['#ff9ec7','#7e22ce'], r:'c', s:`<rect x="14" y="68" width="92" height="38" rx="11" fill="#f4a261"/><rect x="28" y="40" width="64" height="32" rx="11" fill="#ff5d9e"/><path d="M14 80c0-8 5-12 12-12h68c7 0 12 4 12 12 0 3-3 5-6 3-4-3-6 2-10 4s-6-5-11-3-6 7-11 5-6-6-11-4-7 6-11 4-5-6-10-4c-4 2-6 6-10 3z" fill="#fff" opacity=".96"/><rect x="57" y="20" width="6" height="22" rx="3" fill="#6ec1ff"/><path d="M60 6c5 5 6 10 0 14-6-4-5-9 0-14z" fill="#ffb020"/>`},
-    {k:'diamond', n:'Алмаз', p:100, c:['#3bb8ff','#3730a3'], r:'r', s:`<path d="M36 22h48l24 28-48 56L12 50z" fill="#2459e8"/><path d="M36 22l-24 28h96L84 22z" fill="#7fd8ff"/><path d="M12 50h96M36 22l24 28 24-28M60 50v56M12 50l48 56M108 50L60 106" stroke="#ffffffaa" stroke-width="1.8" fill="none" stroke-linejoin="round"/><path d="M44 27l-7 18" stroke="#fff" stroke-width="5" stroke-linecap="round" opacity=".75"/>`},
-    {k:'crown', n:'Корона', p:150, c:['#ffc83a','#c2410c'], r:'r', s:`<path d="M14 40l24 24 22-36 22 36 24-24-8 58H22z" fill="#ffc83a" stroke="#b86a00" stroke-width="2.5" stroke-linejoin="round"/><rect x="22" y="90" width="76" height="14" rx="6" fill="#e08a00"/><circle cx="14" cy="38" r="7" fill="#ff5d8f"/><circle cx="60" cy="24" r="8" fill="#5bd8ff"/><circle cx="106" cy="38" r="7" fill="#7cf29a"/>`},
-    {k:'rocket', n:'Ракета', p:200, c:['#5b6cff','#14123a'], r:'r', s:`<path d="M60 118c-9-10-13-20-11-30h22c2 10-2 20-11 30z" fill="#ff9d2e"/><path d="M42 76L24 96l4-32 16-10zM78 76l18 20-4-32-16-10z" fill="#ff4d6d"/><path d="M60 6c17 14 23 38 18 72H42C37 44 43 20 60 6z" fill="#fff"/><path d="M60 6c11 9 17 21 19 34-6-7-12-9-19-9z" fill="#ff4d6d"/><circle cx="60" cy="52" r="12" fill="#1c2b5a"/><circle cx="60" cy="52" r="8.5" fill="#5bd8ff"/>`},
-    {k:'butterfly', n:'Бабочка', p:300, c:['#c06bff','#2a0f5e'], r:'e', s:`<path d="M57 58C42 14 6 14 8 46c2 17 22 27 49 12z" fill="#b66bff"/><path d="M57 64C32 62 20 86 33 100c11 11 23-8 24-36z" fill="#b66bff" opacity=".92"/><ellipse cx="60" cy="64" rx="4.6" ry="24" fill="#2b1457"/><path d="M58 42c-3-11-9-16-15-17M62 42c3-11 9-16 15-17" stroke="#2b1457" stroke-width="2.6" fill="none" stroke-linecap="round"/><g transform="translate(120 0) scale(-1 1)"><path d="M57 58C42 14 6 14 8 46c2 17 22 27 49 12z" fill="#b66bff"/><path d="M57 64C32 62 20 86 33 100c11 11 23-8 24-36z" fill="#b66bff" opacity=".92"/></g>`},
-    {k:'planet', n:'Сатурн', p:500, c:['#ffb347','#5a1d6b'], r:'e', s:`<g transform="rotate(-20 60 60)"><path d="M6 60A54 16 0 0 1 114 60" fill="none" stroke="#fff3d6" stroke-width="8" opacity=".75"/><circle cx="60" cy="60" r="31" fill="#ff9a3c"/><path d="M33 52c18 8 40 6 55-4M31 68c20 8 42 6 58-6" stroke="#fff" stroke-opacity=".28" stroke-width="4" fill="none" stroke-linecap="round"/><path d="M6 60A54 16 0 0 0 114 60" fill="none" stroke="#fff3d6" stroke-width="8"/></g>`},
-    {k:'ring', n:'Кольцо', p:800, c:['#ff7eb6','#4a1d7a'], r:'e', s:`<circle cx="60" cy="86" r="26" fill="none" stroke="#ffc83a" stroke-width="9"/><path d="M50 62l10 8 10-8" fill="none" stroke="#ffc83a" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/><path d="M46 18h28l11 14-25 28-25-28z" fill="#7fd8ff"/><path d="M35 32h50M46 18l14 14 14-14M60 32v28" stroke="#fff" stroke-opacity=".7" stroke-width="1.5" fill="none" stroke-linejoin="round"/>`},
-    {k:'orb', n:'Шар', p:1200, c:['#8b5cf6','#150d3a'], r:'l', s:`<path d="M28 112l9-16h46l9 16z" fill="#b86a00"/><circle cx="60" cy="52" r="42" fill="#8b5cf6"/><path d="M26 58c10-24 36-28 56-14M34 72c15 11 36 7 49-9" stroke="#ff9de2" stroke-width="3.2" fill="none" opacity=".75"/><ellipse cx="42" cy="28" rx="15" ry="8" fill="#fff" opacity=".5" transform="rotate(-32 42 28)"/>`},
-    {k:'nova', n:'Сверхновая', p:2000, c:['#ffb020','#6a1b9a'], r:'l', s:`<path d="M60 3l10 38 38 19-38 19-10 38-10-38-38-19 38-19z" fill="#ffc83a"/><path d="M60 20l5 28 27 12-27 12-5 28-5-28-27-12 27-12z" fill="#fff" opacity=".55"/><circle cx="60" cy="60" r="7" fill="#fff"/>`},
-    {k:'fire', n:'Огонь', p:40, c:['#ff4d4d','#800000'], r:'c', s:`<path d="M60 10c10 20 30 35 30 60 0 20-13 35-30 35S30 90 30 70c0-15 10-30 15-40 0 10 5 15 10 15 5 0 10-10 5-35z" fill="#ff7a00"/><path d="M60 45c5 10 15 20 15 35 0 10-7 20-15 20s-15-10-15-20c0-10 5-20 15-35z" fill="#ffd75e"/>`},
-    {k:'trophy', n:'Кубок', p:250, c:['#ffd75e','#b86a00'], r:'r', s:`<path d="M30 20h60v20c0 20-13 30-30 30S30 60 30 40z" fill="#ffc83a" stroke="#b86a00" stroke-width="3"/><path d="M30 25H15v15c0 15 10 20 20 20M90 25h15v15c0 15-10 20-20 20" fill="none" stroke="#ffc83a" stroke-width="6" stroke-linecap="round"/><rect x="52" y="70" width="16" height="20" fill="#b86a00"/><rect x="38" y="90" width="44" height="14" rx="4" fill="#ffc83a"/><path d="M45 35l15-10 15 10" stroke="#fff" stroke-width="3" fill="none" stroke-linejoin="round"/>`}
-  ];
-  window.GFT = GFT;
-  const GBY = Object.fromEntries(GFT.map(g => [g.k, g]));
-  const RAR = { c:['Обычный','#9aa4b5'], r:['Редкий','#4aa8ff'], e:['Эпический','#c26bff'], l:['Легендарный','#ffc83a'] };
-  const gsvg = (g, cls='') => `<svg class="${cls}" viewBox="0 0 120 120">${g.s}</svg>`;
+  window.gsvg = function(g, cls='') {
+    return `<svg class="${cls}" viewBox="0 0 120 120">${g.s}</svg>`;
+  };
 
-  /* Перекрываем сетку подарков */
-  window.giftGrid = () => `
-    <div class="gfw">
-      <div class="gfb" style="margin-bottom:12px">${coin3d(20)}<span>Баланс: <b id="gfBal">${nf(prof.coins)}</b>${cur && cur.kind==='dm' ? ' · для '+esc(cur.name) : ''}</span><button onclick="buyCoins()">Пополнить</button></div>
-      <div class="gfg">
-        ${GFT.map(g => `<button class="gfc${window.GFS===g.k?' on':''}" style="--rc:${RAR[g.r][1]}" data-k="${g.k}" onclick="gfPick('${g.k}')">${gsvg(g)}<b>${g.n}</b><em>${RAR[g.r][0]}</em><i>${coin3d(13)}${nf(g.p)}</i></button>`).join('')}
-      </div>
-      <button class="btn gfs" id="gfGo" onclick="giftSend()" ${window.GFS?'':'disabled'} style="margin-top:12px; width:100%; border-radius:999px; min-height:50px; font-weight:700;">
-        ${window.GFS ? 'Подарить · '+nf(GBY[window.GFS].p)+' монет' : 'Выберите подарок'}
-      </button>
-    </div>`;
-
-  /* Перекрываем отправку подарка */
-  window.giftSend = async () => {
-    if(!cur || !window.GFS) return;
-    const g = GBY[window.GFS];
-    if((prof.coins || 0) < g.p) return toast('Недостаточно монет', { undo: () => buyCoins() });
-    const b = $('#gfGo');
-    if(b) { b.disabled = true; b.textContent = 'Отправляем…'; }
-    const r = await SB.rpc('send_gift', { cid: String(cur.id), gift: g.k });
-    if(r.error) {
-      if(b) { b.disabled = false; b.textContent = 'Подарить · '+g.p+' монет'; }
-      return toast('Ошибка отправки');
+  // 2. Безопасный рендер сообщений (чат больше не будет пустым)
+  const _prevBodyH = window.bodyH;
+  window.bodyH = function(m) {
+    try {
+      const g = window.giftOf(m);
+      if (g) {
+        const mine = m.sender_id === me.id;
+        const who = mine ? 'Вы подарили' : (cur && cur.kind === 'dm' ? esc(cur.name) + ' дарит вам' : 'Вам подарили');
+        return `<div class="gcard" style="--g1:${g.c[0]};--g2:${g.c[1]}"><i class="gsp"></i><i class="gsp"></i><i class="gsp"></i>${window.gsvg(g, 'gi')}<b>${g.n}</b><small>${who}</small></div>`;
+      }
+      return _prevBodyH.apply(this, arguments);
+    } catch (e) {
+      console.error('Ошибка рендера сообщения:', e);
+      return esc(m.body || '');
     }
-    const d = r.data || {};
-    if(typeof d.coins === 'number') prof.coins = d.coins;
-    closeSheet(); vib([14,30,20]);
-    if(window.giftFx) giftFx(g);
-    if(d.msg && cur && !msgs.find(m => m.id === d.msg.id)) addMsg(d.msg);
-    await loadChats(); if(tab === 'chats') drawList();
   };
 
-  /* ===== 2. ГОЛОСОВЫЕ КАК В ТЕЛЕГЕ ===== */
-  let VStartY = 0, VCancel = false;
-  window.recVoice = async function() {
-    if(R || !cur || !canRec()) return;
-    try { AC = AC || new (window.AudioContext || webkitAudioContext)(); AC.resume?.(); } catch(e) {}
-    let st;
-    try { st = await navigator.mediaDevices.getUserMedia({ audio: { echoCancellation: true, noiseSuppression: true } }); }
-    catch(e) { return toast('Нет доступа к микрофону'); }
-    
-    R = { k: 'voice', st, phase: 'pre', w: [] };
-    beginRec();
-    VStartY = 0; VCancel = false;
+  // 3. Красивые иконки для нижней панели
+  if (window.P) {
+    P.chat = '<path d="M12 20.5c4.8 0 8.7-3.2 8.7-7.2S16.8 6.1 12 6.1 3.3 9.3 3.3 13.3c0 1.6.6 3.1 1.6 4.3l-1.1 3.2 3.7-1.4c1.3.7 2.8 1.1 4.5 1.1z" fill="currentColor" fill-opacity=".2"/><path d="M12 20.5c4.8 0 8.7-3.2 8.7-7.2S16.8 6.1 12 6.1 3.3 9.3 3.3 13.3c0 1.6.6 3.1 1.6 4.3l-1.1 3.2 3.7-1.4c1.3.7 2.8 1.1 4.5 1.1z"/><path d="M8.5 13h.01M12 13h.01M15.5 13h.01" stroke-width="2.5"/>';
+    P.cphone = '<path d="M15.5 14.2l-1.9 1.9c-2-1-3.8-2.8-4.8-4.8l1.9-1.9c.5-.5.6-1.2.3-1.8l-1.5-3c-.3-.6-1-1-1.7-.8l-2.5.6C4 4.4 4 5.3 4 6.2c0 8.4 7.4 15.8 15.8 15.8.9 0 1.8-.1 1.8-1.2l.6-2.5c.2-.7-.2-1.4-.8-1.7l-3-1.5c-.6-.3-1.3-.2-1.8.3z" fill="currentColor" fill-opacity=".2"/><path d="M15.5 14.2l-1.9 1.9c-2-1-3.8-2.8-4.8-4.8l1.9-1.9c.5-.5.6-1.2.3-1.8l-1.5-3c-.3-.6-1-1-1.7-.8l-2.5.6C4 4.4 4 5.3 4 6.2c0 8.4 7.4 15.8 15.8 15.8.9 0 1.8-.1 1.8-1.2l.6-2.5c.2-.7-.2-1.4-.8-1.7l-3-1.5c-.6-.3-1.3-.2-1.8.3z"/>';
+    P.users = '<circle cx="12" cy="8" r="4" fill="currentColor" fill-opacity=".2"/><path d="M6 20v-2c0-2.5 2-4 6-4s6 1.5 6 4v2H6z" fill="currentColor" fill-opacity=".2"/><circle cx="12" cy="8" r="4"/><path d="M6 20v-2c0-2.5 2-4 6-4s6 1.5 6 4v2H6z"/>';
+    P.gear = '<circle cx="12" cy="12" r="3.5" fill="currentColor" fill-opacity=".2"/><circle cx="12" cy="12" r="3.5"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/>';
+  }
 
-    const el = document.createElement('div');
-    el.className = 'tg-rec-ui';
-    el.innerHTML = `
-      <div class="tg-hint" id="tg-hint">← Сдвиньте для отмены</div>
-      <div class="tg-bar">
-        <div class="rdot" style="width:10px;height:10px;border-radius:50%;background:#ff4d4d;animation:rpl 1s infinite"></div>
-        <div class="rtm" id="rtm" style="font-size:15px;font-weight:600;min-width:40px">0:00</div>
-        <div class="rwv" id="rwv">${'<i></i>'.repeat(36)}</div>
-        <button class="sbtn" style="width:36px;height:36px;border-radius:50%;background:var(--ac);color:var(--acx);display:grid;place-items:center" onclick="recStop()">${ic('send')}</button>
-      </div>`;
-    document.body.appendChild(el);
-
-    const move = (e) => {
-      if(!R || R.k !== 'voice') return;
-      const y = e.touches ? e.touches[0].clientY : e.clientY;
-      if(VStartY === 0) VStartY = y;
-      const dy = VStartY - y;
-      const hint = document.getElementById('tg-hint');
-      if(dy > 60) {
-        VCancel = true;
-        if(hint) { hint.style.opacity = 1; hint.textContent = 'Отпустите для отмены'; }
-        el.style.background = '#ff3b3022';
-      } else {
-        VCancel = false;
-        if(hint) { hint.style.opacity = 0; }
-        el.style.background = 'var(--s2)';
-      }
+  // Обновляем навбар с новыми иконками
+  if (window.updNav) {
+    const _oldNav = window.updNav;
+    window.updNav = function() {
+      _oldNav();
+      document.querySelectorAll('.tbp button').forEach(b => {
+        const txt = b.querySelector('span')?.textContent;
+        if (txt === 'Чаты') b.innerHTML = window.NAVCHAT + b.innerHTML.slice(b.innerHTML.indexOf('<span'));
+        else if (txt === 'Звонки') b.innerHTML = ic('cphone') + b.innerHTML.slice(b.innerHTML.indexOf('<span'));
+        else if (txt === 'Контакты') b.innerHTML = ic('users') + b.innerHTML.slice(b.innerHTML.indexOf('<span'));
+        else if (txt === 'Настройки') b.innerHTML = ic('gear') + b.innerHTML.slice(b.innerHTML.indexOf('<span'));
+      });
     };
+  }
 
-    const up = () => {
-      window.removeEventListener('pointermove', move);
-      window.removeEventListener('touchmove', move);
-      window.removeEventListener('pointerup', up);
-      window.removeEventListener('touchend', up);
-      if(R && R.k === 'voice' && R.phase === 'rec') {
-        if(VCancel) { recCancel(); toast('Запись отменена'); }
-        else { recStop(); }
-      }
-    };
-
-    window.addEventListener('pointermove', move);
-    window.addEventListener('touchmove', move, { passive: true });
-    window.addEventListener('pointerup', up);
-    window.addEventListener('touchend', up);
-  };
-
-  /* ===== 3. КРУЖОК КАК В ТЕЛЕГЕ (вылетает) ===== */
-  window.recCircle = async function() {
-    if(R || !cur || !canRec()) return;
-    try { AC = AC || new (window.AudioContext || webkitAudioContext)(); AC.resume?.(); } catch(e) {}
-    let st;
-    try { st = await getCam('user'); } catch(e) { return toast('Нет доступа к камере'); }
-    
-    R = { k: 'circle', st, face: 'user', phase: 'pre', w: [] };
-    const o = document.createElement('div');
-    o.className = 'tg-circle-rec';
-    o.id = 'tg-circle';
-    o.innerHTML = `<video id="tg-cv" autoplay playsinline muted></video><div class="tg-ct" id="tg-ct">0:00</div>`;
-    document.body.appendChild(o);
-    
-    const v = document.getElementById('tg-cv');
-    v.srcObject = st;
-    v.play().catch(() => {});
-    
-    beginRec();
-    
-    window.tgCircleTimer = setInterval(() => {
-      if(R && R.k === 'circle' && R.t0) {
-        const c = document.getElementById('tg-ct');
-        if(c) c.textContent = mmss((Date.now() - R.t0) / 1000);
-      }
-    }, 500);
-
-    o.onclick = () => { recStop(); };
-
-    const origRecKill = window.recKill;
-    window.recKill = function() {
-      clearInterval(window.tgCircleTimer);
-      document.getElementById('tg-circle')?.remove();
-      return origRecKill.apply(this, arguments);
-    };
-  };
-
-  /* Убираем старый UI записи, чтобы не мешал */
-  const origBeginRec = window.beginRec;
-  window.beginRec = function() {
-    document.getElementById('recb')?.remove(); // Убираем старую панель
-    if(origBeginRec) origBeginRec.apply(this, arguments);
-  };
+  console.log('✅ v19 Успешно загружен: исправлены чаты, свайпы и добавлена имбовая стекляшка!');
 })();
 </script>
-<!-- ===== /v18 ===== -->
+<!-- ===== /v19 ===== -->
 </body></html>
