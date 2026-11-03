@@ -2049,7 +2049,7 @@ const NI=[
 S+'<path class="d" fill="currentColor" d="M4 11.5C4 7.4 7.6 4.5 12 4.5s8 2.9 8 7-3.6 7-8 7c-1 0-2-.1-2.9-.4L5 20l1.1-3.6C4.8 15.2 4 13.5 4 11.5z"/><circle cx="8.8" cy="11.6" r=".6" fill="currentColor"/><circle cx="12" cy="11.6" r=".6" fill="currentColor"/><circle cx="15.2" cy="11.6" r=".6" fill="currentColor"/>'+E,
 S+'<path class="d" fill="currentColor" d="M6.6 3.5h3l1.5 4-2 1.3a11 11 0 0 0 5.1 5.1l1.3-2 4 1.5v3a2 2 0 0 1-2.2 2A16.5 16.5 0 0 1 4.6 5.7 2 2 0 0 1 6.6 3.5z"/>'+E,
 S+'<circle class="d" fill="currentColor" cx="9" cy="8" r="3.6"/><path class="d" fill="currentColor" d="M2.8 19.5c0-3.2 2.8-5.5 6.2-5.5s6.2 2.3 6.2 5.5z"/><path fill="none" d="M15.6 4.8a3.2 3.2 0 0 1 0 6.2M17.4 14.3c2.3.5 3.8 2.2 3.8 5.2"/>'+E,
-S+'<path class="d" fill="currentColor" d="M12 2.8l1.7 2.1 2.7-.5.9 2.6 2.5 1.2-.5 2.7 1.6 2.1-1.9 1.9.5 2.7-2.5 1.2-.9 2.6-2.7-.5L12 21.2l-1.7-2.1-2.7.5-.9-2.6-2.5-1.2.5-2.7L3.1 12l1.9-1.9-.5-2.7 2.5-1.2.9-2.6 2.7.5z"/><circle cx="12" cy="12" r="3" fill="none"/>'+E];
+S+'<circle class="d" fill="currentColor" cx="12" cy="12" r="7.4"/><path fill="none" stroke-width="3.2" d="M20.4 12h1M17.94 17.94l.71.71M12 20.4v1M6.06 17.94l-.71.71M3.6 12h-1M6.06 6.06l-.71-.71M12 3.6v-1M17.94 6.06l.71-.71"/><circle cx="12" cy="12" r="2.7" fill="none"/>'+E];
 const _un=updNav;
 updNav=function(){const r=_un.apply(this,arguments);const n=document.getElementById('tb');if(n)n.querySelectorAll('.tbp button').forEach((b,i)=>{if(b.dataset.d||!NI[i])return;const v=b.querySelector('svg');if(v){v.outerHTML=NI[i];b.dataset.d=1}});return r};
 try{updNav()}catch(e){}
