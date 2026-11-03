@@ -760,7 +760,7 @@ back:['Гудок','sine',[[425,0,1,.05]]],
 end:['Отбой','sine',[[480,0,.15,.06],[380,.17,.25,.06]]]};
 const S_MSG=['ding','pop','drop','chime','bell','marimba','harp','sonar','glass','bubble','knock','whistle','laser','coin','xylo','duo','crystal','synth','magic','retro'],
 S_CHAT=['','tick','pop','bubble','drop','ok','duo','glass'],S_SEND=['pop','tick','bubble','knock','ok','drop','glass','coin'],S_RING=['ring1','ring2','ring3','ring4','bell','chime','marimba','retro'];
-function tone(k,m){try{const d=SN[k];if(!d)return;AC=AC||new(window.AudioContext||webkitAudioContext)();if(AC.state==='suspended')AC.resume();
+function tone(k,m){try{const d=SN[k];if(!d)return;AC=AC||new(window.AudioContext||webkitAudioContext)();if(AC.state!=='running')AC.resume();
 const t0=AC.currentTime+.01,vol=(m||1)*(PF.vol??1);
 for(const[f,s,du,gn,e]of d[2]){const o=AC.createOscillator(),n=AC.createGain(),a=t0+s;o.type=d[1];o.connect(n);n.connect(AC.destination);
 o.frequency.setValueAtTime(f,a);if(e)o.frequency.exponentialRampToValueAtTime(e,a+du*.9);
@@ -809,7 +809,7 @@ drawList();fxId=null}
 function drawMain(){setTimeout(cwApply,0);setTimeout(cwFetch,40);const m=$('#main');m.classList.toggle('ro',cur?.kind==='channel');
 if(!cur){m.innerHTML=`<div class="empty on">${LOGO(80)}<div>Выберите чат</div></div>`;return}
 m.innerHTML=`<div class="wpl"></div><div class="top"><button class="ib bk" onclick="closeChat()">${ic('back')}</button>${av(cur,40)}<div class="t" onclick="showP()" style="cursor:pointer"><div class="n">${esc(cur.name)}${badges(cur)}</div><div class="sub" id="st">${esc(status(cur))}</div></div>${cur.kind==='dm'&&cur.pid?`<button class="ib" aria-label="Звонок" onclick="startCall(0)">${ic('phone')}</button><button class="ib" aria-label="Видеозвонок" onclick="startCall(1)">${ic('video')}</button>`:''}</div><div class="msgs" id="ms"></div><button class="dn" id="dn" onclick="toBottom()">${ic('down')}</button><div id="rpb"></div>
-<div class="comp"><label class="ib" style="background:var(--s2);cursor:pointer">${ic('clip')}<input type="file" accept="image/*,audio/*,.mp3,.m4a" hidden onchange="sendPhoto(this.files[0]);this.value=''"></label><input id="in" placeholder="Сообщение" autocomplete="off" enterkeyhint="send" oninput="typ();inp(this)" onkeydown="if(event.key==='Enter')send()"><button class="ib stb" aria-label="Стикеры" onclick="sheetSt()">${ic('sticker')}</button>
+<div class="comp"><label class="ib" style="background:var(--s2);cursor:pointer">${ic('clip')}<input type="file" accept="image/*,audio/*,.mp3,.m4a" hidden onchange="sendPhoto(this.files[0]);this.value=''"></label><input id="in" placeholder="Сообщение" autocomplete="off" enterkeyhint="send" oninput="typ();inp(this)" onkeydown="if(event.key==='Enter')send()"><button class="ib stb" aria-label="Стикеры" onclick="sheetSt()">${ic('sticker')}</button><button class="ib stb gtb" aria-label="Подарок" onclick="sheetGift()">🎁</button>
 <div class="cact"><button class="ib cam" aria-label="Кружок" onclick="recCircle()">${ic('circle')}</button><button class="ib mic" aria-label="Голосовое" onclick="recVoice()">${ic('mic')}</button><button class="ib snd" aria-label="Отправить" onpointerdown="event.preventDefault()" onclick="send()">${ic('send')}</button></div><div class="recb" id="recb"></div></div>`;drawMsgs();swInit();drawRp();tJoin()}
 let dtm;function inp(el){el.closest('.comp').classList.toggle('has',!!el.value.trim());if(!cur)return;PF.dr=PF.dr||{};if(el.value.trim())PF.dr[cur.id]=el.value;else delete PF.dr[cur.id];clearTimeout(dtm);dtm=setTimeout(savePF,500)}
 function loadDraft(){const i=$('#in'),v=cur&&(PF.dr||{})[cur.id];if(i&&v){i.value=v;i.closest('.comp').classList.add('has')}}
@@ -913,62 +913,115 @@ async function savePw(){const a=$('#np1').value,b=$('#np2').value;if(a.length<6)
 function sheetAbout(){sheet('Logos',`<div style="text-align:center;padding:8px 0 4px">${LOGO(64)}<div style="font-weight:700;margin-top:8px">Logos v14.5</div><div class="sub">${esc(me.email)}</div></div>`)}
 
 /* ---- звонки: WebRTC, сигналы идут через Supabase Realtime (ничего в базе менять не нужно) ---- */
-const ICE={iceServers:[{urls:['stun:stun.l.google.com:19302','stun:stun1.l.google.com:19302']},{urls:['turn:openrelay.metered.ca:80','turn:openrelay.metered.ca:443','turn:openrelay.metered.ca:443?transport=tcp'],username:'openrelayproject',credential:'openrelayproject'}]};
+/* ICE: STUN + бесплатный публичный TURN (Metered Open Relay) по UDP/TCP/TLS — нужен для мобильного интернета (CGNAT, iOS<->Android).
+   Для стабильной работы заведите бесплатный аккаунт на metered.ca и впишите свои логин/пароль в TURN_CUSTOM ниже.
+   (Twilio TURN требует временные токены с сервера, поэтому из статичного index.html его подключить нельзя.) */
+const TURN_CUSTOM=null; /* пример: {urls:['turn:global.relay.metered.ca:80','turn:global.relay.metered.ca:443','turns:global.relay.metered.ca:443?transport=tcp'],username:'ВАШ_ЛОГИН',credential:'ВАШ_ПАРОЛЬ'} */
+const ICE={iceServers:[
+{urls:['stun:stun.l.google.com:19302','stun:stun1.l.google.com:19302','stun:stun2.l.google.com:19302','stun:stun.cloudflare.com:3478']},
+{urls:['turn:openrelay.metered.ca:80','turn:openrelay.metered.ca:80?transport=tcp','turn:openrelay.metered.ca:443','turn:openrelay.metered.ca:443?transport=tcp','turns:openrelay.metered.ca:443?transport=tcp'],username:'openrelayproject',credential:'openrelayproject'}
+],iceCandidatePoolSize:4,bundlePolicy:'max-bundle',rtcpMuxPolicy:'require'};
+if(TURN_CUSTOM)ICE.iceServers.push(TURN_CUSTOM);
+const clog=(...a)=>{try{console.log('%c[CALL]','color:#22c55e;font-weight:bold',((performance.now()/1000).toFixed(1))+'s',...a)}catch(e){}};
+const ctype=c=>(/ typ (\w+)/.exec((c&&c.candidate)||'')||[])[1]||'?';
 let CL=null,inbox=null,ringT=null;const outs={};
-function ringStart(k,gap,vb){ringStop();const go=()=>{tone(k,1.3);if(vb)vib([350,150,350])};go();ringT=setInterval(go,gap)}
-function ringStop(){clearInterval(ringT);ringT=null;try{navigator.vibrate?.(0)}catch(e){}}
-function callInit(){try{inbox=SB.channel('inbox-'+me.id,{config:{broadcast:{self:false}}});inbox.on('broadcast',{event:'sig'},p=>onSig(p.payload||{})).subscribe()}catch(e){}}
-function getOut(to){return outs[to]||(outs[to]=new Promise(res=>{const ch=SB.channel('inbox-'+to,{config:{broadcast:{self:false}}});ch.subscribe(s=>{if(s==='SUBSCRIBED')res(ch)})}))}
-async function sig(to,m){try{const ch=await getOut(to);ch.send({type:'broadcast',event:'sig',payload:{...m,from:me.id}})}catch(e){}}
-async function getMic(v){const a={echoCancellation:true,noiseSuppression:true,autoGainControl:true};
+/* --- звук: один глобальный <audio id="ra"> (без muted), разблокируется жестом пользователя --- */
+const SIL='data:audio/wav;base64,UklGRiQAAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQAAAAA=';
+function ra(){let a=document.getElementById('ra');if(!a){a=document.createElement('audio');a.id='ra';a.autoplay=true;a.setAttribute('playsinline','');a.playsInline=true;a.muted=false;a.style.display='none';document.body.appendChild(a)}return a}
+function unlockAudio(){clog('unlockAudio (жест пользователя)');
+try{AC=AC||new(window.AudioContext||webkitAudioContext)();if(AC.state!=='running')AC.resume().then(()=>clog('AudioContext',AC.state)).catch(()=>{})}catch(e){clog('AudioContext fail',e)}
+try{const a=ra();a.muted=false;a.removeAttribute('muted');a.volume=1;if(!a.srcObject){a.src=SIL;const p=a.play();p&&p.then(()=>{clog('audio разблокирован');if(!a.srcObject)a.pause()}).catch(e=>clog('audio unlock blocked',e&&e.name))}}catch(e){}}
+/* нативный рингтон-фоллбэк, если AudioContext не стартовал */
+let ringEl=null;
+function mkRingWav(){const sr=8000,n=sr*2,b=new ArrayBuffer(44+n),d=new DataView(b),w=(o,s)=>{for(let i=0;i<s.length;i++)d.setUint8(o+i,s.charCodeAt(i))};
+w(0,'RIFF');d.setUint32(4,36+n,true);w(8,'WAVEfmt ');d.setUint32(16,16,true);d.setUint16(20,1,true);d.setUint16(22,1,true);d.setUint32(24,sr,true);d.setUint32(28,sr,true);d.setUint16(32,1,true);d.setUint16(34,8,true);w(36,'data');d.setUint32(40,n,true);
+for(let i=0;i<n;i++){const t=i/sr;let v=0;if(t<.35)v=Math.sin(6.283*880*t);else if(t>.5&&t<.85)v=Math.sin(6.283*1175*t);const e=Math.min(1,(t%.5)*40,(.35-(t%.5))*40+1);d.setUint8(44+i,128+Math.round(v*80*Math.max(0,e)))}
+return URL.createObjectURL(new Blob([b],{type:'audio/wav'}))}
+function ringEnsure(){if(!ringEl){ringEl=new Audio();ringEl.loop=true;ringEl.src=mkRingWav()}return ringEl}
+function ringNative(){try{const r=ringEnsure();r.volume=1;r.play().then(()=>clog('нативный рингтон играет')).catch(e=>clog('нативный рингтон заблокирован',e&&e.name))}catch(e){}}
+function ringNativeStop(){try{if(ringEl){ringEl.pause();ringEl.currentTime=0}}catch(e){}}
+/* не гасим экран во время вызова/звонка */
+let WL=null;
+async function wlOn(){try{if(navigator.wakeLock&&!WL&&document.visibilityState==='visible'){WL=await navigator.wakeLock.request('screen');WL.addEventListener('release',()=>{WL=null});clog('wakeLock включён')}}catch(e){clog('wakeLock fail',e&&e.name)}}
+function wlOff(){try{WL&&WL.release()}catch(e){}WL=null}
+document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible'){try{if(AC&&AC.state!=='running')AC.resume()}catch(e){}if(CL){wlOn();attachRemote()}}});
+/* первый тап на странице разблокирует звук (чтобы рингтон входящего сработал без жеста) */
+let gOK=false;const gUnlock=()=>{if(gOK)return;gOK=true;
+try{AC=AC||new(window.AudioContext||webkitAudioContext)();AC.resume&&AC.resume()}catch(e){}
+try{const a=ra();if(!a.srcObject){a.src=SIL;a.play().then(()=>{if(!a.srcObject)a.pause()}).catch(()=>{})}}catch(e){}
+try{const r=ringEnsure();r.volume=0;r.play().then(()=>{if(!ringT){r.pause();r.currentTime=0}r.volume=1}).catch(()=>{r.volume=1})}catch(e){}
+clog('звук разблокирован первым жестом');['pointerup','touchend','click','keydown'].forEach(ev=>document.removeEventListener(ev,gUnlock,true))};
+['pointerup','touchend','click','keydown'].forEach(ev=>document.addEventListener(ev,gUnlock,{capture:true,passive:true}));
+function ringStart(k,gap,vb){ringStop();const go=()=>{tone(k,1.3);if(vb)vib([350,150,350])};go();ringT=setInterval(go,gap);clog('ringStart',k,vb?'(входящий)':'(исходящий)');if(vb){wlOn();setTimeout(()=>{if(ringT&&(!AC||AC.state!=='running')){clog('AudioContext не запущен ('+(AC&&AC.state)+') → нативный рингтон');ringNative()}},450)}}
+function ringStop(){clearInterval(ringT);ringT=null;ringNativeStop();try{navigator.vibrate?.(0)}catch(e){}}
+function callInit(){try{inbox=SB.channel('inbox-'+me.id,{config:{broadcast:{self:false}}});inbox.on('broadcast',{event:'sig'},p=>onSig(p.payload||{})).subscribe(s=>clog('inbox channel',s))}catch(e){clog('inbox error',e)}}
+function getOut(to){if(outs[to])return outs[to];
+const p=new Promise((res,rej)=>{const ch=SB.channel('inbox-'+to,{config:{broadcast:{self:false}}});let done=false;
+const fail=s=>{if(!done){done=true;rej(new Error(s))}if(outs[to]===p)delete outs[to];try{SB.removeChannel(ch)}catch(e){}};
+const tm=setTimeout(()=>{clog('out channel TIMEOUT',to.slice(0,6));fail('TIMEOUT')},8000);
+ch.subscribe(s=>{clog('out channel',to.slice(0,6),s);if(s==='SUBSCRIBED'){if(!done){done=true;clearTimeout(tm);res(ch)}}else if(s==='CHANNEL_ERROR'||s==='TIMED_OUT'||s==='CLOSED'){clearTimeout(tm);fail(s)}})});
+outs[to]=p;p.catch(()=>{});return p}
+async function sig(to,m){for(let i=0;i<2;i++){try{const ch=await getOut(to);const r=await ch.send({type:'broadcast',event:'sig',payload:{...m,from:me.id}});clog('sig →',m.t,r);if(r===undefined||r==='ok')return;delete outs[to]}catch(e){clog('sig fail',m.t,e&&e.message);delete outs[to]}}}
+async function getMic(v){clog('getUserMedia',v?'audio+video':'audio');const a={echoCancellation:true,noiseSuppression:true,autoGainControl:true};
 try{return await navigator.mediaDevices.getUserMedia({audio:a,video:v?{facingMode:'user',width:{ideal:640},height:{ideal:480}}:false})}catch(e){}
 if(v){try{const s=await navigator.mediaDevices.getUserMedia({audio:a});toast('Камера недоступна, звонок без видео');return s}catch(e){}}
 toast('Нет доступа к микрофону. Разрешите его в настройках браузера');return null}
 async function startCall(v){if(!cur||cur.kind!=='dm'||!cur.pid)return;if(CL)return toast('Звонок уже идёт');
 if(!navigator.mediaDevices?.getUserMedia||!window.RTCPeerConnection)return toast('Звонки не поддерживаются в этом браузере');
-const ms=await getMic(v);if(!ms)return;if(CL){ms.getTracks().forEach(t=>t.stop());return}
+unlockAudio();wlOn();clog('startCall',{video:!!v,to:cur.pid});
+const ms=await getMic(v);if(!ms)return;clog('микрофон получен',ms.getTracks().map(t=>t.kind));if(CL){ms.getTracks().forEach(t=>t.stop());return}
 const id=Date.now().toString(36)+Math.random().toString(36).slice(2,6);
 CL={id,to:cur.pid,chat:cur.id,dir:'out',video:!!v&&ms.getVideoTracks().length>0,name:cur.name,avatar:cur.avatar_url||'',state:'ring',stream:ms,q:[],t0:0,muted:false,cam:true};
 callUI();ringStart('back',3400);
-const inv=()=>{if(CL&&CL.id===id&&CL.state==='ring')sig(CL.to,{t:'invite',id,v:CL.video,name:prof.name,av:prof.avatar_url||'',chat:CL.chat})};
+const inv=()=>{if(CL&&CL.id===id&&CL.state==='ring'){clog('invite →');sig(CL.to,{t:'invite',id,v:CL.video,name:prof.name,av:prof.avatar_url||'',chat:CL.chat})}};
 inv();CL.iv=setInterval(inv,2600);CL.to2=setTimeout(()=>{if(CL&&CL.id===id&&CL.state==='ring')endCall(true,'timeout')},45000)}
-function makePC(){const pc=new RTCPeerConnection(ICE);CL.pc=pc;CL.stream.getTracks().forEach(t=>pc.addTrack(t,CL.stream));
-pc.onicecandidate=e=>{if(e.candidate&&CL&&CL.pc===pc)sig(CL.to,{t:'ice',id:CL.id,c:e.candidate.toJSON()})};
-pc.ontrack=e=>{if(!CL||CL.pc!==pc)return;if(e.streams[0])CL.remote=e.streams[0];else{CL.remote=CL.remote||new MediaStream();CL.remote.addTrack(e.track)}attachRemote()};
-pc.onconnectionstatechange=()=>{if(!CL||CL.pc!==pc)return;const s=pc.connectionState;
-if(s==='connected'){clearTimeout(CL.dt);callOn()}
-else if(s==='failed')endCall(true,'fail');
+function makePC(){clog('создаём RTCPeerConnection, серверов:',ICE.iceServers.length);const pc=new RTCPeerConnection(ICE);CL.pc=pc;CL.stream.getTracks().forEach(t=>pc.addTrack(t,CL.stream));
+pc.onicecandidate=e=>{if(!e.candidate){clog('onicecandidate: сбор завершён');return}clog('onicecandidate →',ctype(e.candidate),(e.candidate.address||'').replace(/\d+$/,'x'));if(CL&&CL.pc===pc)sig(CL.to,{t:'ice',id:CL.id,c:e.candidate.toJSON()})};
+pc.onicecandidateerror=e=>clog('ICE error',e.errorCode,e.errorText,e.url||'');
+pc.onicegatheringstatechange=()=>clog('iceGathering:',pc.iceGatheringState);
+pc.onsignalingstatechange=()=>clog('signaling:',pc.signalingState);
+pc.oniceconnectionstatechange=()=>clog('iceConnection:',pc.iceConnectionState);
+pc.ontrack=e=>{clog('ontrack',e.track.kind);if(!CL||CL.pc!==pc)return;if(e.streams[0])CL.remote=e.streams[0];else{CL.remote=CL.remote||new MediaStream();CL.remote.addTrack(e.track)}attachRemote()};
+pc.onconnectionstatechange=()=>{if(!CL||CL.pc!==pc)return;const s=pc.connectionState;clog('connectionState:',s);
+if(s==='connected'){clearTimeout(CL.dt);callOn();clog('СОЕДИНЕНО');logPair(pc)}
+else if(s==='failed'){clog('соединение failed — ни STUN, ни TURN не помогли');endCall(true,'fail')}
 else if(s==='disconnected'){clearTimeout(CL.dt);CL.dt=setTimeout(()=>{if(CL&&CL.pc===pc&&pc.connectionState!=='connected')endCall(true,'fail')},9000)}};
 return pc}
-function attachRemote(){if(!CL?.remote)return;const a=$('#ra'),v=$('#rv');if(a&&a.srcObject!==CL.remote){a.srcObject=CL.remote;a.play?.().catch(()=>{})}if(v&&CL.video&&v.srcObject!==CL.remote){v.srcObject=CL.remote;v.play?.().catch(()=>{})}}
+async function logPair(pc){try{const st=await pc.getStats();let sel;st.forEach(r=>{if(r.type==='transport'&&r.selectedCandidatePairId)sel=st.get(r.selectedCandidatePairId)});if(!sel)st.forEach(r=>{if(r.type==='candidate-pair'&&r.state==='succeeded'&&(r.nominated||r.selected))sel=r});if(sel){const l=st.get(sel.localCandidateId),r=st.get(sel.remoteCandidateId);clog('выбранный путь: local',l&&l.candidateType,'remote',r&&r.candidateType,(l&&l.candidateType==='relay')||(r&&r.candidateType==='relay')?'(через TURN)':'')}}catch(e){}}
+function attachRemote(){if(!CL?.remote)return;const a=ra(),v=$('#rv');
+if(a.srcObject!==CL.remote){a.removeAttribute('src');a.srcObject=CL.remote;clog('remote stream → <audio id=ra>',CL.remote.getTracks().map(t=>t.kind+':'+t.readyState))}
+a.muted=false;a.removeAttribute('muted');a.volume=1;
+if(a.paused){const p=a.play();p&&p.then(()=>clog('удалённый звук играет')).catch(e=>{clog('play() заблокирован',e&&e.name);if(!CL._tap){CL._tap=1;toast('Коснитесь экрана, чтобы включить звук');const f=()=>{a.muted=false;a.play().then(()=>clog('звук включён тапом')).catch(()=>{})};addEventListener('pointerdown',f,{once:true,capture:true})}})}
+if(v&&CL.video&&v.srcObject!==CL.remote){v.srcObject=CL.remote;v.play?.().catch(()=>{})}}
 function callOn(){if(!CL||CL.state==='on')return;CL.state='on';CL.t0=Date.now();ringStop();tone('ok',1);callUI();CL.tm=setInterval(()=>{const e=$('#cls');if(e&&CL)e.textContent=mmss((Date.now()-CL.t0)/1000)},500)}
-async function flushIce(){const q=CL.q.splice(0);for(const c of q){try{await CL.pc.addIceCandidate(c)}catch(e){}}}
-async function onSig(m){const t=m.t;
+async function flushIce(){const q=CL.q.splice(0);if(q.length)clog('применяем ICE из очереди:',q.length);for(const c of q){try{await CL.pc.addIceCandidate(c)}catch(e){clog('queued ICE error',e&&e.message)}}}
+async function onSig(m){const t=m.t;clog('sig ←',t,m.id||'');
 if(t==='invite'){if(CL){if(CL.id!==m.id)sig(m.from,{t:'busy',id:m.id});return}
 const c=chats.find(x=>x.pid===m.from);
 CL={id:m.id,to:m.from,chat:m.chat||c?.id,dir:'in',video:!!m.v,name:c?.name||m.name||'Logos',avatar:c?.avatar_url||m.av||'',state:'ring',q:[],t0:0,muted:false,cam:true};
-callUI();ringStart(PF.rg||'ring1',2400,1);CL.to2=setTimeout(()=>{if(CL&&CL.state==='ring')endCall(false,'missed')},50000);return}
+clog('входящий звонок от',m.from.slice(0,6),m.v?'видео':'аудио');callUI();ringStart(PF.rg||'ring1',2400,1);CL.to2=setTimeout(()=>{if(CL&&CL.state==='ring')endCall(false,'missed')},50000);return}
 if(!CL||CL.id!==m.id)return;
 if(t==='accept'&&CL.dir==='out'&&CL.state==='ring'){clearInterval(CL.iv);clearTimeout(CL.to2);ringStop();CL.state='conn';callUI();
-try{const pc=makePC(),o=await pc.createOffer();await pc.setLocalDescription(o);sig(CL.to,{t:'offer',id:CL.id,sdp:{type:o.type,sdp:o.sdp}})}catch(e){endCall(true,'fail')}}
-else if(t==='offer'&&CL.dir==='in'&&CL.pc){try{await CL.pc.setRemoteDescription(m.sdp);await flushIce();const a=await CL.pc.createAnswer();await CL.pc.setLocalDescription(a);sig(CL.to,{t:'answer',id:CL.id,sdp:{type:a.type,sdp:a.sdp}})}catch(e){endCall(true,'fail')}}
-else if(t==='answer'&&CL.pc){try{await CL.pc.setRemoteDescription(m.sdp);await flushIce()}catch(e){endCall(true,'fail')}}
-else if(t==='ice'){if(CL.pc&&CL.pc.remoteDescription)CL.pc.addIceCandidate(m.c).catch(()=>{});else CL.q.push(m.c)}
+try{const pc=makePC();clog('createOffer');const o=await pc.createOffer();await pc.setLocalDescription(o);clog('offer готов, отправляем');sig(CL.to,{t:'offer',id:CL.id,sdp:{type:o.type,sdp:o.sdp}})}catch(e){clog('ОШИБКА offer',e);endCall(true,'fail')}}
+else if(t==='offer'&&CL.dir==='in'&&CL.pc){try{clog('получен offer, setRemoteDescription');await CL.pc.setRemoteDescription(m.sdp);await flushIce();clog('createAnswer');const a=await CL.pc.createAnswer();await CL.pc.setLocalDescription(a);clog('answer готов, отправляем');sig(CL.to,{t:'answer',id:CL.id,sdp:{type:a.type,sdp:a.sdp}})}catch(e){clog('ОШИБКА answer',e);endCall(true,'fail')}}
+else if(t==='answer'&&CL.pc){try{clog('получен answer, setRemoteDescription');await CL.pc.setRemoteDescription(m.sdp);await flushIce();clog('answer применён')}catch(e){clog('ОШИБКА answer',e);endCall(true,'fail')}}
+else if(t==='ice'){clog('ice ←',ctype(m.c),CL.pc&&CL.pc.remoteDescription?'(добавляем)':'(в очередь)');if(CL.pc&&CL.pc.remoteDescription)CL.pc.addIceCandidate(m.c).catch(e=>clog('addIceCandidate error',e&&e.message));else CL.q.push(m.c)}
 else if(t==='decline')endCall(false,'declined');
 else if(t==='busy')endCall(false,'busy');
 else if(t==='cancel')endCall(false,'cancel-in');
 else if(t==='end')endCall(false,'remote')}
 async function callAccept(){if(!CL||CL.dir!=='in'||CL.state!=='ring')return;const c=CL;clearTimeout(c.to2);ringStop();
+unlockAudio();wlOn();clog('callAccept (Принять)');
 const ms=await getMic(c.video);if(CL!==c){ms?.getTracks().forEach(t=>t.stop());return}
 if(!ms){endCall(true,'decline');return}
-c.stream=ms;c.state='conn';c.video=c.video&&ms.getVideoTracks().length>0;callUI();makePC();sig(c.to,{t:'accept',id:c.id})}
+c.stream=ms;c.state='conn';c.video=c.video&&ms.getVideoTracks().length>0;callUI();makePC();clog('accept →');sig(c.to,{t:'accept',id:c.id})}
 const callDecline=()=>{if(CL)endCall(true,'decline')};
 const callHang=()=>{if(CL)endCall(true,CL.state==='ring'&&CL.dir==='out'?'cancel':'hang')};
 function callMute(){if(!CL)return;CL.muted=!CL.muted;CL.stream?.getAudioTracks().forEach(t=>t.enabled=!CL.muted);callUI();vib(8)}
 function callCam(){if(!CL)return;CL.cam=!CL.cam;CL.stream?.getVideoTracks().forEach(t=>t.enabled=CL.cam);callUI();vib(8)}
 function logCall(chat,body){if(!chat||!body)return;Promise.resolve(SB.from('messages').insert({chat_id:chat,kind:'text',body})).then(async()=>{await loadChats();if(tab==='chats')drawList()},()=>{})}
 function endCall(notify,reason){const c=CL;if(!c)return;CL=null;
-clearInterval(c.iv);clearTimeout(c.to2);clearInterval(c.tm);clearTimeout(c.dt);ringStop();
+clearInterval(c.iv);clearTimeout(c.to2);clearInterval(c.tm);clearTimeout(c.dt);ringStop();wlOff();clog('endCall:',reason,'notify='+notify);try{const ea=document.getElementById('ra');if(ea){ea.pause();ea.srcObject=null}}catch(e){}
 if(notify)sig(c.to,{t:reason==='decline'?'decline':(c.state==='ring'&&c.dir==='out'?'cancel':'end'),id:c.id});
 try{c.pc&&c.pc.close()}catch(e){}c.stream&&c.stream.getTracks().forEach(t=>t.stop());
 const o=$('#call');if(o){o.classList.add('bye');setTimeout(()=>o.remove(),300)}
@@ -979,7 +1032,7 @@ const b=dur?`${k}, ${mmss(dur)}`:({declined:'Звонок отклонён',busy
 logCall(c.chat,b)}
 else if(reason==='cancel-in')toast('Вызов отменён')}
 function callUI(){const c=CL;if(!c)return;let o=$('#call');
-if(!o){o=document.createElement('div');o.id='call';o.className='cl';o.innerHTML=`<div class="clbg"></div><video id="rv" autoplay playsinline muted></video><video id="lv" autoplay playsinline muted></video><audio id="ra" autoplay playsinline></audio><div class="cltop"><div class="clav">${av({name:c.name,avatar_url:c.avatar},132)}</div><div class="cln">${esc(c.name)}</div><div class="cls" id="cls"></div></div><div class="clb" id="clb"></div>`;document.body.appendChild(o)}
+if(!o){o=document.createElement('div');o.id='call';o.className='cl';o.innerHTML=`<div class="clbg"></div><video id="rv" autoplay playsinline muted></video><video id="lv" autoplay playsinline muted></video><div class="cltop"><div class="clav">${av({name:c.name,avatar_url:c.avatar},132)}</div><div class="cln">${esc(c.name)}</div><div class="cls" id="cls"></div></div><div class="clb" id="clb"></div>`;document.body.appendChild(o)}
 o.classList.toggle('vid',!!c.video);o.classList.toggle('on',c.state==='on');
 $('#cls').textContent=c.state==='on'?mmss((Date.now()-c.t0)/1000):c.state==='ring'?(c.dir==='out'?'Вызываем':(c.video?'Входящий видеозвонок':'Входящий звонок')):'Соединяем';
 const B=(cl,i,l,f)=>`<div class="clk"><button class="${cl}" onclick="${f}">${ic(i)}</button>${l}</div>`;
@@ -1727,6 +1780,8 @@ html.nobl .tbp{-webkit-backdrop-filter:none!important;backdrop-filter:none!impor
 /* свайп: кнопки всегда внутри строки */
 .sr{overflow:hidden}.sr .acts{max-width:100%;right:0}.sr .acts button{flex:none;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .sr .row{max-width:100%}
+.gtb{font-size:20px;line-height:1;padding:0;filter:drop-shadow(0 2px 3px #0004);transition:transform .35s cubic-bezier(.3,1.8,.5,1),width .2s,opacity .15s,margin .2s}.gtb:active{transform:scale(.86) rotate(-8deg)}
+.gcard small{letter-spacing:.2px}
 </style>
 <script>
 /* ===== v17 ===== */
@@ -1768,8 +1823,10 @@ window.giftSend=async()=>{
   closeSheet();vb([14,30,20]);try{tone('chime',.7)}catch(e){}
   if(d.msg&&cur&&!msgs.find(m=>m.id===d.msg.id))addMsg(d.msg);
   if(tab==='settings')drawList();await loadChats();if(tab==='chats')drawList()};
+/* отдельная кнопка «Подарок» рядом со стикерами */
+window.sheetGift=()=>{if(!cur)return;GFS=null;vb(8);sheet('🎁 Подарки',giftGrid())};
 /* карточка подарка в сообщении */
-const _bh=bodyH;bodyH=function(m){const g=giftOf(m);if(!g)return _bh.apply(this,arguments);const mine=m.sender_id===me.id,who=mine?'Вы отправили подарок':(cur&&cur.kind==='dm'?esc(cur.name)+' дарит вам':'Вам подарили');return`<div class="gcard" style="--g1:${g.c[0]};--g2:${g.c[1]}"><i class="gsp"></i><i class="gsp"></i><i class="gsp"></i>${gsvg(g,'gi')}<b>${g.n}</b><small>${who}</small></div>`};
+const _bh=bodyH;bodyH=function(m){const g=giftOf(m);if(!g)return _bh.apply(this,arguments);const mine=m.sender_id===me.id,who=mine?'Вы подарили':(cur&&cur.kind==='dm'?esc(cur.name)+' дарит вам':'Вам подарили');return`<div class="gcard" style="--g1:${g.c[0]};--g2:${g.c[1]}"><i class="gsp"></i><i class="gsp"></i><i class="gsp"></i>${gsvg(g,'gi')}<b>${g.n}</b><small>${who}</small></div>`};
 const _am=addMsg;addMsg=function(m){const r=_am.apply(this,arguments);if(giftOf(m))setTimeout(()=>{const e=document.getElementById('m'+m.id);if(e)burst(e)},120);return r};
 function burst(el){const r=el.getBoundingClientRect(),g=giftOf(msgs.find(x=>('m'+x.id)===el.id)||{})||null,em=['✨','💖','⭐','🎉'];
   for(let i=0;i<12;i++){const s=document.createElement('span');s.className='gbur';s.textContent=em[i%4];s.style.left=(r.left+r.width/2)+'px';s.style.top=(r.top+r.height/2)+'px';const a=Math.random()*6.283,d=60+Math.random()*80;s.style.setProperty('--dx',Math.cos(a)*d+'px');s.style.setProperty('--dy',Math.sin(a)*d-30+'px');s.style.setProperty('--r',(Math.random()*120-60)+'deg');document.body.appendChild(s);setTimeout(()=>s.remove(),1200)}}
