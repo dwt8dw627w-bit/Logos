@@ -2280,6 +2280,53 @@ window.sheetTheme=sheetTheme=function(){
 const grp=(t,f)=>`<div class="pl2 gt">${t}</div>`+TH.filter(f).map(thTile).join('');
 sheet('Оформление',`<div class="tgr" onclick="setLv(this)" style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px"><span>Живой фон<br><small style="color:var(--mu)">Мягкое свечение, плавно плывёт по экрану</small></span><i class="tgs${PF.lv?' on':''}"></i></div><div class="thg">${grp('Монохром',t=>MONO.includes(t[0]))}${grp('Цветные тёмные',t=>!t[4]&&!MONO.includes(t[0]))}${grp('Светлые',t=>t[4])}</div><div class="pl2">Размер текста</div>${seg([[.9,'Мелкий'],[1,'Обычный'],[1.12,'Крупный']],PF.fs,'setFs')}<div class="pl2">Форма сообщений</div>${seg([[10,'Строгая'],[20,'Мягкая'],[26,'Круглая']],PF.br,'setBr')}`)};
 applyPF();
+/* ===== НОВЫЕ ТЕМЫ (переименованные) + фильтр Все/Тёмные/Светлые ===== */
+(()=>{
+const H=h=>{h=h.replace('#','');if(h.length===3)h=h.split('').map(c=>c+c).join('');return[parseInt(h.slice(0,2),16),parseInt(h.slice(2,4),16),parseInt(h.slice(4,6),16)]};
+const X=a=>'#'+a.map(v=>Math.max(0,Math.min(255,Math.round(v))).toString(16).padStart(2,'0')).join('');
+const mx=(a,b,t)=>{a=H(a);b=H(b);return X(a.map((v,i)=>v+(b[i]-v)*t))};
+const lum=h=>{const[r,g,b]=H(h);return(.299*r+.587*g+.114*b)/255};
+const DK=[
+['dream','Дрёма','#070716','#a46bff','#5b7bff'],['violet','Фиалка','#43157a','#e0a07a','#9a5cde'],['garnet','Гранат','#4f1530','#f0a8c8','#c0708f'],['azure','Лазурь','#123053','#9cc8f0','#3b86d0'],
+['rowan','Рябина','#2a2150','#d95a6a','#a65a6a'],['salute','Вечерний салют','#0a1030','#d6286e','#3d6be0'],['crimson','Багровый','#0e0e10','#e01818','#a01010'],['navig','Штурман','#06142e','#d9b84a','#3d6be0'],
+['surf','Прибой','#04141f','#0fb4e0','#1d6fdc'],['orbit','Орбита','#0b0716','#7c3aed','#5b3de0'],['glow','Вечерняя заря','#1c0c18','#fb923c','#e0305e'],['thicket','Чаща','#061810','#22c55e','#10a080'],
+['kawaii','Кавай','#150c2e','#f472b6','#8b5cf6'],['neonight','Неоновая ночь','#08031a','#d946a8','#22c0e0'],['shift','Переход','#0d0a24','#b784ff','#5b9bff'],['code','Код','#020c04','#16a34a','#0f7a30'],
+['bloom','Цветение','#1d0f1d','#f070c8','#c880f0'],['ducat','Дукат','#14100a','#d9a21a','#b0580e'],['magma','Магма','#140606','#ff4510','#b81818'],['jade','Нефрит','#04160f','#10b981','#0f8a5a'],
+['fog','Лавандовый туман','#16122a','#a78bfa','#8b8bf5'],['midnight','Синяя полночь','#050520','#4a6cf0','#3b82f6'],['cocoa','Какао','#130a06','#b87850','#8a5a30'],['dune','Дюна','#1a1208','#e0b870','#c08a40'],
+['fresh','Свежесть','#06150f','#20d49a','#10b070'],['north','Северное сияние','#04121c','#35d0a8','#7a5ce8'],['tokyo','Ночной Токио','#100a1a','#f0a020','#e8408a'],['retro','Ретро-волна','#1a0a2e','#e080c8','#38b0f0'],
+['kitty','Мурка','#1a0f0a','#ff8a50','#f06a9a'],['android','Андроид','#0a1224','#2ab0f8','#6a8cf8'],['bamboo','Бамбук','#0e1a0a','#90e030','#30d080'],['foxy','Рыжик','#1a0e08','#f07a10','#f8b820'],
+['spirit','Привидение','#0e0a1e','#b080ff','#e0a8ff'],['ufo','НЛО','#060c14','#50d890','#a050f0'],['den','Берлога','#1a1008','#c8803a','#e89a20'],['nightbird','Ночная птица','#0e0e22','#f08a28','#b050e0'],
+['pony','Пони','#14101e','#c090ff','#60a8f8'],['toad','Квакша','#06180c','#60d850','#d8d020'],['smile','Улыбка','#1a1008','#f8c820','#f89030'],['float','Невесомость','#080c24','#38b0f8','#7a8cf8'],
+['spruce','Ельник','#10281f','#70c8a0','#38a080'],['wine','Вино','#3a0e1c','#e0a860','#c03a58'],['ultra','Ультрамарин','#1c1f5a','#8a90ff','#5a4ae0'],['latte','Латте','#2c1e18','#d4a07a','#a8704a'],
+['honey','Мёд','#2a1808','#ffa830','#e07818'],['orchid','Орхидея','#380a3a','#f060e0','#b020b0'],['fern','Папоротник','#20281a','#b0d848','#6a9a2a'],['evening','Вечер','#241a42','#f09098','#9a5cd8'],
+['atoll','Атолл','#082c38','#30d8c8','#1a98d8'],['blackberry','Ежевика','#2e0e40','#d070f0','#9040c0'],['titan','Титан','#1e2630','#88a8d0','#6888b0'],['berry','Клубника','#400a28','#f03a78','#d81860'],
+['kiwi','Киви','#1c3010','#a8e830','#58b818'],['blaze','Зарево','#3a1830','#f89888','#d85878'],['trench','Марианна','#041424','#3a9af0','#1a6ad0'],['copper','Медь','#2c1408','#e07030','#b04818'],
+['nacre','Перламутр','#1e1e28','#e0d0f0','#b8a0d8'],['ruby','Рубин','#2a0610','#f03a48','#c01028'],['goldshade','Золотая тень','#08080e','#e8c820','#808080'],['web','Паутина','#080c28','#d02040','#3050d0'],
+['cyberdawn','Киберрассвет','#14062a','#e040b0','#30c8e8'],['stardust','Звёздная пыль','#050510','#9a90f8','#38b0f8'],['reactor','Реактор','#140806','#ff4a18','#ffa818'],['noir','Нуар','#10040a','#e8305a','#f06888']
+];
+const LT=[
+['marble','Мрамор','#f7f7f8','#1e2230','#4a4f5c'],['cornflower','Васильки','#ffffff','#2f5be8','#7a3ee0'],['flamingo','Фламинго','#ffffff','#ee4d8f','#fb7a22'],['mojito','Мохито','#ffffff','#0ea58a','#0ea5e9'],
+['caramel','Карамель','#f9f5ef','#c2561d','#c0185a'],['frost','Иней','#f5f7fb','#6b5cff','#3b82f6'],['honeyhr','Медовый час','#fdf6e7','#f59e0b','#ef4444'],['eucalypt','Эвкалипт','#eef9f7','#10b98f','#0ea5e9'],
+['album','Альбом','#ffffff','#1e2230','#5b6070']
+];
+let css='';
+DK.forEach(([k,n,bg,c1,c2])=>{
+const mid=mx(c1,c2,.5),mt=lum(mid)>.62?'#14110a':'#fff',acx=lum(c1)>.62?'#10100a':'#fff';
+css+=`html[data-theme=${k}],.pvw[data-theme=${k}]{--bg:${bg};--s1:${mx(mx(bg,c1,.07),'#ffffff',.02)};--s2:${mx(bg,c1,.16)};--s3:${mx(bg,c1,.28)};--ln:${mx(bg,c1,.2)};--ac:${c1};--acx:${acx};--ac2:${c2};--me:linear-gradient(135deg,${c1},${c2});--mt:${mt};--tk:${mt}${mt==='#fff'?'d9':'b0'}}`;
+TH.push([k,n,'#000','#fff'])});
+LT.forEach(([k,n,bg,c1,c2])=>{
+const mid=mx(c1,c2,.5),mt=lum(mid)>.62?'#14110a':'#fff',mu=mx('#6b7080',c1,.12);
+css+=`html[data-theme=${k}],.pvw[data-theme=${k}]{color-scheme:light;--bg:${bg};--s1:${mx(bg,'#ffffff',.55)};--s2:#fff;--s3:${mx(bg,'#000000',.07)};--ln:${mx(bg,'#000000',.09)};--tx:#16181f;--mu:${mu};--ac:${c1};--acx:${lum(c1)>.62?'#10100a':'#fff'};--ac2:${c2};--me:linear-gradient(135deg,${c1},${c2});--mt:${mt};--tk:${mt}${mt==='#fff'?'d9':'b0'};--gl:#ffffffcf;--gb:#00000014;--nm:${mu};--nt:#16181f;--pl:linear-gradient(180deg,#00000018,#0000000c);--pl2:#00000016;--hl:#0000000d;--hl2:#00000026;--wcc:#0000000d}`;
+TH.push([k,n,'#fff','#000',1])});
+document.head.insertAdjacentHTML('beforeend','<style>'+css+'</style>');
+let THF=0;
+const thGrid=()=>{const g=(t,f)=>{const l=TH.filter(f);return l.length?`<div class="pl2 gt">${t}</div>`+l.map(thTile).join(''):''};
+return(THF!==2?g('Монохром',t=>MONO.includes(t[0]))+g('Тёмные',t=>!t[4]&&!MONO.includes(t[0])):'')+(THF!==1?g('Светлые',t=>t[4]):'')};
+window.setThf=(v,el)=>{THF=+v;el.parentElement.querySelectorAll('button').forEach(b=>b.classList.toggle('on',b===el));const g=document.querySelector('.sh .thg');if(g){g.innerHTML=thGrid();g.scrollTop=0}vib(8)};
+window.sheetTheme=sheetTheme=function(){THF=0;
+sheet('Оформление',`<div class="tgr" onclick="setLv(this)" style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px"><span>Живой фон<br><small style="color:var(--mu)">Мягкое свечение, плавно плывёт по экрану</small></span><i class="tgs${PF.lv?' on':''}"></i></div>${seg([[0,'Все'],[1,'Тёмные'],[2,'Светлые']],0,'setThf')}<div class="thg" style="margin-top:10px">${thGrid()}</div><div class="pl2">Размер текста</div>${seg([[.9,'Мелкий'],[1,'Обычный'],[1.12,'Крупный']],PF.fs,'setFs')}<div class="pl2">Форма сообщений</div>${seg([[10,'Строгая'],[20,'Мягкая'],[26,'Круглая']],PF.br,'setBr')}`)};
+applyPF();
+})();
 })();
 
 </script>
