@@ -2407,6 +2407,8 @@ svg .dsk{transform-origin:60px 60px;animation:lpSpin 3.2s linear infinite}
 /* 3D-звезда в магазине */
 .pk .pkic svg.pki3d{height:100%;width:auto;aspect-ratio:1;overflow:visible;animation:lpFloat 3s ease-in-out infinite}
 /* разбитое сердце заметнее */
+svg.ga-vinyl{overflow:visible!important}
+html,body{touch-action:manipulation;overscroll-behavior:none;-webkit-text-size-adjust:100%}
 svg.ga-vinyl .hh{filter:drop-shadow(0 0 4px #c9a8ffcc)}
 /* подарок: фиолетовый фон у всех */
 .gpv{--g1:#8b45ff!important;--g2:#2a1170!important}
@@ -2446,6 +2448,16 @@ function up(){document.querySelectorAll('.lp-box:not([data-v4])').forEach(b=>{b.
 /* ---- 3D-звезда (100) в магазине звёзд: стопка слоёв, вращает общий цикл g.l3 ---- */
 function up3(){document.querySelectorAll('.pkic.pk0 img.pki').forEach(im=>{let L='';const n=15,Z=6;for(let i=0;i<n;i++){const z=-Z+2*Z*i/(n-1),e=i===0||i===n-1;L+=`<image class="ly" data-z="${z.toFixed(2)}" href="${e?im.src:D100}" width="120" height="120"/>`}const w=document.createElement('span');w.innerHTML=`<svg class="pki3d" viewBox="0 0 120 120"><g class="l3">${L}</g></svg>`;im.replaceWith(w.firstChild)})}
 function tick(){up();up3();const t=RM?1.2:performance.now()/1000;boxes.forEach(b=>{if(!b.isConnected){boxes.delete(b);return}draw(b,t)});requestAnimationFrame(tick)}
+
+/* ---- разбитое сердце: запас места, чтобы половинки не обрезались ---- */
+try{const v=GFT.find(g=>g.k==='vinyl');if(v){const im=h=>`<image href="${h}" x="14" y="16" width="92" height="88"/>`;v.s=`<g class="hh hl">${im(SPR.hl)}</g><g class="hh hr">${im(SPR.hr)}</g>`}}catch(e){}
+/* ---- запрет зума и сдвига страницы ---- */
+const pd=e=>e.preventDefault();
+['gesturestart','gesturechange','gestureend'].forEach(n=>document.addEventListener(n,pd,{passive:false}));
+document.addEventListener('touchmove',e=>{if(e.touches.length>1||(e.scale&&e.scale!==1))e.preventDefault()},{passive:false});
+let lt=0;document.addEventListener('touchend',e=>{const n=Date.now();if(n-lt<350)e.preventDefault();lt=n},{passive:false});
+document.addEventListener('wheel',e=>{if(e.ctrlKey)e.preventDefault()},{passive:false});
+const vm=document.querySelector('meta[name=viewport]');if(vm)vm.content='width=device-width, initial-scale=1, minimum-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover, interactive-widget=resizes-content';
 requestAnimationFrame(tick);
 })();
 </script>
