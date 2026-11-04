@@ -2688,7 +2688,7 @@ else if(n==='admin_verify')addLog('status',a.val?'Пользователь по�
 else if(n==='admin_scam')addLog('status','Изменён статус аккаунта: '+(a.val?'скам':'не скам'),to);
 else if(n==='admin_ban')addLog('ban',a.val?'Пользователь заблокирован'+(a.reason?' · '+a.reason:''):'Пользователь разблокирован',to);
 else if(n==='buy_prime')addLog('prime','Оформлена Premium-подписка','')}}catch(e){}return r};
-if(typeof savePF==='function'){const osp=savePF;let lt=0;savePF=function(){const r=osp.apply(this,arguments);if(Date.now()-lt>60000){lt=Date.now();addLog('settings','Изменены настройки приложения','')}return r}}
+try{if(typeof applyPF==='function'){const oap=applyPF;let lt=0;const t0=Date.now();applyPF=function(){const r=oap.apply(this,arguments);try{if(Date.now()-t0>6000&&Date.now()-lt>60000){lt=Date.now();addLog('settings','Изменены настройки приложения','')}}catch(e){}return r}}}catch(e){}
 /* стили */
 const st=document.createElement('style');st.textContent=`
 .adm2 .atabs{display:flex;gap:8px;margin:2px 0 12px}.adm2 .atabs button{flex:1;display:flex;align-items:center;justify-content:center;gap:6px;padding:10px 4px;border-radius:20px;border:1px solid #ffffff14;background:#ffffff0a;color:var(--mu);font:inherit;font-size:13px;font-weight:600;transition:.25s}.adm2 .atabs button.on{background:linear-gradient(180deg,#ffffff2e,#ffffff10);color:#fff;border-color:#ffffff40;box-shadow:inset 0 1px 0 #ffffff30}
