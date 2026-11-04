@@ -102,7 +102,7 @@ html[data-theme=dusk],.pvw[data-theme=dusk]{--bg:#110a14;--s1:#1a1120;--s2:#2317
 .top{background:var(--bg);box-shadow:0 1px 0 var(--ln)}.main.wp .msgs{background-image:radial-gradient(#ffffff0e 1.2px,transparent 1.4px);background-size:22px 22px}
 .msgs{gap:7px;padding:12px 10px}.mr{gap:6px}.mr.c{margin-top:-5px}.mr.pop{animation:pop .28s cubic-bezier(.2,.9,.2,1.1)}
 .mav{width:28px}.mr.me .mav{display:block}
-.mr .m{max-width:calc(80% - 34px)}.mr.me .m{max-width:calc(80% - 34px)}
+.mr .m{max-width:calc(var(--mw,80%) - 34px)}.mr.me .m{max-width:calc(var(--mw,80%) - 34px)}
 .m{font-size:calc(15.5px*var(--fs));border-radius:20px;padding:8px 13px;box-shadow:0 1px 1px #0003}
 .m:not(.me):not(.f){border-top-left-radius:6px}.m:not(.me):not(.l){border-bottom-left-radius:6px}.m:not(.me).l{border-bottom-left-radius:5px}
 .m.me{background:var(--me);color:var(--mt)}.m.me:not(.f){border-top-right-radius:6px}.m.me:not(.l){border-bottom-right-radius:6px}.m.me.l{border-bottom-right-radius:5px}
@@ -460,6 +460,9 @@ html{-webkit-tap-highlight-color:transparent}*{touch-action:manipulation}
 .bn{background-size:cover}
 .main{transition:transform .32s var(--ease),box-shadow .32s!important}.shb{transition:transform .34s cubic-bezier(.22,.95,.25,1)!important}.ti-r,.ti-l,.ti-up{animation-duration:.3s!important}
 .cwp{height:130px;border-radius:20px;background:var(--s2) center/cover;margin-bottom:12px}
+
+.sr .row{zoom:var(--ls,1)}
+.pci{align-items:flex-start;margin-top:0;padding-top:0}.pci .av{margin-top:-35px;flex:none}.pci>div{padding-top:8px}
 </style></head><body>
 <div id="root"></div><div class="toast" id="toast"></div>
 <script>
@@ -472,7 +475,7 @@ const av=(p,s=48)=>p?.avatar_url?`<img class="av" style="width:${s}px;height:${s
 let me,prof,tab='chats',cur=null,chats=[],msgs=[],contacts=[],found=[];
 let lastTab='',wasOpen=false,tapT=0,pend=0,tch=null,tl=0,tt=0,MC={},swiped=false,rp=null,nw=null,online=new Set(),arch=false,openRow=null,rs=null;const at=u=>u?'@'+u:'';
 const wide=()=>innerWidth>=900;
-let PF={th:'mono',fs:1,wp:1,snd:1,vib:1,ar:[],mu:[],dl:[],wpk:'dots',wpc:0,br:20,fx:1,bl:1,pv:1,cmp:0,ss:1,sk:'ding',sp:1,dr:{},sc:'',sd:'pop',rg:'ring1',vol:1,ke:16,ch:265,cl:0};try{PF={...PF,...JSON.parse(localStorage.lg_pf||'{}')}}catch(e){}if(PF.wp===0){PF.wpk='none';PF.wp=1}let fxId=null,fxArch=false;
+let PF={th:'mono',fs:1,wp:1,snd:1,vib:1,ar:[],mu:[],dl:[],wpk:'dots',wpc:0,br:20,fx:1,bl:1,pv:1,cmp:0,mw:80,ls:1,ss:1,sk:'ding',sp:1,dr:{},sc:'',sd:'pop',rg:'ring1',vol:1,ke:16,ch:265,cl:0};try{PF={...PF,...JSON.parse(localStorage.lg_pf||'{}')}}catch(e){}if(PF.wp===0){PF.wpk='none';PF.wp=1}let fxId=null,fxArch=false;
 const savePF=()=>{try{localStorage.lg_pf=JSON.stringify(PF)}catch(e){}},PV=()=>(typeof prof!=='undefined'&&prof?.priv)||PF.priv||{},vib=n=>{if(PF.vib)navigator.vibrate?.(n)};
 let AC=null,PC=null;
 applyPF();
@@ -683,6 +686,7 @@ const mark=el=>el.parentElement.querySelectorAll('button,.tl,.wt').forEach(b=>b.
 function tgl(k,el){PF[k]=PF[k]?0:1;savePF();el.querySelector('.tgs').classList.toggle('on',!!PF[k]);applyPF();vib(8)}
 function sheetProf(){sheet('Профиль',`<div style="display:flex;align-items:center;gap:14px;margin-bottom:6px">${av(prof,64)}<div style="display:flex;gap:8px;flex-wrap:wrap"><label class="sm" style="cursor:pointer">Фото<input type="file" accept="image/*" hidden onchange="upAv(this.files[0])"></label><label class="sm" style="cursor:pointer">Баннер<input type="file" accept="image/*" hidden onchange="upBn(this.files[0])"></label></div></div><label class="fld"><small>Имя</small><input id="pn" value="${esc(prof.name)}"></label><label class="fld"><small>Имя пользователя</small><input id="pu" value="@${esc(prof.username)}"></label><label class="fld"><small>Номер телефона</small><input id="pph" type="tel" placeholder="+7 …" value="${esc(prof.phone)}"></label><label class="fld"><small>Дата рождения</small><input id="pbd" type="date" value="${esc(prof.birthday||'')}"></label><label class="fld"><small>Город</small><input id="pct" maxlength="40" value="${esc(prof.city||'')}"></label><label class="fld"><small>Статус (коротко)</small><input id="pst" maxlength="40" placeholder="Например: на связи" value="${esc(prof.status||'')}"></label><label class="fld"><small>Сайт или ссылка</small><input id="pws" maxlength="80" placeholder="https://" value="${esc(prof.website||'')}"></label><label class="fld"><small>О себе</small><textarea id="pb" rows="2">${esc(prof.bio)}</textarea></label><button class="btn" style="width:100%;margin-top:8px" onclick="saveProf()">Сохранить</button>`)}
 function setPv(k,val,el){const v={...PV(),[k]:val};prof.priv=v;PF.priv=v;savePF();mark(el);vib(8);SB.from('profiles').update({priv:v}).eq('id',me.id).then(r=>{if(r.error)toast('Сохранено у вас (нужен logos-update5.sql)')});if(k==='seen'){try{val==='nobody'?PC?.untrack():PC?.track({at:Date.now()})}catch(x){}}}
+function setMw(v){PF.mw=+v;savePF();applyPF();const l=document.getElementById('mwv');if(l)l.textContent=v+'%'}function setLs(v){PF.ls=+v;savePF();applyPF();const l=document.getElementById('lsv');if(l)l.textContent=Math.round(v*100)+'%'}
 function setFs(v,el){PF.fs=+v;savePF();applyPF();mark(el)}
 
 
@@ -727,7 +731,7 @@ D.addEventListener('focusout',()=>setTimeout(fit,120));
 addEventListener('orientationchange',()=>setTimeout(()=>{base=Math.max(innerHeight,vv.height);fit()},350));H.classList.add('vv');fit()})();
 
 /* ---- применение настроек ---- */
-function applyPF(){applyPF0();wpiApply()}function applyPF0(){const h=document.documentElement;h.dataset.theme=PF.th;h.dataset.wp=PF.wpk||'dots';h.dataset.wpc=PF.wpc?1:0;h.style.setProperty('--fs',PF.fs);h.style.setProperty('--br',(PF.br||20)+'px');h.style.setProperty('--kbe',(PF.ke??16)+'px');Object.keys(cvars(0,1)).forEach(k=>h.style.removeProperty(k));if(PF.th==='custom'){const o=cvars(PF.ch,PF.cl);for(const k in o)h.style.setProperty(k,o[k]);h.style.colorScheme=PF.cl?'light':'dark'}else h.style.colorScheme='';
+function applyPF(){applyPF0();wpiApply()}function applyPF0(){const h=document.documentElement;h.dataset.theme=PF.th;h.dataset.wp=PF.wpk||'dots';h.dataset.wpc=PF.wpc?1:0;h.style.setProperty('--fs',PF.fs);h.style.setProperty('--mw',(PF.mw||80)+'%');h.style.setProperty('--ls',PF.ls||1);h.style.setProperty('--br',(PF.br||20)+'px');h.style.setProperty('--kbe',(PF.ke??16)+'px');Object.keys(cvars(0,1)).forEach(k=>h.style.removeProperty(k));if(PF.th==='custom'){const o=cvars(PF.ch,PF.cl);for(const k in o)h.style.setProperty(k,o[k]);h.style.colorScheme=PF.cl?'light':'dark'}else h.style.colorScheme='';
 h.classList.toggle('nofx',!PF.fx);h.classList.toggle('nobl',!PF.bl);h.classList.toggle('cmp',!!PF.cmp);h.classList.toggle('npv',!PF.pv);
 document.querySelector('meta[name=theme-color]')?.setAttribute('content',getComputedStyle(h).getPropertyValue('--bg').trim()||'#0a0a0a')}
 
@@ -893,7 +897,7 @@ if(lt)return{'--bg':A('45% 94%'),'--s1':A('40% 97%'),'--s2':'#fff','--s3':A('35%
 return{'--bg':A('40% 6%'),'--s1':A('38% 9%'),'--s2':A('36% 12.5%'),'--s3':A('34% 18%'),'--ln':A('34% 15%'),'--ac':A('90% 66%'),'--acx':A('60% 8%'),'--ac2':B(45,'90% 66%'),'--me':`linear-gradient(135deg,${A('85% 60%')},${B(15,'75% 42%')})`,'--mt':'#fff','--tk':'#ffffffd9'}}
 const cvStyle=()=>{const o=cvars(PF.ch,PF.cl);return Object.keys(o).map(k=>k+':'+o[k]).join(';')+(PF.cl?';color-scheme:light':'')};
 const thTile=t=>`<div class="tl${PF.th===t[0]?' on':''}" data-k="${t[0]}" onclick="setTh('${t[0]}',this)"><div class="pvw" data-theme="${t[0]}"${t[0]==='custom'?` style="${cvStyle()}"`:''}><u></u><u class="m"></u><u class="s"></u></div>${t[1]}</div>`;
-function sheetTheme(){sheet('Оформление',`<div class="cvb">${thTile(['custom','Свой цвет'])}<div class="cvc"><input type="range" class="hue" min="0" max="360" value="${PF.ch}" oninput="setCv(this.value)" ontouchstart="event.stopPropagation()" ontouchmove="event.stopPropagation()">${seg([[0,'Тёмная'],[1,'Светлая']],PF.cl?1:0,'setCl')}</div></div><div class="thg"><div class="pl2 gt">Тёмные</div>${TH.filter(t=>!t[4]).map(thTile).join('')}<div class="pl2 gt">Светлые</div>${TH.filter(t=>t[4]).map(thTile).join('')}</div><div class="pl2">Размер текста</div>${seg([[.9,'Мелкий'],[1,'Обычный'],[1.12,'Крупный']],PF.fs,'setFs')}<div class="pl2">Форма сообщений</div>${seg([[10,'Строгая'],[20,'Мягкая'],[26,'Круглая']],PF.br,'setBr')}`)}
+function sheetTheme(){sheet('Оформление',`<div class="cvb">${thTile(['custom','Свой цвет'])}<div class="cvc"><input type="range" class="hue" min="0" max="360" value="${PF.ch}" oninput="setCv(this.value)" ontouchstart="event.stopPropagation()" ontouchmove="event.stopPropagation()">${seg([[0,'Тёмная'],[1,'Светлая']],PF.cl?1:0,'setCl')}</div></div><div class="thg"><div class="pl2 gt">Тёмные</div>${TH.filter(t=>!t[4]).map(thTile).join('')}<div class="pl2 gt">Светлые</div>${TH.filter(t=>t[4]).map(thTile).join('')}</div><div class="pl2">Размер текста</div>${seg([[.9,'Мелкий'],[1,'Обычный'],[1.12,'Крупный']],PF.fs,'setFs')}<div class="pl2" style="display:flex;justify-content:space-between"><span>Ширина сообщений</span><span id="mwv">${PF.mw||80}%</span></div><input type="range" class="vol" min="50" max="100" step="1" value="${PF.mw||80}" oninput="setMw(this.value)" ontouchstart="event.stopPropagation()" ontouchmove="event.stopPropagation()"><div class="pl2" style="display:flex;justify-content:space-between"><span>Размер чатов и контактов</span><span id="lsv">${Math.round((PF.ls||1)*100)}%</span></div><input type="range" class="vol" min="0.8" max="1.3" step="0.05" value="${PF.ls||1}" oninput="setLs(this.value)" ontouchstart="event.stopPropagation()" ontouchmove="event.stopPropagation()"><div class="pl2">Форма сообщений</div>${seg([[10,'Строгая'],[20,'Мягкая'],[26,'Круглая']],PF.br,'setBr')}`)}
 function setTh(k,el){PF.th=k;savePF();applyPF();document.querySelectorAll('.sh .tl').forEach(b=>b.classList.toggle('on',b===el));vib(8)}
 function setCv(h){PF.ch=+h;PF.th='custom';savePF();applyPF();const t=document.querySelector('.sh .tl[data-k=custom]');if(t){t.querySelector('.pvw').style.cssText=cvStyle();document.querySelectorAll('.sh .tl').forEach(b=>b.classList.toggle('on',b===t))}}
 function setCl(v,el){PF.cl=+v?1:0;mark(el);setCv(PF.ch)}
