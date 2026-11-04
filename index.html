@@ -2280,4 +2280,288 @@ applyPF();
 })();
 
 </script>
+
+<!-- ===== ТОЧНАЯ КОПИЯ ДИЗАЙНА С ФОТО ===== -->
+<style>
+/* 1. Общие стили для нового магазина */
+.shop-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; }
+.shop-title { display: flex; align-items: center; gap: 10px; }
+.shop-title-text b { font-size: 22px; display: block; line-height: 1.1; color: #fff; }
+.shop-title-text small { color: #8a8a92; font-size: 12px; }
+.shop-balance { display: flex; align-items: center; gap: 10px; background: #141418; padding: 8px 14px; border-radius: 16px; border: 1px solid #ffffff14; }
+.shop-balance b { font-size: 20px; color: #fff; }
+.shop-balance button { width: 24px; height: 24px; border-radius: 50%; background: #ffffff14; color: #fff; font-size: 16px; display: grid; place-items: center; border: 0; margin-left: 4px; }
+
+.shop-cats { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 10px; margin-bottom: 10px; scrollbar-width: none; }
+.shop-cats::-webkit-scrollbar { display: none; }
+.shop-cats button { padding: 8px 16px; border-radius: 20px; background: #141418; color: #8a8a92; border: 1px solid #ffffff14; font-size: 13px; font-weight: 600; white-space: nowrap; transition: 0.2s; }
+.shop-cats button.on { background: #ffffff14; color: #fff; border-color: #ffffff33; }
+
+/* 2. Сетка Звезд (Паки) */
+.star-grid-3d { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 20px; }
+.star-pack-3d { position: relative; background: linear-gradient(180deg, #181622, #0c0c10); border: 1px solid #2e264a; border-radius: 20px; padding: 16px 8px 12px; display: flex; flex-direction: column; align-items: center; gap: 8px; cursor: pointer; transition: 0.2s; }
+.star-pack-3d:active { transform: scale(0.95); }
+.star-pack-3d .badge { position: absolute; top: -8px; right: -8px; background: #6d28d9; color: #fff; font-size: 11px; font-weight: 800; padding: 2px 8px; border-radius: 10px; border: 2px solid #0c0c10; }
+.star-pack-3d .icon { height: 56px; display: flex; align-items: center; justify-content: center; }
+.star-pack-3d b { font-size: 14px; display: flex; align-items: center; gap: 4px; color: #fff; }
+.star-pack-3d em { font-style: normal; font-size: 13px; font-weight: 700; color: #fff; text-align: center; }
+.star-pack-3d em s { display: block; font-size: 11px; color: #8a8a92; font-weight: 400; margin-top: 2px; }
+
+/* 3. Карточка Prime */
+.prime-3d { background: linear-gradient(135deg, #13111a, #09090c); border: 1px solid #3a2566; border-radius: 26px; padding: 24px 20px; text-align: center; position: relative; overflow: hidden; box-shadow: 0 10px 40px -10px rgba(109, 40, 217, 0.4); }
+.prime-3d::before { content: ''; position: absolute; top: -50%; left: -50%; width: 200%; height: 200%; background: radial-gradient(circle, rgba(109,40,217,0.15) 0%, transparent 60%); animation: spinBg 10s linear infinite; }
+@keyframes spinBg { 100% { transform: rotate(360deg); } }
+
+.prime-crown-wrap { position: relative; width: 110px; height: 110px; margin: 0 auto 16px; display: flex; align-items: center; justify-content: center; z-index: 2; }
+.prime-crown-wrap svg.crown { width: 70px; height: 70px; position: relative; z-index: 2; filter: drop-shadow(0 0 15px rgba(255, 215, 0, 0.4)); animation: floatCrown 3s ease-in-out infinite; }
+.prime-crown-wrap .ring { position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: 2px solid rgba(167, 139, 250, 0.6); border-radius: 50%; transform: rotateX(70deg); animation: spinRing 4s linear infinite; }
+.prime-crown-wrap .ring::after { content: ''; position: absolute; top: -4px; left: 50%; width: 8px; height: 8px; background: #fff; border-radius: 50%; box-shadow: 0 0 10px #fff; }
+@keyframes floatCrown { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-6px); } }
+@keyframes spinRing { 100% { transform: rotateX(70deg) rotateZ(360deg); } }
+
+.prime-3d-title { font-size: 24px; font-weight: 900; letter-spacing: 2px; color: #fff; margin-bottom: 4px; }
+.prime-3d-sub { color: #a78bfa; font-size: 13px; margin-bottom: 16px; }
+.prime-3d-features { list-style: none; padding: 0; margin: 0 0 20px; text-align: left; display: inline-block; }
+.prime-3d-features li { display: flex; align-items: center; gap: 10px; font-size: 14px; margin-bottom: 12px; color: #d1d5db; }
+.prime-3d-features li svg { width: 18px; height: 18px; color: #a78bfa; flex: none; }
+
+.prime-3d-plans { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-bottom: 16px; }
+.prime-3d-plan { background: #1a1823; border: 1px solid #3a2566; border-radius: 16px; padding: 12px 4px; color: #fff; transition: 0.3s; cursor: pointer; }
+.prime-3d-plan.on { border-color: #a78bfa; background: #251c3d; box-shadow: 0 0 15px rgba(167, 139, 250, 0.2); }
+.prime-3d-plan small { display: block; font-size: 11px; color: #a78bfa; margin-bottom: 4px; }
+.prime-3d-plan b { display: block; font-size: 15px; }
+.prime-3d-plan s { display: block; font-size: 10px; color: #8a8a92; margin-top: 2px; }
+.prime-3d-btn { width: 100%; height: 54px; border-radius: 18px; background: linear-gradient(90deg, #6d28d9, #8b5cf6); color: #fff; font-weight: 700; font-size: 16px; border: 0; display: flex; align-items: center; justify-content: center; gap: 8px; box-shadow: 0 8px 20px -6px #6d28d9; transition: 0.3s; }
+.prime-3d-btn:active { transform: scale(0.95); }
+
+/* 4. Магазин Подарков */
+.gift-grid-3d { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+.gift-card-3d { background: linear-gradient(180deg, #181622, #0c0c10); border: 1px solid #2e264a; border-radius: 20px; padding: 14px 6px 10px; display: flex; flex-direction: column; align-items: center; gap: 8px; transition: 0.2s; }
+.gift-card-3d:active { transform: scale(0.95); }
+.gift-card-3d svg { width: 64px; height: 64px; filter: drop-shadow(0 4px 10px rgba(0,0,0,0.5)); }
+.gift-card-3d b { font-size: 12px; color: #d1d5db; font-weight: 500; text-align: center; }
+.gift-card-3d .price { background: #ffffff0d; padding: 4px 10px; border-radius: 12px; display: flex; align-items: center; gap: 4px; font-size: 13px; font-weight: 700; color: #fff; }
+.gift-card-3d .price svg { width: 14px; height: 14px; filter: none; }
+.gift-card-3d.on { border-color: #a78bfa; background: #251c3d; box-shadow: 0 0 20px rgba(167,139,250,0.2); }
+</style>
+
+<script>
+(() => {
+    // ==========================================
+    // 1. ГЕНЕРАЦИЯ 3D ИКОНОК (Сложные SVG)
+    // ==========================================
+    
+    // 3D Фиолетовая звезда (как на фото)
+    const SVG_STAR = (s = 24) => `
+    <svg width="${s}" height="${s}" viewBox="0 0 24 24" style="flex:none; filter: drop-shadow(0 2px 8px rgba(139, 92, 246, 0.5));">
+        <defs>
+            <linearGradient id="stGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" stop-color="#e0d4ff"/>
+                <stop offset="30%" stop-color="#a78bfa"/>
+                <stop offset="70%" stop-color="#7c3aed"/>
+                <stop offset="100%" stop-color="#4c1d95"/>
+            </linearGradient>
+            <linearGradient id="stHigh" x1="0%" y1="0%" x2="0%" y2="100%">
+                <stop offset="0%" stop-color="#ffffff" stop-opacity="0.8"/>
+                <stop offset="100%" stop-color="#ffffff" stop-opacity="0"/>
+            </linearGradient>
+        </defs>
+        <path d="M12 1.5 C13.2 8.5 15.5 10.8 22.5 12 C15.5 13.2 13.2 15.5 12 22.5 C10.8 15.5 8.5 13.2 1.5 12 C8.5 10.8 10.8 8.5 12 1.5 Z" fill="url(#stGrad)"/>
+        <path d="M12 4 C12.8 8.5 15 10.7 19.5 12 C15 13.3 12.8 15.5 12 20 C11.2 15.5 9 13.3 4.5 12 C9 10.7 11.2 8.5 12 4 Z" fill="url(#stHigh)"/>
+    </svg>`;
+
+    // 3D Золотая корона
+    const SVG_CROWN = `
+    <svg class="crown" viewBox="0 0 24 24" fill="none">
+        <defs>
+            <linearGradient id="crGrad" x1="0" y1="0" x2="1" y2="1">
+                <stop offset="0%" stop-color="#fff6b8"/><stop offset="40%" stop-color="#ffc21a"/><stop offset="100%" stop-color="#b45309"/>
+            </linearGradient>
+            <linearGradient id="crHigh" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%" stop-color="#ffffff" stop-opacity="0.6"/>
+                <stop offset="100%" stop-color="#ffffff" stop-opacity="0"/>
+            </linearGradient>
+        </defs>
+        <path d="M3 18 L1.6 8 L6.8 12 L12 4 L17.2 12 L22.4 8 L21 18 Z" fill="url(#crGrad)"/>
+        <rect x="3.5" y="19.3" width="17" height="2.2" rx="1" fill="url(#crGrad)"/>
+        <path d="M6.8 12 L12 4 L17.2 12 Z" fill="url(#crHigh)"/>
+        <circle cx="12" cy="10.5" r="1.5" fill="#fff" opacity="0.9"/>
+    </svg>`;
+
+    // 3D Мешок со звездами
+    const SVG_BAG = `
+    <svg viewBox="0 0 24 24" fill="none" style="width:50px;height:50px;">
+        <defs>
+            <linearGradient id="bagGrad" x1="0" y1="0" x2="1" y2="1">
+                <stop offset="0%" stop-color="#3b2f59"/><stop offset="100%" stop-color="#14121a"/>
+            </linearGradient>
+        </defs>
+        <path d="M7 8 H17 L19.5 22 H4.5 Z" fill="url(#bagGrad)" stroke="#6d28d9" stroke-width="1.5"/>
+        <path d="M9 8 V6 C9 4.3 10.3 3 12 3 C13.7 3 15 4.3 15 6 V8" stroke="#a78bfa" stroke-width="2" stroke-linecap="round"/>
+        <circle cx="12" cy="15" r="2.5" fill="#a78bfa" filter="drop-shadow(0 0 4px #a78bfa)"/>
+        <path d="M7 8 Q12 10 17 8" stroke="#a78bfa" stroke-width="1" opacity="0.5"/>
+    </svg>`;
+
+    // 3D Сундук
+    const SVG_CHEST = `
+    <svg viewBox="0 0 24 24" fill="none" style="width:50px;height:50px;">
+        <defs>
+            <linearGradient id="chestGrad" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%" stop-color="#2e264a"/><stop offset="100%" stop-color="#14121a"/>
+            </linearGradient>
+        </defs>
+        <rect x="3" y="10" width="18" height="11" rx="2" fill="url(#chestGrad)" stroke="#6d28d9" stroke-width="1.5"/>
+        <path d="M3 14 H21" stroke="#6d28d9" stroke-width="1.5"/>
+        <path d="M7 10 V6 C7 4.3 8.3 3 10 3 H14 C15.7 3 17 4.3 17 6 V10" stroke="#a78bfa" stroke-width="2"/>
+        <rect x="10" y="12" width="4" height="4" rx="1" fill="#a78bfa" filter="drop-shadow(0 0 4px #a78bfa)"/>
+    </svg>`;
+
+    // ==========================================
+    // 2. ПЕРЕЗАПИСЬ КОШЕЛЬКА (Звезды + Prime)
+    // ==========================================
+    window.coin3d = SVG_STAR; // Глобальная замена звезды
+
+    window.sheetWallet = () => {
+        const isPrime = prof.prime_until && new Date(prof.prime_until) > Date.now();
+        const plans = [
+            { t: '1 месяц', p: '299 ₽', old: '', badge: '' },
+            { t: '1 год', p: '1 990 ₽', old: '≈ 166 ₽/мес', badge: 'Выгодно' },
+            { t: '2 года', p: '3 490 ₽', old: '≈ 145 ₽/мес', badge: '' }
+        ];
+
+        const html = `
+        <div class="shop-header">
+            <div class="shop-title">
+                ${SVG_STAR(36)}
+                <div class="shop-title-text">
+                    <b>Звёзды</b>
+                    <small>Внутренняя валюта</small>
+                </div>
+            </div>
+            <div class="shop-balance">
+                ${SVG_STAR(20)}
+                <b>${nf(prof.coins)}</b>
+                <button onclick="buyCoins()">+</button>
+            </div>
+        </div>
+
+        <div class="star-grid-3d">
+            <div class="star-pack-3d" onclick="buyCoins()">
+                <div class="icon">${SVG_STAR(40)}</div>
+                <b>${SVG_STAR(14)} 100</b>
+                <em>49 ₽</em>
+            </div>
+            <div class="star-pack-3d" onclick="buyCoins()">
+                <i class="badge">-28%</i>
+                <div class="icon">${SVG_STAR(36)}</div>
+                <b>${SVG_STAR(14)} 500</b>
+                <em>179 ₽ <s>249 ₽</s></em>
+            </div>
+            <div class="star-pack-3d" onclick="buyCoins()">
+                <i class="badge">-40%</i>
+                <div class="icon" style="display:flex;gap:-10px">${SVG_STAR(30)}${SVG_STAR(30)}</div>
+                <b>${SVG_STAR(14)} 1 000</b>
+                <em>299 ₽ <s>499 ₽</s></em>
+            </div>
+            <div class="star-pack-3d" onclick="buyCoins()">
+                <i class="badge">-45%</i>
+                <div class="icon">${SVG_BAG}</div>
+                <b>${SVG_STAR(14)} 2 500</b>
+                <em>699 ₽ <s>1 249 ₽</s></em>
+            </div>
+            <div class="star-pack-3d" onclick="buyCoins()">
+                <i class="badge">-50%</i>
+                <div class="icon">${SVG_CHEST}</div>
+                <b>${SVG_STAR(14)} 5 000</b>
+                <em>1 299 ₽ <s>2 599 ₽</s></em>
+            </div>
+            <div class="star-pack-3d" onclick="buyCoins()">
+                <i class="badge">-55%</i>
+                <div class="icon" style="transform:scale(1.1)">${SVG_CHEST}</div>
+                <b>${SVG_STAR(14)} 10 000</b>
+                <em>2 499 ₽ <s>5 499 ₽</s></em>
+            </div>
+        </div>
+
+        <div class="prime-3d">
+            <div class="prime-crown-wrap">
+                ${SVG_CROWN}
+                <div class="ring"></div>
+            </div>
+            <div class="prime-3d-title">LOGOS PRIME</div>
+            <div class="prime-3d-sub">${isPrime ? 'Подписка активна' : 'Открывает новые возможности'}</div>
+            
+            <ul class="prime-3d-features">
+                <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg> Премиальные рамки</li>
+                <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg> Корона возле ника</li>
+                <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg> Эксклюзивные подарки</li>
+            </ul>
+
+            <div class="prime-3d-plans">
+                ${plans.map((p, i) => `
+                    <div class="prime-3d-plan ${i===1?'on':''}" onclick="document.querySelectorAll('.prime-3d-plan').forEach(el=>el.classList.remove('on'));this.classList.add('on')">
+                        <small>${p.t}</small>
+                        <b>${p.p}</b>
+                        <s>${p.old || '&nbsp;'}</s>
+                    </div>
+                `).join('')}
+            </div>
+
+            <button class="prime-3d-btn" onclick="primeBuy(this)" ${isPrime ? 'disabled style="opacity:0.5"' : ''}>
+                ${isPrime ? 'Подписка активна' : 'Подключить Prime'} ${SVG_STAR(18)}
+            </button>
+        </div>
+        `;
+        sheet('Магазин', html);
+    };
+
+    // ==========================================
+    // 3. ПЕРЕЗАПИСЬ ПОДАРКОВ (Красивые карточки)
+    // ==========================================
+    window.giftGrid = () => {
+        const GFT = window.GFT || []; 
+        return `
+        <div class="shop-header">
+            <div class="shop-title">
+                ${SVG_STAR(36)}
+                <div class="shop-title-text">
+                    <b>Подарки</b>
+                    <small>Выражай эмоции по-новому</small>
+                </div>
+            </div>
+            <div class="shop-balance">
+                ${SVG_STAR(20)}
+                <b>${nf(prof.coins)}</b>
+                <button onclick="buyCoins()">+</button>
+            </div>
+        </div>
+
+        <div class="shop-cats">
+            <button class="on">Все</button>
+            <button>Классика</button>
+            <button>Эмоции</button>
+            <button>Стиль</button>
+            <button>Технологии</button>
+            <button>Редкие</button>
+        </div>
+        
+        <div class="gift-grid-3d">
+            ${GFT.map(g => `
+                <button class="gift-card-3d ${window.GFS===g.k?'on':''}" data-k="${g.k}" onclick="gfPick('${g.k}')">
+                    ${gsvg(g)}
+                    <b>${g.n}</b>
+                    <div class="price">${SVG_STAR(14)} ${nf(g.p)}</div>
+                </button>
+            `).join('')}
+        </div>
+        
+        <button class="prime-3d-btn" style="margin-top:16px;" id="gfGo" onclick="giftSend()" ${window.GFS?'':'disabled'}>
+            ${window.GFS ? 'Подарить за '+nf(GBY[window.GFS].p)+' звёзд' : 'Выберите подарок'}
+        </button>
+        `;
+    };
+
+})();
+</script>
+<!-- ===== /ТОЧНАЯ КОПИЯ ДИЗАЙНА ===== -->
 </body></html>
