@@ -2330,6 +2330,109 @@ window.sheetTheme=sheetTheme=function(){THF=0;
 sheet('Оформление',`<div class="tgr" onclick="setLv(this)" style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px"><span>Живой фон<br><small style="color:var(--mu)">Мягкое свечение, плавно плывёт по экрану</small></span><i class="tgs${PF.lv?' on':''}"></i></div>${seg([[0,'Все'],[1,'Тёмные'],[2,'Светлые']],0,'setThf')}<div class="thg" style="margin-top:10px">${thGrid()}</div><div class="pl2">Размер текста</div>${seg([[.9,'Мелкий'],[1,'Обычный'],[1.12,'Крупный']],PF.fs,'setFs')}<div class="pl2">Форма сообщений</div>${seg([[10,'Строгая'],[20,'Мягкая'],[26,'Круглая']],PF.br,'setBr')}`)};
 applyPF();
 })();
+/* ===== LOBBY v2: фон лобби, стеклянный дизайн, иконки ===== */
+(()=>{
+const SK=(n,id)=>{const S='stop-color:var(--tx)',t='stroke:var(--tx)',g=(i,a,o)=>`<linearGradient id="${id}${i}" x1="1" y1="0" x2="0" y2="1"><stop offset="0" style="${S}" stop-opacity="0"/><stop offset=".5" style="${S}" stop-opacity="${a}"/><stop offset="1" style="${S}" stop-opacity="${o||0}"/></linearGradient>`;
+let d='',b='';
+if(n==='silk'){d=g('a',.15)+g('b',.1,.02)+g('c',.07)+`<filter id="${id}f" x="-20%" y="-20%" width="140%" height="140%"><feGaussianBlur stdDeviation="2.5"/></filter>`;
+b=`<g filter="url(#${id}f)"><path d="M300 -20C335 140 225 262 -20 362L-20 250C140 190 232 92 212 -20Z" fill="url(#${id}a)"/><path d="M-20 600C120 520 262 562 410 470L410 566C262 654 120 640 -20 724Z" fill="url(#${id}b)"/><path d="M190 870C262 770 340 748 410 700L410 870Z" fill="url(#${id}c)"/></g><g fill="none" style="${t}" stroke-linecap="round"><path d="M392 120C300 222 200 332 -20 472" stroke-width="1.2" opacity=".13"/><path d="M-20 764C150 694 300 742 410 640" stroke-width="1.2" opacity=".12"/><path d="M320 -10C350 120 250 240 40 330" stroke-width="1" opacity=".1"/><path d="M-20 650C140 600 270 610 410 520" stroke-width="1" opacity=".09"/></g>`}
+else if(n==='silk2'){d=`<filter id="${id}f" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="38"/></filter>`;
+b=`<g filter="url(#${id}f)" style="fill:var(--tx)"><ellipse cx="330" cy="120" rx="150" ry="110" opacity=".13"/><ellipse cx="40" cy="420" rx="130" ry="170" opacity=".08"/><ellipse cx="300" cy="700" rx="170" ry="120" opacity=".12"/></g>`}
+else{let p='';for(let i=0;i<9;i++){const y=90+i*88,a=(.07+.07*Math.sin(i*1.3)).toFixed(3),h=26+i%3*14;p+=`<path d="M-20 ${y}C80 ${y-h} 160 ${y+h} 250 ${y}S360 ${y-h} 420 ${y+h}" fill="none" style="${t}" stroke-width="1.2" opacity="${Math.abs(a)+.04}"/>`}b=p}
+return `<svg viewBox="0 0 390 844" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg"><defs>${d}</defs>${b}</svg>`};
+const LWL=[['silk','Шёлк'],['silk2','Дымка'],['silk3','Волны шёлка'],...WP.filter(w=>w[0]!=='none'),['none','Без фона']];
+const LW=()=>PF.lw||'silk';
+window.lobApply=()=>{const L=document.getElementById('list');if(!L)return;let b=document.getElementById('lbg');if(!b){b=document.createElement('div');b.id='lbg';L.prepend(b)}
+const k=LW();b.innerHTML='';b.removeAttribute('data-wp');b.style.removeProperty('--wpi');
+if(k==='none')return;
+if(k.startsWith('silk'))b.innerHTML=SK(k,'lb');
+else{b.dataset.wp=k;b.innerHTML='<span class="wpl"></span>';if(k==='img'){const u=localStorage.lg_lwpi;if(u)b.style.setProperty('--wpi',`url("${u}")`)}}};
+window.setLob=(k,el)=>{PF.lw=k;savePF();lobApply();mark(el);vib(8)};
+window.lobPick=()=>{const i=document.createElement('input');i.type='file';i.accept='image/*';i.onchange=()=>{const f=i.files[0];if(!f)return;const im=new Image();im.onload=()=>{const q=Math.min(1,1280/Math.max(im.width,im.height)),c=document.createElement('canvas');c.width=im.width*q;c.height=im.height*q;c.getContext('2d').drawImage(im,0,0,c.width,c.height);try{localStorage.lg_lwpi=c.toDataURL('image/jpeg',.82)}catch(e){return toast('Фото слишком большое')}PF.lw='img';savePF();lobApply();document.querySelectorAll('.sh .wt').forEach(x=>x.classList.toggle('on',x.dataset.k==='img'));toast('Фон лобби обновлён')};im.src=URL.createObjectURL(f)};i.click()};
+window.sheetLob=()=>{sheet('Фон лобби',`<div class="wg">${LWL.map((w,n)=>`<div class="wt${LW()===w[0]?' on':''}" data-k="${w[0]}"${w[0].startsWith('silk')||w[0]==='none'?'':` data-wp="${w[0]}"`} onclick="setLob('${w[0]}',this)"><i>${w[0].startsWith('silk')?SK(w[0],'pv'+n):'<span class="wpl"></span>'}</i>${w[1]}</div>`).join('')}<div class="wt${LW()==='img'?' on':''}" data-k="img" onclick="lobPick()"><i style="display:grid;place-items:center">${ic('image')}</i>Своё фото</div></div><div class="pl2" style="margin-top:4px">Фон виден на экранах «Чаты», «Звонки», «Контакты» и «Настройки»</div>`)};
+/* иконки как на фото */
+const dot=x=>`<circle cx="${x}" cy="11" r="1.05" fill="currentColor" stroke="none"/>`;
+P.chat='<path d="M12 3.4c-4.7 0-8.5 3.2-8.5 7.3 0 2.2 1 4.1 2.7 5.4L5.4 20.4l3.8-1.8c.9.2 1.8.3 2.8.3 4.7 0 8.5-3.2 8.5-7.2S16.7 3.4 12 3.4z"/>'+dot(8.2)+dot(12)+dot(15.8);
+window.NAVCHAT=`<svg class="i" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">${P.chat}</svg>`;
+P.sparkle='<path d="M12 2.8l2.3 6.2 6.2 2.3-6.2 2.3L12 19.8l-2.3-6.2-6.2-2.3 6.2-2.3z"/><path d="M19 17.5l.7 1.8 1.8.7-1.8.7-.7 1.8-.7-1.8-1.8-.7 1.8-.7z" opacity=".9"/>';
+const SPK='<svg class="spk" viewBox="0 0 24 24" width="20" height="20"><defs><linearGradient id="spg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#b58cff"/><stop offset="1" stop-color="#5b6bff"/></linearGradient></defs><path d="M12 2l2.6 7.4L22 12l-7.4 2.6L12 22l-2.6-7.4L2 12l7.4-2.6z" fill="url(#spg)"/></svg>';
+/* экран настроек */
+settingsHTML=function(hd){
+const it=(i,t,f,c='',r='')=>`<div class="it ${c}" onclick='${f}'><span class="ib2">${ic(i)}</span><span>${t}</span>${r?`<small class="itr">${r}</small>`:''}${ic('chev')}</div>`;
+const on=prof.prime_until&&new Date(prof.prime_until)>Date.now(),thn=(TH.find(t=>t[0]===PF.th)||[])[1]||'';
+return hd('Настройки')+`<div class="sc"><div class="pc pc2" onclick="sheetProf()">${prof.banner_url?`<div class="pcb" style="background-image:url(${esc(prof.banner_url)})"></div>`:''}<div class="pci">${av(prof,80)}<div class="pm"><div class="pn">${esc(prof.name)}${badges(prof)}</div><div class="sub">@${esc(prof.username)}${prof.phone?' · '+esc(prof.phone):''}</div><div class="pr"><span class="cchip" onclick="event.stopPropagation();sheetWallet()">${SPK}<b>${nf(prof.coins)}</b></span><span class="sm">Изм.</span></div></div></div>${window.gshelf?gshelf(MYG.filter(x=>x.pinned)):''}</div>
+<div class="grp">${it('lock','Конфиденциальность','sheetPriv()')}${it('bell','Звуки и уведомления','sheetNot()')}${it('palette','Оформление','sheetTheme()','',esc(thn))}${it('image','Узор фона чата','sheetWp()')}${it('image','Фон лобби','sheetLob()')}${it('sparkle','Анимации и эффекты','sheetFx()')}</div>
+<div class="grp"><div class="it prime" onclick='sheetPrime()'><span class="pti">${ic('sparkle')}</span><span class="ptx"><b>Logos Prime${on?' · активен':''}</b><small>Звёзды · ${nf(prof.coins)}</small></span>${ic('chev')}</div></div>
+<div class="grp">${it('coin','Кошелёк','sheetWallet()')}${it('gift','Подарки'+(window.MYG&&MYG.length?' · '+MYG.length:''),'sheetGifts()')}</div>
+<div class="grp">${it('info','О приложении','sheetAbout()')}${it('out','Выйти','confirmOut()','rd')}</div></div>`};
+/* после каждой отрисовки лобби */
+const _dl=drawList;drawList=function(){const r=_dl.apply(this,arguments);lobApply();
+if(tab==='chats'&&!arch){const h=document.querySelector('#lc .hd');if(h&&!h.querySelector('.hdp'))h.insertAdjacentHTML('beforeend',`<button class="ib hdp" onclick="go('search')">${ic('plus')}</button>`)}
+if(tab==='calls'){const b=document.querySelectorAll('#lc .seg button')[1],m=typeof missedN==='function'?missedN():0;if(b&&m&&!b.querySelector('.segn'))b.insertAdjacentHTML('beforeend',`<b class="segn">${m>99?'99+':m}</b>`)}
+return r};
+document.head.insertAdjacentHTML('beforeend',`<style id="lobby2">
+#lbg{position:absolute;inset:0;z-index:0;pointer-events:none;overflow:hidden;contain:strict}
+#lbg svg{position:absolute;inset:0;width:100%;height:100%}
+#lbg[data-wp=img] .wpl{background-size:cover;background-position:center}
+.list>#lc{position:relative;z-index:1}
+.list .sr .row,.list .row{background:transparent!important}
+.list .hd{padding:14px 18px 6px}.list .hd h1{font-size:36px;font-weight:800;letter-spacing:-1px}
+.list .hdp{width:42px;height:42px;background:none!important;border:0!important;color:var(--tx)}.list .hdp .i{width:30px;height:30px;stroke-width:1.5}
+.list .srch:not(:has(input)){margin:6px 16px 12px!important;height:48px!important;padding:0 16px!important;border-radius:26px!important;background:color-mix(in srgb,var(--tx) 6%,transparent)!important;border:1px solid color-mix(in srgb,var(--tx) 12%,transparent)!important;font-size:17px;backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px)}
+.list .srch:not(:has(input)) .i{width:24px;height:24px;stroke-width:1.6}
+.list .sr .row>.av,.list .crow>.av{width:66px!important;height:66px!important;font-size:30px;font-weight:500;background:radial-gradient(circle at 32% 20%,#4c4c50,#19191b 72%);color:#f2f2f2;box-shadow:inset 0 1px 0 #ffffff26,0 6px 16px #0006}
+.list .sr .row{padding:8px 16px;gap:14px}.list .sr .row::after{left:96px;right:16px}
+.list .row .n{font-size:18px;font-weight:600}.list .row .sub{font-size:15px}
+.list .crow{padding:8px 16px;gap:14px;position:relative}.list .crow::after{content:'';position:absolute;left:96px;right:16px;bottom:0;height:.5px;background:var(--ln)}
+.list .cbk{width:60px!important;height:60px!important;border-radius:50%!important;flex:none;background:radial-gradient(circle at 35% 22%,#3e3e42,#0c0c0e 75%)!important;border:1px solid #ffffff16!important;box-shadow:inset 0 1px 0 #ffffff2e,0 8px 20px #0007!important;color:#fff!important}
+.list .cbk .i{width:26px;height:26px;stroke-width:1.9}
+html.lt .list .cbk{background:radial-gradient(circle at 35% 22%,#4a4a50,#17171a 75%)!important}
+.list>#lc .seg{margin:6px 16px 10px;height:54px;padding:4px;gap:0;border-radius:28px;background:color-mix(in srgb,var(--tx) 6%,transparent);border:1px solid color-mix(in srgb,var(--tx) 12%,transparent);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px)}
+.list>#lc .seg button{height:44px;border-radius:24px;font-size:17px;font-weight:600;display:flex;align-items:center;justify-content:center;gap:8px;color:var(--mu)}
+.list>#lc .seg button.on{background:linear-gradient(180deg,var(--tx),color-mix(in srgb,var(--tx) 58%,var(--bg)));color:var(--bg);box-shadow:inset 0 1px 0 #ffffff66,0 4px 14px #0005}
+.segn{min-width:24px;height:24px;border-radius:12px;padding:0 7px;display:grid;place-items:center;font-size:14px;font-weight:700;background:color-mix(in srgb,var(--tx) 14%,transparent);color:var(--tx)}
+.list .pc{margin:8px 16px 14px;border-radius:30px;background:linear-gradient(160deg,color-mix(in srgb,var(--tx) 9%,transparent),color-mix(in srgb,var(--tx) 3%,transparent))!important;border:1px solid color-mix(in srgb,var(--tx) 11%,transparent)!important;backdrop-filter:blur(22px);-webkit-backdrop-filter:blur(22px);box-shadow:inset 0 1px 0 #ffffff12}
+.pc2 .pci{margin-top:0;padding:14px;align-items:center;gap:14px}.pc2 .pcb+.pci{margin-top:-34px;align-items:flex-end}
+.pc2 .pci .av{width:80px!important;height:80px!important;border:0;background:radial-gradient(circle at 32% 20%,#34343a,#050506 75%);box-shadow:inset 0 1px 0 #ffffff22,0 8px 22px #0008}
+.pc2 .pm{flex:1;min-width:0}.pc2 .pn{font-size:24px;font-weight:700;letter-spacing:-.3px}.pc2 .sub{font-size:15px;margin-top:2px}
+.pc2 .pr{display:flex;align-items:center;justify-content:space-between;margin-top:10px}
+.pc2 .cchip{margin:0;padding:6px 16px 6px 10px;gap:8px;font-size:17px;font-weight:600;background:color-mix(in srgb,var(--tx) 8%,transparent)!important;border:1px solid color-mix(in srgb,var(--tx) 12%,transparent)!important}
+.pc2 .sm{padding:9px 20px;border-radius:999px;font-size:16px;font-weight:600;background:radial-gradient(circle at 35% 20%,#3a3a3e,#0e0e10 80%);color:#fff;border:1px solid #ffffff14;box-shadow:inset 0 1px 0 #ffffff26}
+.list .grp{margin:0 16px 14px;border-radius:28px;background:linear-gradient(160deg,color-mix(in srgb,var(--tx) 8%,transparent),color-mix(in srgb,var(--tx) 3%,transparent))!important;border:1px solid color-mix(in srgb,var(--tx) 10%,transparent)!important;backdrop-filter:blur(22px);-webkit-backdrop-filter:blur(22px);box-shadow:inset 0 1px 0 #ffffff10}
+.list .it{padding:14px 16px;gap:16px;font-size:17px}
+.list .it .ib2{background:none!important;box-shadow:none!important;color:var(--tx)!important;width:28px;height:28px}.list .it .ib2 .i{width:27px;height:27px;stroke-width:1.45}
+.list .it+.it::before{left:60px;right:16px}
+.list .it>.i{width:20px;height:20px;color:var(--mu)}.list .it .itr{color:var(--mu);font-size:15px;margin-right:-4px}
+.list .it.prime{padding:12px 16px}.list .it.prime .pti{width:46px;height:46px;border-radius:14px;flex:none;display:grid;place-items:center;color:#fff;background:linear-gradient(135deg,#a86bff,#5b4bff);box-shadow:inset 0 1px 0 #ffffff55,0 6px 18px #6a4bff55}
+.list .it.prime .pti .i{width:26px;height:26px;stroke-width:1.6}
+.list .it.prime .ptx{flex:1;display:flex;flex-direction:column;gap:2px}.list .it.prime .ptx b{font-weight:500;font-size:17px}.list .it.prime .ptx small{color:var(--mu);font-size:15px}
+.tbp{background:color-mix(in srgb,var(--bg) 72%,transparent)!important;backdrop-filter:blur(26px) saturate(1.5);-webkit-backdrop-filter:blur(26px) saturate(1.5);border:1px solid color-mix(in srgb,var(--tx) 12%,transparent)!important;box-shadow:0 12px 34px #0009,inset 0 1px 0 #ffffff14!important}
+.tbp button{color:var(--mu)!important;font-size:11.5px;font-weight:600}.tbp button.on{color:var(--tx)!important;font-weight:700}
+.tbp .i{width:27px!important;height:27px!important}
+.tbl{background:color-mix(in srgb,var(--tx) 10%,transparent)!important;border:1px solid color-mix(in srgb,var(--tx) 12%,transparent)!important;box-shadow:inset 0 1px 0 #ffffff22,0 6px 16px #0006!important}
+</style>`);
+lobApply();
+})();
+/* ===== переименование контактов (видно только вам) ===== */
+(()=>{
+const NK=()=>PF.nick||(PF.nick={});
+const nickApply=()=>{const f=o=>{if(!o)return;const id=o.pid||o.id;if(o.n0==null)o.n0=o.name;const n=NK()[id];o.name=n||o.n0};
+chats.forEach(c=>{if(c.kind==='dm')f(c)});(typeof contacts!=='undefined'?contacts:[]).forEach(f);(typeof CALLS!=='undefined'?CALLS:[]).forEach(x=>{if(x.ch&&x.ch.kind==='dm'&&x.ch.pid)f(x.ch)})};
+window.nickApply=nickApply;
+window.nickAsk=id=>{const c=chats.find(x=>x.pid===id)||contacts.find(x=>x.id===id);if(!c)return;if(c.n0==null)c.n0=c.name;
+const o=document.createElement('div');o.className='dlg';o.style.zIndex=3000;o.onclick=e=>{if(e.target===o)dlgOut(o)};
+o.innerHTML=`<div><div style="font-weight:700;font-size:17px">Имя контакта</div><div class="sub" style="margin-top:4px;white-space:normal">Видно только вам. Настоящее имя: ${esc(c.n0)}</div><input id="nki" maxlength="40" value="${esc(c.name)}" style="width:100%;margin-top:12px;height:46px;border-radius:14px;padding:0 14px;background:var(--s2);border:1px solid var(--ln);color:var(--tx);font-size:16px"><button class="b2" style="background:var(--ac);color:var(--acx)" onclick="nickSave('${id}')">Сохранить</button>${NK()[id]?`<button class="b2" style="background:var(--s3)" onclick="nickSave('${id}',1)">Вернуть настоящее имя</button>`:''}<button class="b2" style="background:var(--s3)" onclick="dlgOut(this.closest('.dlg'))">Отмена</button></div>`;
+document.body.appendChild(o);setTimeout(()=>{const i=$('#nki');i?.focus();i?.select()},80)};
+window.nickSave=(id,reset)=>{const v=($('#nki')?.value||'').trim(),n=NK();if(reset||!v)delete n[id];else n[id]=v;savePF();dlgOut(document.querySelector('.dlg'));nickApply();drawList();
+if(typeof cur!=='undefined'&&cur&&cur.pid===id){const e=document.querySelector('#main .top .n');if(e){const t=[...e.childNodes].find(x=>x.nodeType===3);if(t)t.nodeValue=cur.name}const p=document.querySelector('#pov [style*="font-size:22px"]');if(p){const t=[...p.childNodes].find(x=>x.nodeType===3);if(t)t.nodeValue=cur.name}}
+toast(reset||!v?'Имя сброшено':'Имя сохранено');vib(10)};
+const _dl=drawList;drawList=function(){nickApply();const r=_dl.apply(this,arguments);
+if(tab==='contacts')document.querySelectorAll('#lc .row').forEach(r=>{const m=/dm\('([^']+)'\)/.exec(r.getAttribute('onclick')||'');if(m&&!r.querySelector('.nkb'))r.insertAdjacentHTML('beforeend',`<button class="ib nkb" onclick="event.stopPropagation();nickAsk('${m[1]}')" aria-label="Переименовать">${ic('pencil')}</button>`)});return r};
+const _oc=openChat;openChat=async function(){nickApply();return _oc.apply(this,arguments)};
+const _sp=showP;showP=async function(){const r=await _sp.apply(this,arguments);const c=cur;if(c?.pid&&!document.querySelector('#pov .nkx')){document.querySelector('#pov .xact')?.insertAdjacentHTML('beforeend',`<button class="nkx" onclick="nickAsk('${c.pid}')">${ic('pencil')}Имя</button>`)}return r};
+document.head.insertAdjacentHTML('beforeend','<style>.nkb{width:36px;height:36px;flex:none;background:none!important;border:0!important;color:var(--mu)}.nkb .i{width:20px;height:20px}</style>');
+nickApply();
+})();
 })();
 
 </script>
