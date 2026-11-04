@@ -2367,7 +2367,6 @@ return hd('Настройки')+`<div class="sc"><div class="pc pc2" onclick="sh
 <div class="grp">${it('info','О приложении','sheetAbout()')}${it('out','Выйти','confirmOut()','rd')}</div></div>`};
 /* после каждой отрисовки лобби */
 const _dl=drawList;drawList=function(){const r=_dl.apply(this,arguments);lobApply();
-if(tab==='chats'&&!arch){const h=document.querySelector('#lc .hd');if(h&&!h.querySelector('.hdp'))h.insertAdjacentHTML('beforeend',`<button class="ib hdp" onclick="go('search')">${ic('plus')}</button>`)}
 if(tab==='calls'){const b=document.querySelectorAll('#lc .seg button')[1],m=typeof missedN==='function'?missedN():0;if(b&&m&&!b.querySelector('.segn'))b.insertAdjacentHTML('beforeend',`<b class="segn">${m>99?'99+':m}</b>`)}
 return r};
 document.head.insertAdjacentHTML('beforeend',`<style id="lobby2">
@@ -2432,6 +2431,57 @@ const _oc=openChat;openChat=async function(){nickApply();return _oc.apply(this,a
 const _sp=showP;showP=async function(){const r=await _sp.apply(this,arguments);const c=cur;if(c?.pid&&!document.querySelector('#pov .nkx')){document.querySelector('#pov .xact')?.insertAdjacentHTML('beforeend',`<button class="nkx" onclick="nickAsk('${c.pid}')">${ic('pencil')}Имя</button>`)}return r};
 document.head.insertAdjacentHTML('beforeend','<style>.nkb{width:36px;height:36px;flex:none;background:none!important;border:0!important;color:var(--mu)}.nkb .i{width:20px;height:20px}</style>');
 nickApply();
+})();
+/* ===== группы и каналы: меню создания + карточка группы ===== */
+(()=>{
+window.newMenu=()=>{vib(8);sheet('Создать',`<button class="xch" onclick="closeSheet(true);go('search')">${ic('chat')}Новый чат<small style="display:block;color:var(--mu);font-weight:400">Найти человека по имени или @нику</small></button><button class="xch" onclick="closeSheet(true);newGroup('group')">${ic('users')}Новая группа<small style="display:block;color:var(--mu);font-weight:400">Пишут все участники</small></button><button class="xch" onclick="closeSheet(true);newGroup('channel')">${ic('send')}Новый канал<small style="display:block;color:var(--mu);font-weight:400">Пишете только вы, остальные читают</small></button>`)};
+const _d=drawList;drawList=function(){const r=_d.apply(this,arguments);
+if(tab==='chats'&&!arch){const b=document.querySelector('#lc .hd button.ib');if(b){b.className='ib hdp';b.setAttribute('onclick','newMenu()');b.innerHTML=ic('plus')}}
+if(tab==='contacts'){const b=document.querySelector('#lc .hd button.ib');if(b){b.className='ib hdp';b.setAttribute('onclick','newMenu()');b.innerHTML=ic('plus')}}
+return r};
+const isG=c=>c&&(c.kind==='group'||c.kind==='channel'),adm=c=>c&&['owner','admin'].includes(c.role);
+window.grpInfo=async()=>{const c=cur;if(!isG(c))return;
+sheet(esc(c.name),`<div style="display:flex;align-items:center;gap:14px;margin-bottom:12px">${av(c,64)}<div><div style="font-size:20px;font-weight:700">${esc(c.name)}</div><div class="sub" id="gmc">${c.kind==='channel'?'Канал':'Группа'}</div></div></div><div class="xch-w">${adm(c)?`<button class="xch" onclick="grpAdd()">${ic('cplus')}Добавить участников</button><button class="xch" onclick="grpRename()">${ic('pencil')}Изменить название</button>`:''}<button class="xch" onclick="closeSheet(true);delAsk('${c.id}')" style="color:#f87171">${ic('out')}${c.kind==='channel'?'Отписаться':'Выйти из группы'}</button></div><div class="pl2">Участники</div><div id="gml"><div class="sub" style="padding:8px">Загрузка…</div></div>`);
+const r=await SB.from('chat_members').select('user_id,role,profiles(id,name,username,avatar_url)').eq('chat_id',c.id);
+const L=r.data||[],e=$('#gml');if(!e)return;
+const rk={owner:0,admin:1,member:2};L.sort((a,b)=>(rk[a.role]??2)-(rk[b.role]??2));
+$('#gmc').textContent=(c.kind==='channel'?'Канал':'Группа')+' · '+L.length+' '+(L.length%10===1&&L.length%100!==11?'участник':'участников');
+e.innerHTML=L.map(x=>{const p=x.profiles||{name:'?'};return `<div class="row" style="padding:6px 2px">${av(p,40)}<div class="b"><div class="n">${esc(p.name)}${x.user_id===me.id?' (вы)':''}</div><div class="sub">${p.username?'@'+esc(p.username):''}</div></div>${x.role!=='member'?`<span class="sub">${x.role==='owner'?'владелец':'админ'}</span>`:''}</div>`}).join('')||'<div class="sub" style="padding:8px">Пока никого</div>'};
+window.grpAdd=async()=>{const c=cur;const r=await SB.from('chat_members').select('user_id').eq('chat_id',c.id),has=new Set((r.data||[]).map(x=>x.user_id)),L=contacts.filter(p=>p&&!has.has(p.id));GS=new Set();
+sheet('Добавить участников',L.length?`<div class="gch" id="gch"></div><div class="gpl">${L.map(p=>`<div class="row gp" onclick="gTog('${p.id}',this)">${av(p,38)}<div class="b"><div class="n">${esc(p.name)}</div><div class="sub">${at(p.username)}</div></div><i class="gck"></i></div>`).join('')}</div><button class="btn" id="gok" style="width:100%;margin-top:10px" onclick="grpAddDo()">Добавить</button>`:'<div class="sub" style="padding:10px 2px;white-space:normal">Все ваши контакты уже здесь. Новых людей можно добавить в «Контакты».</div>')};
+window.grpAddDo=async()=>{if(!GS.size)return toast('Выберите людей');const{error}=await SB.rpc('add_group_members',{cid:cur.id,members:[...GS]});if(error)return toast('Запустите logos-groups.sql в Supabase');toast('Добавлено: '+GS.size);GM[cur.id]=null;closeSheet(true);grpInfo()};
+window.grpRename=()=>{sheet('Название',`<label class="fld"><small>Новое название</small><input id="grn" maxlength="60" value="${esc(cur.name)}"></label><button class="btn" style="width:100%;margin-top:10px" onclick="grpRenameDo()">Сохранить</button>`);setTimeout(()=>$('#grn')?.focus(),120)};
+window.grpRenameDo=async()=>{const t=($('#grn')?.value||'').trim();if(!t)return toast('Введите название');const{error}=await SB.rpc('rename_group',{cid:cur.id,t});if(error)return toast('Запустите logos-groups.sql в Supabase');cur.name=t;const c=chats.find(x=>x.id===cur.id);if(c)c.name=t;closeSheet(true);drawList();const e=document.querySelector('#main .top .n');if(e){const n=[...e.childNodes].find(x=>x.nodeType===3);if(n)n.nodeValue=t}toast('Название изменено')};
+const _sp=showP;showP=async function(){if(isG(cur))return grpInfo();return _sp.apply(this,arguments)};
+})();
+/* ===== свайп как в Telegram: круглые кнопки, без «призраков» ===== */
+(()=>{
+const rv=r=>{const sr=r&&r.parentElement;if(!sr)return;const m=/translateX\((-?[\d.]+)px\)/.exec(r.style.transform||'');sr.style.setProperty('--rv',(m?-parseFloat(m[1]):0)+'px')};
+document.addEventListener('touchmove',e=>{const r=e.target.closest&&e.target.closest('.sr>.row');if(r)r.parentElement.classList.add('dg')},{passive:true});
+const fin=()=>setTimeout(()=>document.querySelectorAll('.sr.dg').forEach(s=>s.classList.remove('dg')),0);
+document.addEventListener('touchend',fin);document.addEventListener('touchcancel',fin);
+const hook=()=>{const L=document.getElementById('list');if(!L)return false;
+new MutationObserver(ms=>{for(const m of ms){const t=m.target;if(t.matches&&t.matches('.sr>.row'))rv(t)}}).observe(L,{attributes:true,attributeFilter:['style'],subtree:true});return true};
+if(!hook()){let n=0;const iv=setInterval(()=>{if(hook()||++n>60)clearInterval(iv)},500)}
+document.head.insertAdjacentHTML('beforeend',`<style id="swipe3">
+.list .sr .acts{clip-path:inset(0 0 0 calc(100% - var(--rv,0px)))!important;transition:clip-path .28s cubic-bezier(.2,.8,.2,1)!important;padding:0 6px 0 2px!important;gap:0!important;background:none!important;align-items:center!important}
+.list .sr.dg .acts{transition:none!important}
+.list .sr .acts button{width:72px!important;min-width:72px!important;max-width:72px!important;height:auto!important;background:none!important;border:0!important;border-radius:0!important;box-shadow:none!important;color:var(--tx)!important;font-size:11px!important;font-weight:600!important;gap:5px!important;padding:0!important;overflow:visible!important;justify-content:center;align-self:center}
+.list .sr .acts .i{width:48px!important;height:48px!important;padding:13px;box-sizing:border-box;border-radius:50%!important;stroke:#fff!important;color:#fff!important;stroke-width:1.8;box-shadow:inset 0 1px 0 #ffffff30,0 4px 12px #0005;flex:none}
+.list .sr .acts .a1 .i{background:linear-gradient(160deg,#6a6a75,#34343a)}
+.list .sr .acts .a2 .i{background:linear-gradient(160deg,#8a8a96,#52525b)}
+.list .sr .acts .a3 .i{background:linear-gradient(160deg,#ff5d6d,#e11d48)}
+html.lt .list .sr .acts button{color:var(--tx)!important}
+#lc[data-t=contacts] .sr .acts{padding:0 8px 0 2px!important;background:none!important}
+#lc[data-t=contacts] .sr .acts button{width:72px!important;min-width:72px!important;max-width:72px!important;font-size:10.5px!important;gap:2px!important;background:none!important;border-radius:0!important}
+#lc[data-t=contacts] .sr .acts .i{width:36px!important;height:36px!important;padding:9px}
+.list .sr .row>.av{width:58px!important;height:58px!important;font-size:26px}
+.list .sr .row::after{left:88px}
+.list .crow>.av{width:54px!important;height:54px!important;font-size:24px}
+.list .crow::after{left:84px}
+.list .crow{padding:8px 16px;gap:13px}
+.list .cbk{width:50px!important;height:50px!important}.list .cbk .i{width:23px;height:23px}
+</style>`);
 })();
 })();
 
