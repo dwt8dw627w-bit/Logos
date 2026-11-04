@@ -2672,4 +2672,89 @@ const vm=document.querySelector('meta[name=viewport]');if(vm)vm.content='width=d
 requestAnimationFrame(tick);
 })();
 </script>
+<script>
+(()=>{try{
+const $q=(s,r=document)=>r.querySelector(s),E=t=>String(t??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const N=n=>(Math.round(n)||0).toLocaleString('ru-RU').replace(/\u00a0/g,' ');
+const LK='lg_adm_log';let LOG=[];try{LOG=JSON.parse(localStorage[LK]||'[]')}catch(e){}
+const isOwner=()=>typeof prof!=='undefined'&&prof&&prof.role==='owner';
+const nm=id=>{if(id===me.id)return 'себе';try{const c=(chats||[]).find(x=>x.pid===id);if(c)return c.name}catch(e){}try{const t=document.getElementById('aTg');if(t&&t.textContent&&!/не выбран|—/i.test(t.textContent))return t.textContent}catch(e){}return String(id).slice(0,8)};
+const addLog=(ty,tx,to)=>{if(!isOwner())return;LOG.unshift({ts:Date.now(),ty,tx,by:prof.name||'Владелец',to:to||''});LOG=LOG.slice(0,500);try{localStorage[LK]=JSON.stringify(LOG)}catch(e){}};
+/* логирование действий (только на устройстве владельца) */
+const orp=SB.rpc.bind(SB);
+SB.rpc=async function(n,a){const r=await orp(n,a);try{if(r&&!r.error&&a){const to=a.target_id?nm(a.target_id):'';
+if(n==='admin_coins'){const v=a.amount;addLog('stars',(v>0?'Выдано ':'Списано ')+N(Math.abs(v))+' ⭐',to);LOG[0].n=v}
+else if(n==='admin_verify')addLog('status',a.val?'Пользователь получил галочку':'Галочка снята',to);
+else if(n==='admin_scam')addLog('status','Изменён статус аккаунта: '+(a.val?'скам':'не скам'),to);
+else if(n==='admin_ban')addLog('ban',a.val?'Пользователь заблокирован'+(a.reason?' · '+a.reason:''):'Пользователь разблокирован',to);
+else if(n==='buy_prime')addLog('prime','Оформлена Premium-подписка','')}}catch(e){}return r};
+if(typeof savePF==='function'){const osp=savePF;let lt=0;savePF=function(){const r=osp.apply(this,arguments);if(Date.now()-lt>60000){lt=Date.now();addLog('settings','Изменены настройки приложения','')}return r}}
+/* стили */
+const st=document.createElement('style');st.textContent=`
+.adm2 .atabs{display:flex;gap:8px;margin:2px 0 12px}.adm2 .atabs button{flex:1;display:flex;align-items:center;justify-content:center;gap:6px;padding:10px 4px;border-radius:20px;border:1px solid #ffffff14;background:#ffffff0a;color:var(--mu);font:inherit;font-size:13px;font-weight:600;transition:.25s}.adm2 .atabs button.on{background:linear-gradient(180deg,#ffffff2e,#ffffff10);color:#fff;border-color:#ffffff40;box-shadow:inset 0 1px 0 #ffffff30}
+.adm2 .bal{display:flex;align-items:center;gap:14px;padding:14px 16px;border-radius:24px;background:linear-gradient(160deg,#ffffff18,#ffffff06);border:1px solid #ffffff1f;margin-bottom:12px}.adm2 .bal .st{font-size:46px;line-height:1;background:linear-gradient(135deg,#fff,#777);-webkit-background-clip:text;background-clip:text;color:transparent;filter:drop-shadow(0 4px 10px #fff3)}.adm2 .bal small{color:var(--mu);font-size:13px}.adm2 .bal b{display:block;font-size:32px;letter-spacing:-.5px}
+.adm2 .srch{display:flex;gap:8px;align-items:center;padding:4px 6px 4px 14px;border-radius:22px;background:#ffffff0d;border:1px solid #ffffff1a;margin-bottom:6px}.adm2 .srch input{flex:1;min-width:0;background:none;border:0;outline:0;color:var(--tx);height:38px}.adm2 .srch button{border:0;border-radius:16px;padding:8px 14px;background:#ffffff1c;color:var(--tx);font:inherit;font-size:13px;font-weight:600}
+.adm2 .two{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:10px 0}.adm2 .two button,.adm2 .qs button{padding:16px 8px;border-radius:20px;border:1px solid #ffffff1a;background:linear-gradient(180deg,#ffffff14,#ffffff06);color:var(--tx);font:inherit;font-weight:600;font-size:14px;transition:.2s}.adm2 .two button.on{border-color:#ffffff66;background:linear-gradient(180deg,#ffffff30,#ffffff10);box-shadow:inset 0 1px 0 #ffffff40}
+.adm2 .qs{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:6px 0 10px}.adm2 .qs button{padding:12px 6px;border-radius:18px}.adm2 .big{display:block;width:100%;margin:6px 0;padding:15px;border-radius:26px;border:1px solid #ffffff2a;background:linear-gradient(180deg,#ffffff2a,#ffffff0c);color:#fff;font:inherit;font-weight:600;font-size:15px}.adm2 .big:active,.adm2 .two button:active,.adm2 .qs button:active{transform:scale(.96)}
+.adm2 .box{padding:12px;border-radius:22px;background:#ffffff0a;border:1px solid #ffffff14;margin-top:10px}.adm2 .box .seg button{font-size:12.5px}
+.adm2 .amt{width:100%;box-sizing:border-box;margin:4px 0;padding:12px 14px;border-radius:18px;background:#ffffff0d;border:1px solid #ffffff1a;color:var(--tx);outline:0}
+.adm2 .sg2{display:grid;grid-template-columns:1fr 1fr;gap:8px}.adm2 .sc2{padding:12px;border-radius:18px;background:#ffffff0a;border:1px solid #ffffff14}.adm2 .sc2 small{display:block;color:var(--mu);font-size:12px}.adm2 .sc2 b{font-size:22px}.adm2 .sc2 i{display:block;font-style:normal;font-size:11.5px;color:var(--mu);margin-top:2px}
+.adm2 .sh3{margin:14px 2px 6px;color:var(--mu);font-size:13px;display:flex;justify-content:space-between;align-items:center}.adm2 .rg button{padding:4px 12px;border-radius:12px;border:0;background:#ffffff10;color:var(--mu);font:inherit;font-size:12px;margin-left:4px}.adm2 .rg button.on{background:#ffffff30;color:#fff}
+.adm2 .lg{padding:10px 12px;border-radius:16px;background:#ffffff0a;border:1px solid #ffffff10;margin-bottom:8px}.adm2 .lg b{display:block;font-size:14px}.adm2 .lg small{display:block;color:var(--mu);font-size:12px;margin-top:2px}.adm2 .chips{display:flex;gap:6px;overflow:auto;margin:8px 0}.adm2 .chips button{flex:none;padding:6px 12px;border-radius:14px;border:0;background:#ffffff10;color:var(--mu);font:inherit;font-size:12.5px}.adm2 .chips button.on{background:#ffffff30;color:#fff}
+.admfab{border-radius:20px!important;background:linear-gradient(145deg,#ffffff30,#ffffff0a)!important;color:#e8e8ee!important;border:1px solid #ffffff55!important;backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);box-shadow:0 10px 26px #0009,inset 0 1px 0 #ffffff66!important}.admfab svg{width:34px!important;height:34px!important}`;
+document.head.appendChild(st);
+const FAB='<svg viewBox="0 0 64 64" fill="none"><defs><linearGradient id="nfg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#fff"/><stop offset="1" stop-color="#8d8d96"/></linearGradient></defs><path d="M32 7l19 6.5v18.5c0 12-8 20-19 25-11-5-19-13-19-25V13.5z" stroke="url(#nfg)" stroke-width="3" stroke-linejoin="round" fill="#0006"/><path d="M22 40l2-13 6 6 2-9 2 9 6-6 2 13z" fill="url(#nfg)"/><ellipse cx="32" cy="37" rx="27" ry="8" transform="rotate(-16 32 37)" stroke="url(#nfg)" stroke-width="2.4"/></svg>';
+const setFab=()=>document.querySelectorAll('.admfab:not([data-n])').forEach(b=>{b.dataset.n=1;b.innerHTML=FAB});
+new MutationObserver(setFab).observe(document.body,{childList:true,subtree:true});setFab();
+/* панель */
+const SHIELD='<svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round" style="vertical-align:-5px;margin-left:6px"><path d="M12 2.5l8 3v6c0 5-3.4 8.4-8 10-4.6-1.6-8-5-8-10v-6z"/><path d="M8.5 12l2.5 2.5 4.5-5"/></svg>';
+const oo=window.admOpen;let MODE=1;
+window.admOpen=function(keep){oo.apply(this,arguments);const go=()=>{const old=$q('.sh .adm');if(!old)return false;const tgt=($q('#aTg')||{}).textContent||'не выбран',who=($q('#aWho .on')||{dataset:{w:'me'}}).dataset.w;
+const t=$q('.sh .sht');if(t)t.innerHTML='Админ-панель'+SHIELD;
+old.className='adm adm2';old.innerHTML=`<div class="atabs" id="aTabs"><button class="on" onclick="admTab(0,this)">👥 Управление</button><button onclick="admTab(1,this)">📊 Статистика</button><button onclick="admTab(2,this)">🕓 Журнал</button></div>
+<div id="admM"><div class="bal"><div class="st">✦</div><div><small>Баланс звёзд</small><b id="bsMy">${N(prof.coins)}</b></div></div>
+<div class="srch"><span>🔍</span><input id="aNick" placeholder="Поиск по нику или ID…" autocapitalize="off" autocorrect="off" spellcheck="false" onkeydown="if(event.key==='Enter')admFind2()"><button onclick="admFind2()">Найти</button></div>
+<div class="sub" style="margin:4px 8px">Цель: <span class="tgt" id="aTg">${E(tgt)}</span></div>
+<div class="seg" id="aWho" style="margin:8px 0"><button data-w="me" class="${who==='me'?'on':''}" onclick="admWho('me')">Себе</button><button data-w="tg" class="${who==='tg'?'on':''}" onclick="admWho('tg')">Выбранному</button></div>
+<div class="two"><button id="mG" class="on" onclick="admMode(1)">⭐ Выдать звёзды</button><button id="mT" onclick="admMode(-1)">✧ Списать звёзды</button></div>
+<div class="sh3"><span>⚡ Быстрые суммы</span></div><div class="qs">${[100,1000,10000,100000].map(n=>`<button onclick="admChip(${n})">★ ${N(n)}</button>`).join('')}</div>
+<input class="amt" id="aAmt" type="number" inputmode="numeric" min="1" max="1000000000" placeholder="Своё количество">
+<button class="big" id="aGive" onclick="admGive(window.__am||1)">Выдать звёзды</button>
+<div class="box"><small style="color:var(--mu)">Статус пользователя</small><div class="seg" style="margin-top:8px"><button onclick="admDo('verify',true)">Галочка</button><button onclick="admDo('verify',false)">Снять</button><button onclick="admBanOpen()">Бан</button><button onclick="admDo('ban',false)">Разбан</button></div><div class="seg" style="margin-top:6px"><button onclick="admDo('scam',true)">Скам</button><button onclick="admDo('scam',false)">Не скам</button></div></div>
+<button class="big" style="margin-top:12px;background:#ffffff10" onclick="closeSheet()">Закрыть</button></div>
+<div id="admS" style="display:none"></div><div id="admL" style="display:none"></div>`;window.__am=1;MODE=1;return true};
+if(!go())setTimeout(go,40)};
+window.admMode=m=>{window.__am=m;$q('#mG')?.classList.toggle('on',m>0);$q('#mT')?.classList.toggle('on',m<0);const g=$q('#aGive');if(g)g.textContent=m>0?'Выдать звёзды':'Списать звёзды'};
+window.admFind2=async()=>{const v=($q('#aNick').value||'').replace('@','').trim();if(!v)return;if(/^[0-9a-f]{8}-[0-9a-f-]{20,}$/i.test(v)){const{data}=await SB.from('profiles').select('username').eq('id',v).maybeSingle();if(!data||!data.username)return toast('Не найден');$q('#aNick').value=data.username}
+return window.admFind()};
+window.admTab=(i,el)=>{el.parentElement.querySelectorAll('button').forEach(b=>b.classList.toggle('on',b===el));['admM','admS','admL'].forEach((id,k)=>{const e=$q('#'+id);if(e)e.style.display=k===i?'':'none'});if(i===1)admStats(7);if(i===2)admLog()};
+/* статистика */
+const cnt=async(q)=>{try{const r=await q;return r.error?null:(r.count??0)}catch(e){return null}};
+const V=x=>x==null?'—':N(x);
+window.admStats=async(rng)=>{const box=$q('#admS');if(!box)return;box.innerHTML='<div class="sub" style="text-align:center;padding:20px">Считаю…</div>';
+const now=Date.now(),day=new Date();day.setHours(0,0,0,0);const iso=t=>new Date(t).toISOString(),H=(t)=>({count:'exact',head:true});
+const P=()=>SB.from('profiles').select('id',H()),M=()=>SB.from('messages').select('id',H());
+const callOk=()=>M().or('body.ilike.Звонок, %,body.ilike.Видеозвонок, %');
+const callMiss=()=>M().in('body',['Пропущенный звонок','Абонент занят','Звонок отклонён','Отменённый звонок','Не удалось соединиться']);
+const [u,ua,un,pr,ms,co,cm,gf]=await Promise.all([cnt(P()),cnt(P().gte('last_seen',iso(now-864e5))),cnt(P().gte('created_at',iso(day))),cnt(P().gt('prime_until',iso(now))),cnt(M()),cnt(callOk()),cnt(callMiss()),cnt(SB.from('gifts_received').select('id',H()))]);
+let gifts=[];try{const r=await SB.from('gifts_received').select('gift').limit(1000);const m={};(r.data||[]).forEach(x=>{const k=typeof x.gift==='object'?(x.gift?.name||JSON.stringify(x.gift)):String(x.gift);m[k]=(m[k]||0)+1});gifts=Object.entries(m).sort((a,b)=>b[1]-a[1]).slice(0,3)}catch(e){}
+const given=LOG.filter(l=>l.ty==='stars'&&l.n>0).reduce((a,l)=>a+l.n,0),taken=LOG.filter(l=>l.ty==='stars'&&l.n<0).reduce((a,l)=>a-l.n,0);
+let days=[];try{const D=rng,since=new Date(now-(D-1)*864e5);since.setHours(0,0,0,0);const r=await SB.from('messages').select('created_at').gte('created_at',since.toISOString()).limit(20000);const m={};(r.data||[]).forEach(x=>{const k=x.created_at.slice(0,10);m[k]=(m[k]||0)+1});for(let i=D-1;i>=0;i--){const d=new Date(now-i*864e5);const k=d.toISOString().slice(0,10);days.push([k,m[k]||0])}}catch(e){}
+const mx=Math.max(1,...days.map(d=>d[1])),bw=300/Math.max(days.length,1);
+const bars=days.map((d,i)=>{const h=Math.round(d[1]/mx*90);return `<rect x="${i*bw+1}" y="${100-h}" width="${Math.max(bw-3,2)}" height="${Math.max(h,1)}" rx="2" fill="#ffffffcc"/>`}).join('');
+box.innerHTML=`<div class="sg2"><div class="sc2"><small>👥 Пользователи</small><b>${V(u)}</b><i>активных за 24ч: ${V(ua)}<br>новых сегодня: ${V(un)}</i></div><div class="sc2"><small>✦ Звёзды (с этого устройства)</small><b>${N(given)}</b><i>выдано · списано: ${N(taken)}</i></div>
+<div class="sc2"><small>🎁 Подарки</small><b>${V(gf)}</b><i>${gifts.length?'топ: '+gifts.map(g=>E(g[0])+' ×'+g[1]).join(', '):'нет данных'}</i></div><div class="sc2"><small>💬 Сообщения</small><b>${V(ms)}</b><i>всего отправлено</i></div>
+<div class="sc2"><small>📞 Звонки</small><b>${V(co)}</b><i>успешных · не состоялись: ${V(cm)}</i></div><div class="sc2"><small>💎 Premium</small><b>${V(pr)}</b><i>подписчиков</i></div></div>
+<div class="sh3"><span>Активность (сообщения)</span><span class="rg"><button class="${rng===7?'on':''}" onclick="admStats(7)">7 дн</button><button class="${rng===30?'on':''}" onclick="admStats(30)">30 дн</button></span></div>
+<div class="sc2"><svg viewBox="0 0 300 100" width="100%" preserveAspectRatio="none" style="display:block;height:110px">${bars}</svg><div style="display:flex;justify-content:space-between;color:var(--mu);font-size:11px;margin-top:4px"><span>${days[0]?days[0][0].slice(5):''}</span><span>макс: ${N(mx)}/день</span><span>${days.length?days[days.length-1][0].slice(5):''}</span></div></div>`};
+/* журнал */
+let LF='all',LQ='';
+const TY=[['all','Все'],['stars','Звёзды'],['status','Статус'],['ban','Баны'],['prime','Premium'],['settings','Настройки']];
+window.admLog=()=>{const box=$q('#admL');if(!box)return;const f=LOG.filter(l=>(LF==='all'||l.ty===LF)&&(!LQ||(l.tx+' '+l.to+' '+l.by).toLowerCase().includes(LQ)));
+const fm=t=>new Date(t).toLocaleString('ru-RU',{day:'2-digit',month:'2-digit',year:'2-digit',hour:'2-digit',minute:'2-digit'});
+box.innerHTML=`<div class="srch"><span>🔍</span><input id="lq" value="${E(LQ)}" placeholder="Поиск по журналу…" oninput="admLq(this.value)"></div><div class="chips">${TY.map(t=>`<button class="${LF===t[0]?'on':''}" onclick="admLf('${t[0]}')">${t[1]}</button>`).join('')}</div><div id="lgl">${f.length?f.map(l=>`<div class="lg"><b>${E(l.tx)}${l.to?' → '+E(l.to):''}</b><small>${fm(l.ts)} · выполнил: ${E(l.by)}</small></div>`).join(''):'<div class="sub" style="text-align:center;padding:20px;white-space:normal">Записей пока нет. Журнал ведётся на этом устройстве с момента обновления.</div>'}</div>`;
+const i=$q('#lq');if(i&&LQ){i.focus();i.setSelectionRange(LQ.length,LQ.length)}};
+window.admLq=v=>{LQ=v.trim().toLowerCase();admLog()};window.admLf=f=>{LF=f;admLog()};
+}catch(e){console.error('adm2',e)}})();
+</script>
 </body></html>
