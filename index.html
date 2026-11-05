@@ -2902,6 +2902,8 @@ else if(e==='🔥'){try{el.animate([{boxShadow:'0 0 0 0 #ff7a1800'},{boxShadow:'
 else if(e==='👑'){go(mk('👑',cx,r.top,34),[{transform:'translate(-50%,-220%) scale(.4) rotate(-25deg)',opacity:0},{transform:'translate(-50%,-85%) scale(1.25) rotate(7deg)',opacity:1,offset:.35},{transform:'translate(-50%,-85%) scale(1)',opacity:1,offset:.82},{transform:'translate(-50%,-110%)',opacity:0}],{duration:2600})}
 else go(mk(e,cx,cy,30),[{transform:'translate(-50%,-50%) scale(.3)',opacity:0},{transform:'translate(-50%,-90%) scale(1.3)',opacity:1,offset:.4},{transform:'translate(-50%,-140%) scale(1)',opacity:0}],{duration:800})}
 if(typeof rxSet==='function'){const _r=rxSet;rxSet=function(id,e){if(e==='👑'&&!pr()){toast('Корона доступна в Logos Prime',{icon:li('crown',18,'#f5c451')});return}const had=(typeof RX!=='undefined'&&RX[String(id)]?.[me.id]===e),r=_r.apply(this,arguments);if(!had){fxR(id,e);bump('react')}return r}}
+function rxIc(){document.querySelectorAll('.rxc:not([data-lx])').forEach(b=>{b.dataset.lx=1;const n=b.firstChild;if(n&&n.nodeType===3){const q=RI[n.nodeValue.trim()];if(q){const s=document.createElement('span');s.style.cssText='display:inline-flex;line-height:0';s.innerHTML=li(q[0],16,q[1]);n.replaceWith(s)}}})}
+if(typeof rxPaint==='function'){const _p=rxPaint;rxPaint=function(){const r=_p.apply(this,arguments);rxIc();return r}}
 if(typeof send==='function'){const _s=send;send=async function(){const had=($('#in')?.value||'').trim();const r=await _s.apply(this,arguments);if(had)bump('sent');return r}}
 /* ---------- умные папки ---------- */
 const FD=[['all','Все',()=>1],['dm','Друзья',c=>c.kind==='dm'&&(typeof contacts!=='undefined'&&contacts.some(p=>p&&p.id===c.pid))],['grp','Группы',c=>c.kind!=='dm'&&c.kind!=='channel'],['ch','Каналы',c=>c.kind==='channel'],['un','Непрочитанные',c=>c.un>0]];
@@ -2946,7 +2948,7 @@ if(typeof tab!=='undefined'&&tab==='settings'&&!$('#lxit')){const it=$('#lc .it'
 const cp=$('#main .comp');if(cp&&!cp.querySelector('.lxs')){const a=cp.querySelector('.cact');if(a)a.insertAdjacentHTML('afterbegin','<button class="ib lxs" aria-label="Отправить позже" onclick="lxSched()" >'+li('clock',20)+'</button>')}
 const tp=$('#main .top');if(tp&&!tp.querySelector('.lxai')){tp.insertAdjacentHTML('beforeend','<button class="ib lxai" aria-label="Logos AI" onclick="lxAIm()" >'+li('spark',20)+'</button>')}
 document.querySelectorAll('#ms .mr:not([data-lx])').forEach(r=>{r.dataset.lx=1;const m=msgs[+r.dataset.i],b=r.querySelector('.m');if(!m||!b||m.kind!=='text'||!m.body||/^\[gift:/.test(m.body)||!need(m.body)||m.sender_id===me.id)return;const t=b.querySelector('time'),h=`<span class="lxtr" onclick="event.stopPropagation();lxTr(this,'${m.id}')">Перевести</span>`;t?t.insertAdjacentHTML('beforebegin',h):b.insertAdjacentHTML('beforeend',h);if(S.auto)b.querySelector('.lxtr')?.click()});
-document.querySelectorAll('.rxe:not(.lxd)').forEach(b=>{b.classList.add('lxd');const q=RI[b.dataset.e];if(q)b.innerHTML=li(q[0],26,q[1])});
+rxIc();document.querySelectorAll('.rxe:not(.lxd)').forEach(b=>{b.classList.add('lxd');const q=RI[b.dataset.e];if(q)b.innerHTML=li(q[0],26,q[1])});
 if(pr())document.querySelectorAll('.prm').forEach(c=>{const a=c.closest('.row,.top,.hd,.bn,.ov')?.querySelector('.av');if(a&&!a.classList.contains('lxfr'))a.classList.add('lxfr')});
 }
 new MutationObserver(()=>{clearTimeout(to);to=setTimeout(scan,90)}).observe(document.body,{childList:true,subtree:true});
