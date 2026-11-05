@@ -2799,16 +2799,16 @@ const defs='<svg width="0" height="0" style="position:absolute" aria-hidden="tru
 document.body.insertAdjacentHTML('beforeend',defs);
 const ico=(k,z=16)=>{if(/^s\d+$/.test(k||'')&&STK[+k.slice(1)])return `<img src="data:image/webp;base64,${STK[+k.slice(1)]}" width="${z}" height="${z}" style="display:block;object-fit:contain">`;const[a,b]=(k||'').split('-');if(!SH[a]||!PAL[b])return null;return `<svg viewBox="0 0 24 24" width="${z}" height="${z}" style="display:block"><path d="${SH[a]}" fill="url(#pg-${b})" stroke="rgba(0,0,0,.25)" stroke-width=".6" stroke-linejoin="round"/></svg>`};
 const sz=k=>/^s/.test(k||'')?28:21;
-const orig=z=>`<img src="${SPR.scrown}" style="width:${z}px;height:${Math.round(z*.88)}px;object-fit:contain;display:block">`;
-const pk=p=>{const k=p&&p.priv&&p.priv.crown;return (KEYS.includes(k)||SK.includes(k))?k:''};
+const orig=z=>ico('s1',z+7);
+const pk=p=>{const k=p&&p.priv&&p.priv.crown;return SK.includes(k)?k:''};
 const isP=p=>p&&p.prime_until&&new Date(p.prime_until)>Date.now();
 const vb2=n=>{try{vib(n)}catch(e){}};
-window.crownOf=p=>{const k=pk(p);return `<span class="prm2" onclick="crownTap(event)">${k?ico(k,sz(k)):orig(21)}</span>`};
+window.crownOf=p=>{const k=pk(p);return `<span class="prm2" onclick="crownTap(event)">${ico(k||'s1',28)}</span>`};
 const st=document.createElement('style');st.textContent=`
 .prm2{display:inline-flex;vertical-align:-7px;margin:-9px 3px -9px -4px;padding:9px 6px;cursor:pointer;transition:transform .3s cubic-bezier(.34,1.6,.5,1)}.prm2:active{transform:scale(.8)}
 .cpop{position:fixed;inset:0;z-index:99999;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,.5);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);animation:cpf .25s both}
 .cpop>div{width:min(320px,86vw);padding:22px 20px 16px;border-radius:28px;background:linear-gradient(160deg,#2a2a30,#141417);border:1px solid #ffffff2a;box-shadow:0 24px 60px #000c,inset 0 1px 0 #ffffff30;text-align:center;color:#fff;animation:cpp .42s cubic-bezier(.22,1.3,.4,1) both}
-.cpop .ci{display:flex;justify-content:center;margin-bottom:10px;filter:drop-shadow(0 6px 16px #a070ff88)}.cpop b{display:block;font-size:18px;margin-bottom:6px}.cpop p{margin:0 0 16px;color:#b9b9c3;font-size:14px;line-height:1.4}
+.cpop .cpi{display:flex;justify-content:center;margin-bottom:10px;filter:drop-shadow(0 6px 16px #a070ff88)}.cpop b{display:block;font-size:18px;margin-bottom:6px}.cpop p{margin:0 0 16px;color:#b9b9c3;font-size:14px;line-height:1.4}
 .cpop button{display:block;width:100%;padding:13px;border-radius:20px;border:0;font:inherit;font-weight:600;font-size:15px;margin-top:8px;color:#fff;background:#ffffff1a;transition:transform .25s cubic-bezier(.34,1.5,.5,1)}.cpop button:active{transform:scale(.95)}.cpop button.p{background:linear-gradient(180deg,#fff,#c9c9d2);color:#111}
 @keyframes cpf{from{opacity:0}}@keyframes cpp{from{opacity:0;transform:translateY(24px) scale(.88)}}
 .cpg{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;margin:6px 0}.cph{margin:12px 4px 4px;color:#9a9aa5;font-size:13px}.cpg.st button{padding:3px}.cpg button{aspect-ratio:1;border-radius:16px;border:1px solid #ffffff14;background:#ffffff0a;display:flex;align-items:center;justify-content:center;padding:0;transition:transform .3s cubic-bezier(.34,1.5,.5,1)}.cpg button.on{border-color:#fff;background:#ffffff26}.cpg button:active{transform:scale(.88)}
@@ -2817,10 +2817,10 @@ const closeP=()=>{const e=document.querySelector('.cpop');if(e){e.style.transiti
 window.crownClose=closeP;
 window.crownTap=ev=>{try{ev&&ev.stopPropagation()}catch(e){}vb2(10);closeP();const mine=isP(prof);const k=pk(prof);
 const d=document.createElement('div');d.className='cpop';d.onclick=e=>{if(e.target===d)closeP()};
-d.innerHTML=`<div><div class="ci">${(k&&mine?ico(k,k&&/^s/.test(k)?96:54):orig(54))}</div><b>Талисман Prime</b><p>Такого друга рядом с ником заводят те, у кого активна подписка Logos Prime.${mine?' Твоя подписка активна — можешь выбрать другого талисмана из 30 стикеров и 50 значков.':' Оформи подписку — и такой друг появится и у тебя.'}</p>${mine?'<button class="p" onclick="crownClose();crownPick()">Сменить талисмана</button><button onclick="crownClose()">Закрыть</button>':'<button class="p" onclick="crownClose();sheetPrime()">Купить подписку</button><button onclick="crownClose()">Позже</button>'}</div>`;
+d.innerHTML=`<div><div class="cpi">${(k&&mine?ico(k||'s1',96):ico('s1',96))}</div><b>Талисман Prime</b><p>Такого друга рядом с ником заводят те, у кого активна подписка Logos Prime.${mine?' Твоя подписка активна — можешь выбрать другого талисмана из 30 стикеров.':' Оформи подписку — и такой друг появится и у тебя.'}</p>${mine?'<button class="p" onclick="crownClose();crownPick()">Сменить талисмана</button><button onclick="crownClose()">Закрыть</button>':'<button class="p" onclick="crownClose();sheetPrime()">Купить подписку</button><button onclick="crownClose()">Позже</button>'}</div>`;
 document.body.appendChild(d)};
-window.crownPick=()=>{if(!isP(prof)){toast('Талисман доступен с Logos Prime');return sheetPrime()}vb2(8);const cur=pk(prof);
-sheet('Талисман Prime',`<div class="sub" style="margin:0 4px 6px;white-space:normal">Выбери друга, которого все увидят рядом с твоим ником</div><div class="cph">Стикеры</div><div class="cpg st">${SK.map(k=>`<button data-k="${k}" class="${k===cur?'on':''}" onclick="crownSet('${k}')">${ico(k,52)}</button>`).join('')}</div><div class="cph">Значки</div><div class="cpg"><button data-k="" class="${cur?'':'on'}" onclick="crownSet('')">${orig(24)}</button>${KEYS.map(k=>`<button data-k="${k}" class="${k===cur?'on':''}" onclick="crownSet('${k}')">${ico(k,26)}</button>`).join('')}</div>`)};
+window.crownPick=()=>{if(!isP(prof)){toast('Талисман доступен с Logos Prime');return sheetPrime()}vb2(8);const cur=pk(prof)||'s1';
+sheet('Талисман Prime',`<div class="sub" style="margin:0 4px 6px;white-space:normal">Выбери друга, которого все увидят рядом с твоим ником</div><div class="cpg st">${SK.map(k=>`<button data-k="${k}" class="${k===cur?'on':''}" onclick="crownSet('${k}')">${ico(k,52)}</button>`).join('')}</div>`)};
 window.crownSet=async k=>{vb2(10);const v={...(typeof PV==='function'?PV():(prof.priv||{}))};if(k)v.crown=k;else delete v.crown;prof.priv=v;try{PF.priv=v;savePF()}catch(e){}
 document.querySelectorAll('.cpg button').forEach(b=>b.classList.toggle('on',b.dataset.k===(k||'')));
 try{drawList()}catch(e){}
@@ -2828,7 +2828,7 @@ const r=await SB.from('profiles').update({priv:v}).eq('id',me.id);if(r.error)toa
 /* Prime: список возможностей + выбор значка */
 const sp=window.sheetPrime;
 window.sheetPrime=function(){sp.apply(this,arguments);const go=()=>{const ul=document.querySelector('.sh .pml');if(!ul)return false;const CKI=ul.querySelector('i')?ul.querySelector('i').innerHTML:'';
-const L=['Эксклюзивные подарки','Талисман у ника — его видят все','30 стикеров-талисманов и 50 значков на выбор','Нажми на талисмана — увидишь, что это Prime','Премиум анимации'];
+const L=['Эксклюзивные подарки','Талисман у ника — его видят все','30 стикеров-талисманов на выбор','Нажми на талисмана — увидишь, что это Prime','Премиум анимации'];
 ul.innerHTML=L.map(t=>`<li><i>${CKI}</i>${t}</li>`).join('');
 if(isP(prof)&&!document.getElementById('pkb')){const b=document.createElement('button');b.id='pkb';b.className='pmb';b.style.margin='10px 0 0';b.textContent='Сменить талисмана';b.onclick=crownPick;ul.insertAdjacentElement('afterend',b)}return true};
 if(!go())setTimeout(go,40)};
