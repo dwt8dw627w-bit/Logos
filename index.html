@@ -2843,7 +2843,7 @@ if(!go())setTimeout(go,40)};
 @keyframes lxg{50%{box-shadow:0 0 0 2px var(--bg),0 0 0 4px #ffe9a8,0 0 16px 5px #f5c45166}}
 .lxtr{font-size:12px;color:var(--ac,#8ab4ff);margin-top:3px;cursor:pointer;display:inline-block}
 .lxtx{font-size:14px;border-left:2px solid var(--ac,#8ab4ff);padding:2px 8px;margin:4px 0;opacity:.9}
-.lxs,.lxai{flex:none}
+.lxai{flex:none}.comp .lxs{display:none;width:38px;height:38px;flex:none;border-radius:50%;background:var(--s2);place-items:center}.comp.has .lxs{display:grid;animation:fi .2s}
 .lxcard{border-radius:20px;padding:16px;margin-bottom:12px;position:relative;overflow:hidden}
 .lxcard.pr{background:linear-gradient(135deg,#3b2a05,#8a5a10 55%,#f5c451);color:#fff}
 .lxcard.pr::after{content:'';position:absolute;inset:0;background:linear-gradient(110deg,transparent 40%,#ffffff2e 50%,transparent 60%);transform:translateX(-100%);animation:lxsh 3.4s infinite}
@@ -2953,7 +2953,7 @@ function palApply(){const r=document.documentElement.style;if(S.pal&&pr()){r.set
 let to=0;function scan(){
 if(typeof tab!=='undefined'&&tab==='chats'&&!$('#lxf')&&$('#lc .sc')){const un=chats.filter(c=>c.un>0&&!c.arch).length;$('#lc .sc').insertAdjacentHTML('afterbegin','<div id="lxf">'+FD.map(f=>`<button class="${S.fold===f[0]?'on':''}" onclick="lxFold('${f[0]}')">${f[1]}${f[0]==='un'&&un?'<b>'+un+'</b>':''}</button>`).join('')+'</div>')}
 if(typeof tab!=='undefined'&&tab==='settings'&&!$('#lxit')){const it=$('#lc .it');if(it)it.insertAdjacentHTML('beforebegin','<div class="it" id="lxit" onclick="lxHub(\'me\')"><span class="ib2" style="display:grid;place-items:center">'+im('prime',34)+'</span><span>Logos+ · достижения и Prime</span></div>')}
-const cp=$('#main .comp');if(cp&&!cp.querySelector('.lxs')){const a=cp.querySelector('.cact');if(a)a.insertAdjacentHTML('afterbegin','<button class="ib lxs" aria-label="Отправить позже" onclick="lxSched()" >'+li('clock',20)+'</button>')}
+const cp=$('#main .comp');if(cp&&!cp.querySelector('.lxs')){const a=cp.querySelector('.cact');if(a)a.insertAdjacentHTML('beforebegin','<button class="ib lxs" aria-label="Отправить позже" onpointerdown="event.preventDefault()" onclick="lxSched()">'+li('clock',20)+'</button>')}
 const tp=$('#main .top');if(tp&&!tp.querySelector('.lxai')){tp.insertAdjacentHTML('beforeend','<button class="ib lxai" aria-label="Logos AI" onclick="lxAIm()" >'+li('spark',20)+'</button>')}
 document.querySelectorAll('#ms .mr:not([data-lx])').forEach(r=>{r.dataset.lx=1;const m=msgs[+r.dataset.i],b=r.querySelector('.m');if(!m||!b||m.kind!=='text'||!m.body||/^\[gift:/.test(m.body)||!need(m.body)||m.sender_id===me.id)return;const t=b.querySelector('time'),h=`<span class="lxtr" onclick="event.stopPropagation();lxTr(this,'${m.id}')">Перевести</span>`;t?t.insertAdjacentHTML('beforebegin',h):b.insertAdjacentHTML('beforeend',h);if(S.auto)b.querySelector('.lxtr')?.click()});
 rxIc();document.querySelectorAll('.rxe:not(.lxd)').forEach(b=>{b.classList.add('lxd');const q=RI[b.dataset.e];if(q)b.innerHTML=li(q[0],26,q[1])});
