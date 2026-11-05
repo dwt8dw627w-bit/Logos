@@ -2834,4 +2834,123 @@ if(isP(prof)&&!document.getElementById('pkb')){const b=document.createElement('b
 if(!go())setTimeout(go,40)};
 }catch(e){console.error('crown',e)}})();
 </script>
+<style id="lx-css">
+.lxp{position:fixed;z-index:60;pointer-events:none;transform:translate(-50%,-50%);will-change:transform,opacity}
+#lxf{display:flex;gap:8px;overflow-x:auto;padding:4px 16px 10px;scrollbar-width:none}#lxf::-webkit-scrollbar{display:none}
+#lxf button{flex:none;background:var(--s2);border-radius:16px;padding:7px 14px;font-size:13.5px;color:var(--mu);transition:.2s}
+#lxf button.on{background:#f2f2f2;color:#000;font-weight:600}#lxf b{font-size:11px;margin-left:5px;opacity:.7}
+.av.lxfr{box-shadow:0 0 0 2px var(--bg),0 0 0 4px #f5c451;animation:lxg 2.8s ease-in-out infinite}
+@keyframes lxg{50%{box-shadow:0 0 0 2px var(--bg),0 0 0 4px #ffe9a8,0 0 16px 5px #f5c45166}}
+.lxtr{font-size:12px;color:var(--ac,#8ab4ff);margin-top:3px;cursor:pointer;display:inline-block}
+.lxtx{font-size:14px;border-left:2px solid var(--ac,#8ab4ff);padding:2px 8px;margin:4px 0;opacity:.9}
+.lxs,.lxai{flex:none}
+.lxcard{border-radius:20px;padding:16px;margin-bottom:12px;position:relative;overflow:hidden}
+.lxcard.pr{background:linear-gradient(135deg,#3b2a05,#8a5a10 55%,#f5c451);color:#fff}
+.lxcard.pr::after{content:'';position:absolute;inset:0;background:linear-gradient(110deg,transparent 40%,#ffffff2e 50%,transparent 60%);transform:translateX(-100%);animation:lxsh 3.4s infinite}
+@keyframes lxsh{60%,100%{transform:translateX(100%)}}
+.lxcard.np{background:var(--s2)}.lxcard h3{font-size:18px;margin-bottom:2px}.lxcard small{opacity:.8}
+.lxbar{height:8px;border-radius:6px;background:#ffffff26;margin-top:10px;overflow:hidden}.lxbar i{display:block;height:100%;background:#fff;border-radius:6px}
+.lxtabs{display:flex;gap:6px;margin-bottom:12px;overflow-x:auto}.lxtabs button{background:var(--s2);border-radius:14px;padding:7px 12px;font-size:13px;white-space:nowrap}.lxtabs .on{background:#f2f2f2;color:#000}
+.lxg{display:grid;grid-template-columns:repeat(2,1fr);gap:8px}
+.lxi{background:var(--s2);border-radius:16px;padding:12px;font-size:13px}.lxi b{display:block;font-size:14px}.lxi.lk{opacity:.4;filter:grayscale(1)}.lxi .e{font-size:26px;display:block;margin-bottom:4px}
+.lxrow{display:flex;align-items:center;justify-content:space-between;gap:10px;background:var(--s2);border-radius:14px;padding:12px 14px;margin-bottom:8px}
+.lxrow .sw{width:42px;height:24px;border-radius:14px;background:var(--s3);position:relative;transition:.2s;flex:none}.lxrow .sw::after{content:'';position:absolute;top:3px;left:3px;width:18px;height:18px;border-radius:50%;background:#fff;transition:.2s}.lxrow .sw.on{background:#34c759}.lxrow .sw.on::after{left:21px}
+.lxpal{display:flex;gap:10px;margin:6px 0 12px}.lxpal button{width:38px;height:38px;border-radius:50%;border:2px solid #fff3}
+.lxo{background:var(--s2);border-radius:14px;padding:12px;font-size:14px;line-height:1.45;margin-bottom:8px}.lxo small{color:var(--mu);display:block}
+.lxin{width:100%;background:var(--s2);border-radius:14px;padding:11px 14px;margin-bottom:8px;font-size:16px}
+body.lxpf .m.me{box-shadow:0 0 0 1px #f5c45155,0 0 14px #f5c45122}
+</style>
+<script id="lx-js">
+(function(){
+const K='lx_v1';let S={};try{S=JSON.parse(localStorage[K]||'{}')}catch(e){}
+S.c=S.c||{};S.ach=S.ach||{};S.xp=S.xp||0;S.sch=S.sch||[];S.day=S.day||{d:'',n:0};S.fold=S.fold||'all';
+const save=()=>{try{localStorage[K]=JSON.stringify(S)}catch(e){}};
+const pr=()=>{try{return !!isPrime()}catch(e){return false}};
+/* ---------- свои иконки ---------- */
+const IP={heart:['M12 20.5C5 16 3 12.5 3 9.5A4.5 4.5 0 0 1 12 8a4.5 4.5 0 0 1 9 1.5c0 3-2 6.5-9 11z',1],flame:['M12 3c1 3.5 5 5.5 5 10a5 5 0 0 1-10 0c0-2 1-3.2 2-4 0 1.5.8 2.3 1.6 2.6C10.2 8.5 10.5 5.5 12 3z',1],crown:['M3 8l4.5 4L12 5l4.5 7L21 8l-2 11H5L3 8z',1],star:['M12 3l2.7 5.6 6.1.9-4.4 4.3 1 6.1L12 17l-5.4 2.9 1-6.1L3.2 9.5l6.1-.9L12 3z',1],
+sprout:['M12 21v-9M12 12c0-4 3-6 7-6 0 4-3 6-7 6zM12 15c0-3-2.5-5-6-5 0 3 2.5 5 6 5z'],chat:['M20 11.5c0 4-3.6 7-8 7-1 0-1.9-.1-2.8-.4L5 20l1-3.5C4.7 15.3 4 13.5 4 11.5c0-4 3.6-7 8-7s8 3 8 7z'],
+globe:['M3 12a9 9 0 1 0 18 0 9 9 0 1 0-18 0M3 12h18M12 3c3 3 3 15 0 18M12 3c-3 3-3 15 0 18'],clock:['M3 12a9 9 0 1 0 18 0 9 9 0 1 0-18 0M12 7v5l3 2'],
+spark:['M12 3l1.8 5.2L19 10l-5.2 1.8L12 17l-1.8-5.2L5 10l5.2-1.8L12 3zM19 16l.8 2.2L22 19l-2.2.8L19 22l-.8-2.2L16 19l2.2-.8z'],moon:['M20 14.5A8 8 0 0 1 9.5 4 8 8 0 1 0 20 14.5z'],
+frame:['M4 4h16v16H4zM8.5 12a3.5 3.5 0 1 0 7 0 3.5 3.5 0 1 0-7 0'],image:['M3 5h18v14H3zM3 17l5-6 4 4 3-3 6 6'],medal:['M7.5 15a4.5 4.5 0 1 0 9 0 4.5 4.5 0 1 0-9 0M8.5 3l3.5 6 3.5-6'],
+search:['M5 11a6 6 0 1 0 12 0 6 6 0 1 0-12 0M16 16l4 4'],doc:['M6 3h9l4 4v14H6zM9 12h7M9 16h7'],
+thumb:['M7 11v9H4v-9zM7 11l4-8c1.5 0 2.5 1 2 2.5L12.5 9H19a2 2 0 0 1 2 2.3l-1.2 7A2 2 0 0 1 17.8 20H7'],
+laugh:['M3 12a9 9 0 1 0 18 0 9 9 0 1 0-18 0M9 10h.01M15 10h.01M8 13.5c1 4 7 4 8 0z'],wow:['M3 12a9 9 0 1 0 18 0 9 9 0 1 0-18 0M9 9.5h.01M15 9.5h.01M10.5 16a1.5 1.5 0 1 0 3 0 1.5 1.5 0 1 0-3 0'],sad:['M3 12a9 9 0 1 0 18 0 9 9 0 1 0-18 0M9 10h.01M15 10h.01M8.5 16.5c1.5-2 5.5-2 7 0']};
+const RI={'❤️':['heart','#ff4d6d'],'🔥':['flame','#ff8a1f'],'👑':['crown','#f5c451'],'👍':['thumb','#ffd166'],'😂':['laugh','#ffd166'],'😮':['wow','#ffd166'],'😢':['sad','#6ab0ff']};
+const li=(n,z=18,c)=>{const q=IP[n]||IP.star;return`<svg width="${z}" height="${z}" viewBox="0 0 24 24" fill="${q[1]?'currentColor':'none'}" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-${Math.round(z/6)}px;flex:none${c?';color:'+c:''}">${q[0].split('M').filter(Boolean).map(d=>'<path d="M'+d+'"/>').join('')}</svg>`};
+
+/* ---------- достижения, XP, уровни ---------- */
+const AC=[['first','sprout','Первое слово','Отправь первое сообщение',()=>S.c.sent>=1],
+['c100','chat','Сотка','100 отправленных сообщений',()=>S.c.sent>=100],
+['rx10','flame','Реактивный','10 реакций на сообщения',()=>S.c.react>=10],
+['tr5','globe','Полиглот','Переведи 5 сообщений',()=>S.c.tr>=5],
+['sch1','clock','Планировщик','Запланируй сообщение',()=>S.c.sch>=1],
+['ai1','spark','Любопытный','Попроси Logos AI о чате',()=>S.c.ai>=1],
+['owl','moon','Ночная сова','Напиши между 00:00 и 05:00',()=>S.c.owl>=1],
+['prime','crown','Избранный','Оформи Logos Prime',()=>pr()]];
+const CO=[['frame','Золотая рамка','Prime','prime'],['image','Фон «Аврора»','Редкий','rx10'],['medal','Значок «Сотка»','Обычный','c100'],['globe','Значок «Полиглот»','Обычный','tr5'],['crown','Корона над сообщением','Prime','prime'],['star','Знак «Любопытный»','Редкий','ai1']];
+const lvl=()=>Math.floor(Math.sqrt(S.xp/20))+1;
+const xpAdd=n=>{S.xp+=n};
+function chk(){AC.forEach(a=>{if(!S.ach[a[0]]&&a[4]()){S.ach[a[0]]=1;xpAdd(50);try{toast('Достижение: '+a[2],{icon:li(a[1],18)})}catch(e){}}});save()}
+function bump(k){S.c[k]=(S.c[k]||0)+1;if(k==='sent'){const d=new Date().toDateString();if(S.day.d!==d)S.day={d,n:0};if(S.day.n<30){S.day.n++;xpAdd(1)}const h=new Date().getHours();if(h<5)S.c.owl=1}chk()}
+/* ---------- анимированные реакции ---------- */
+if(typeof RXE!=='undefined'&&RXE.indexOf('👑')<0)RXE.push('👑');
+function mk(t,x,y,s){const n=document.createElement('div');n.className='lxp';const q=RI[t]||['star','#ffd166'];n.innerHTML=li(q[0],s,q[1]);n.style.cssText=`left:${x}px;top:${y}px;line-height:0`;document.body.appendChild(n);return n}
+const go=(n,kf,o)=>{try{n.animate(kf,o).finished.then(()=>n.remove(),()=>n.remove())}catch(e){n.remove()}};
+function fxR(id,e){const el=document.querySelector('#m'+id+' .m');if(!el)return;const r=el.getBoundingClientRect(),cx=r.left+r.width/2,cy=r.top+r.height/2;
+if(e==='❤️'){for(let i=0;i<10;i++){const a=i/10*6.28+Math.random()*.5,d=50+Math.random()*55;go(mk('❤️',cx,cy,15+Math.random()*12),[{transform:'translate(-50%,-50%) scale(.3)',opacity:1},{transform:`translate(calc(-50% + ${Math.cos(a)*d}px),calc(-50% + ${Math.sin(a)*d}px)) scale(1.1)`,opacity:0}],{duration:650+Math.random()*350,easing:'cubic-bezier(.2,.8,.3,1)'})}}
+else if(e==='🔥'){try{el.animate([{boxShadow:'0 0 0 0 #ff7a1800'},{boxShadow:'0 0 28px 8px #ff7a18cc'},{boxShadow:'0 0 0 0 #ff7a1800'}],{duration:950})}catch(x){}for(let i=0;i<7;i++){const x=r.left+Math.random()*r.width;go(mk('🔥',x,r.bottom-6,14+Math.random()*10),[{transform:'translate(-50%,0) scale(.5)',opacity:1},{transform:'translate(-50%,-70px) scale(1.2)',opacity:0}],{duration:700+Math.random()*400,delay:i*50,easing:'ease-out'})}}
+else if(e==='👑'){go(mk('👑',cx,r.top,34),[{transform:'translate(-50%,-220%) scale(.4) rotate(-25deg)',opacity:0},{transform:'translate(-50%,-85%) scale(1.25) rotate(7deg)',opacity:1,offset:.35},{transform:'translate(-50%,-85%) scale(1)',opacity:1,offset:.82},{transform:'translate(-50%,-110%)',opacity:0}],{duration:2600})}
+else go(mk(e,cx,cy,30),[{transform:'translate(-50%,-50%) scale(.3)',opacity:0},{transform:'translate(-50%,-90%) scale(1.3)',opacity:1,offset:.4},{transform:'translate(-50%,-140%) scale(1)',opacity:0}],{duration:800})}
+if(typeof rxSet==='function'){const _r=rxSet;rxSet=function(id,e){if(e==='👑'&&!pr()){toast('Корона доступна в Logos Prime',{icon:li('crown',18,'#f5c451')});return}const had=(typeof RX!=='undefined'&&RX[String(id)]?.[me.id]===e),r=_r.apply(this,arguments);if(!had){fxR(id,e);bump('react')}return r}}
+if(typeof send==='function'){const _s=send;send=async function(){const had=($('#in')?.value||'').trim();const r=await _s.apply(this,arguments);if(had)bump('sent');return r}}
+/* ---------- умные папки ---------- */
+const FD=[['all','Все',()=>1],['dm','Друзья',c=>c.kind==='dm'&&(typeof contacts!=='undefined'&&contacts.some(p=>p&&p.id===c.pid))],['grp','Группы',c=>c.kind!=='dm'&&c.kind!=='channel'],['ch','Каналы',c=>c.kind==='channel'],['un','Непрочитанные',c=>c.un>0]];
+if(typeof chatsHTML==='function'){const _c=chatsHTML;chatsHTML=function(){const all=chats,f=FD.find(x=>x[0]===S.fold);if(f&&S.fold!=='all')chats=all.filter(c=>{try{return f[2](c)}catch(e){return true}});try{return _c.apply(this,arguments)}finally{chats=all}}}
+window.lxFold=k=>{S.fold=k;save();vib?.(6);drawList()};
+/* ---------- перевод ---------- */
+const TL=(navigator.language||'ru').slice(0,2),TC={};
+const need=t=>/[a-zа-яё]{3}/i.test(t)&&(TL==='ru'?!/[а-яё]/i.test(t):/[а-яё]/i.test(t));
+async function tr(t){try{const j=await fetch('https://api.mymemory.translated.net/get?q='+encodeURIComponent(t.slice(0,450))+'&langpair=autodetect|'+TL).then(r=>r.json());return j?.responseData?.translatedText||null}catch(e){return null}}
+window.lxTr=async(el,id)=>{const box=el.parentElement.querySelector('.lxtx');if(box){box.remove();el.textContent='Перевести';return}const m=msgs.find(x=>String(x.id)===String(id));if(!m)return;el.textContent='Перевожу…';const o=TC[id]||(TC[id]=await tr(m.body));if(!o){el.textContent='Не получилось';return}el.insertAdjacentHTML('beforebegin','<div class="lxtx">'+esc(o)+'</div>');el.textContent='Скрыть перевод';if(!el.dataset.c){el.dataset.c=1;bump('tr')}};
+/* ---------- планировщик ---------- */
+window.lxSched=()=>{if(!cur)return;const v=($('#in')?.value||'').trim();if(!v)return toast('Сначала напишите сообщение');const d=new Date(Date.now()+36e5),p=n=>String(n).padStart(2,'0'),val=`${d.getFullYear()}-${p(d.getMonth()+1)}-${p(d.getDate())}T${p(d.getHours())}:${p(d.getMinutes())}`;
+sheet(li('clock',18)+' Отправить позже',`<div class="lxo">${esc(v)}</div><input class="lxin" id="lxdt" type="datetime-local" value="${val}"><button class="btn" style="width:100%" onclick="lxSchedOk()">Запланировать</button><div class="sub" style="margin-top:10px">Отправится, пока Logos открыт. Запланировано: ${S.sch.length}</div>`)};
+window.lxSchedOk=()=>{const t=new Date($('#lxdt').value).getTime(),v=($('#in')?.value||'').trim();if(!t||t<Date.now()+3e4)return toast('Выберите время в будущем');S.sch.push({cid:cur.id,t,body:v});$('#in').value='';bump('sch');save();closeSheet();toast('Запланировано',{icon:li('clock',18)})};
+setInterval(async()=>{if(!S.sch.length||typeof SB==='undefined')return;const due=S.sch.filter(x=>x.t<=Date.now());if(!due.length)return;S.sch=S.sch.filter(x=>x.t>Date.now());save();for(const x of due){const r=await SB.from('messages').insert({chat_id:x.cid,kind:'text',body:x.body});if(r.error){S.sch.push({...x,t:Date.now()+6e4});save()}else bump('sent')}},10000);
+/* ---------- Logos AI (локальный помощник по чату) ---------- */
+const SW=new Set('и в во не что он на я с со как а то все она так его но да ты к у же вы за бы по только ее мне было вот от меня еще нет о из ему теперь когда даже ну вдруг ли если уже или ни быть был него до вас нибудь опять уж вам ведь там потом себя ничего ей может они тут где есть надо ней для мы тебя их чем была сам чтоб без будто чего раз тоже себе под будет ж тогда кто этот того потому этого какой совсем ним здесь этом один почти мой тем чтобы нее сейчас были куда зачем всех никогда можно при наконец два об другой хоть после над больше тот через эти нас про всего них какая много разве три эту моя впрочем хорошо свою этой перед иногда лучше чуть том нельзя такой им более всегда конечно всю между the a an is are to of and in it you for on that this with i be have'.split(' '));
+const txt=()=>(typeof msgs!=='undefined'?msgs:[]).filter(m=>m.kind==='text'&&m.body&&!/^\[gift:/.test(m.body));
+window.lxAI=(mode)=>{if(!cur)return toast('Откройте чат');const T=txt();if(mode==='sum'){bump('ai');if(T.length<3)return sheet(li('spark',18)+' Logos AI','<div class="lxo">В чате пока мало текста для пересказа.</div>');
+const f={};T.forEach(m=>(m.body.toLowerCase().match(/[a-zа-яё]{4,}/g)||[]).forEach(w=>{if(!SW.has(w))f[w]=(f[w]||0)+1}));const top=Object.entries(f).sort((a,b)=>b[1]-a[1]).slice(0,6).map(x=>x[0]),q=T.filter(m=>m.body.includes('?')).slice(-3),lk=T.filter(m=>/https?:\/\//.test(m.body)).length,me_=T.filter(m=>m.sender_id===me.id).length,d1=new Date(T[0].created_at),d2=new Date(T[T.length-1].created_at);
+sheet(li('spark',18)+' Logos AI',`<div class="lxo"><small>Кратко о переписке</small>${T.length} сообщ. (вы — ${me_}, собеседники — ${T.length-me_}) · ${d1.toLocaleDateString('ru')} — ${d2.toLocaleDateString('ru')}${lk?' · ссылок: '+lk:''}</div><div class="lxo"><small>Главные темы</small>${top.length?top.map(esc).join(', '):'—'}</div>${q.length?'<div class="lxo"><small>Последние вопросы</small>'+q.map(m=>'• '+esc(m.body.slice(0,120))).join('<br>')+'</div>':''}<div class="lxo"><small>Последнее</small>${T.slice(-3).map(m=>(m.sender_id===me.id?'Вы: ':'')+esc(m.body.slice(0,100))).join('<br>')}</div><button class="btn" style="width:100%" onclick="lxAI('find')">Найти в чате</button>`);return}
+sheet(li('search',18)+' Найти в чате','<input class="lxin" id="lxq" placeholder="Слово или фраза" oninput="lxFind(this.value)"><div id="lxr"></div>');setTimeout(()=>$('#lxq')?.focus(),350)};
+window.lxFind=v=>{v=v.trim().toLowerCase();const r=v.length<2?[]:txt().filter(m=>m.body.toLowerCase().includes(v)).slice(-20).reverse();$('#lxr').innerHTML=r.length?r.map(m=>`<div class="lxo" onclick="closeSheet();jump('${m.id}')"><small>${fmt(m.created_at)} · ${m.sender_id===me.id?'Вы':esc(cur.name||'')}</small>${esc(m.body.slice(0,160))}</div>`).join(''):(v.length<2?'':'<div class="sub">Ничего не найдено</div>')};
+window.lxAIm=()=>sheet(li('spark',18)+' Logos AI',`<div class="lxrow" onclick="lxAI('sum')"><span>${li('doc',18)} Кратко пересказать чат</span><span>›</span></div><div class="lxrow" onclick="lxAI('find')"><span>${li('search',18)} Найти в чате</span><span>›</span></div><div class="sub">Работает на устройстве: ничего не отправляется на сервер.</div>`);
+/* ---------- хаб: Prime, достижения, коллекция ---------- */
+let HT='me';
+window.lxHub=t=>{if(t)HT=t;const L=lvl(),b=(L-1)**2*20,n=L**2*20,pc=Math.min(100,Math.round((S.xp-b)/(n-b)*100)),P=pr(),nm=esc(prof?.name||'Вы');
+const card=P?`<div class="lxcard pr"><h3>${li('crown',20,'#fff')} ${nm}</h3><small>Logos Prime · Уровень ${L}</small><div class="lxbar"><i style="width:${pc}%"></i></div></div>`:`<div class="lxcard np"><h3>${nm}</h3><small>Уровень ${L} · ${S.xp} XP</small><div class="lxbar"><i style="width:${pc}%"></i></div><div class="sub" style="margin-top:8px">С Logos Prime: корона, анимированная рамка, тема и реакция-корона</div></div>`;
+const tabs=[['me','Профиль'],['ach','Достижения'],['col','Коллекция'],['prm','Prime']].map(x=>`<button class="${HT===x[0]?'on':''}" onclick="lxHub('${x[0]}')">${x[1]}</button>`).join('');let h='';
+if(HT==='me')h=`<div class="lxrow" onclick="lxTog('auto')"><span>${li('globe',18)} Автоперевод чужих сообщений</span><span class="sw ${S.auto?'on':''}"></span></div><div class="lxrow" onclick="lxAIm()"><span>${li('spark',18)} Logos AI</span><span>›</span></div><div class="sub">Уровень — только значок, без преимуществ. XP: достижения и небольшой бонус за активность (до 30 в день).</div>`;
+if(HT==='ach')h=`<div class="lxg">${AC.map(a=>`<div class="lxi ${S.ach[a[0]]?'':'lk'}"><span class="e">${li(a[1],28)}</span><b>${a[2]}</b>${a[3]}</div>`).join('')}</div>`;
+if(HT==='col')h=`<div class="lxg">${CO.map(c=>{const ok=c[3]==='prime'?pr():S.ach[c[3]];return`<div class="lxi ${ok?'':'lk'}"><span class="e">${li(c[0],28)}</span><b>${c[1]}</b>${c[2]}${ok?'':' · закрыто'}</div>`}).join('')}</div>`;
+if(HT==='prm')h=P?`<div class="lxrow" onclick="lxTog('pf')"><span>${li('spark',18)} Золотое сияние сообщений</span><span class="sw ${S.pf?'on':''}"></span></div><div class="sub">Цвет ваших сообщений</div><div class="lxpal">${[['#f5c451,#c9852b','#1a1200'],['#a45cf0,#6b7cff','#fff'],['#14b8a6,#0e7490','#fff'],['','']].map(p=>`<button style="background:${p[0]?'linear-gradient(135deg,'+p[0]+')':'var(--s3)'}" onclick="lxPal('${p[0]}','${p[1]}')">${p[0]?'':'×'}</button>`).join('')}</div><div class="sub">Рамка вокруг аватарки и корона уже включены.</div>`:'<div class="lxo">Эти функции открываются с Logos Prime: анимированная рамка аватара, Prime-карточка профиля, цветовые схемы сообщений, сияние и реакция-корона.</div>';
+sheet('Logos+',card+`<div class="lxtabs">${tabs}</div>`+h)};
+window.lxTog=k=>{S[k]=!S[k];save();document.body.classList.toggle('lxpf',!!S.pf&&pr());lxHub()};
+window.lxPal=(g,c)=>{const r=document.documentElement.style;S.pal=g?[g,c]:null;save();palApply()};
+function palApply(){const r=document.documentElement.style;if(S.pal&&pr()){r.setProperty('--me','linear-gradient(135deg,'+S.pal[0]+')');r.setProperty('--mt',S.pal[1])}else{r.removeProperty('--me');r.removeProperty('--mt')}}
+/* ---------- вставка элементов в интерфейс ---------- */
+let to=0;function scan(){
+if(typeof tab!=='undefined'&&tab==='chats'&&!$('#lxf')&&$('#lc .sc')){const un=chats.filter(c=>c.un>0&&!c.arch).length;$('#lc .sc').insertAdjacentHTML('afterbegin','<div id="lxf">'+FD.map(f=>`<button class="${S.fold===f[0]?'on':''}" onclick="lxFold('${f[0]}')">${f[1]}${f[0]==='un'&&un?'<b>'+un+'</b>':''}</button>`).join('')+'</div>')}
+if(typeof tab!=='undefined'&&tab==='settings'&&!$('#lxit')){const it=$('#lc .it');if(it)it.insertAdjacentHTML('beforebegin','<div class="it" id="lxit" onclick="lxHub(\'me\')"><span class="ib2" style="display:grid;place-items:center">'+li('spark',20)+'</span><span>Logos+ · достижения и Prime</span></div>')}
+const cp=$('#main .comp');if(cp&&!cp.querySelector('.lxs')){const a=cp.querySelector('.cact');if(a)a.insertAdjacentHTML('afterbegin','<button class="ib lxs" aria-label="Отправить позже" onclick="lxSched()" >'+li('clock',20)+'</button>')}
+const tp=$('#main .top');if(tp&&!tp.querySelector('.lxai')){tp.insertAdjacentHTML('beforeend','<button class="ib lxai" aria-label="Logos AI" onclick="lxAIm()" >'+li('spark',20)+'</button>')}
+document.querySelectorAll('#ms .mr:not([data-lx])').forEach(r=>{r.dataset.lx=1;const m=msgs[+r.dataset.i],b=r.querySelector('.m');if(!m||!b||m.kind!=='text'||!m.body||/^\[gift:/.test(m.body)||!need(m.body)||m.sender_id===me.id)return;const t=b.querySelector('time'),h=`<span class="lxtr" onclick="event.stopPropagation();lxTr(this,'${m.id}')">Перевести</span>`;t?t.insertAdjacentHTML('beforebegin',h):b.insertAdjacentHTML('beforeend',h);if(S.auto)b.querySelector('.lxtr')?.click()});
+document.querySelectorAll('.rxe:not(.lxd)').forEach(b=>{b.classList.add('lxd');const q=RI[b.dataset.e];if(q)b.innerHTML=li(q[0],26,q[1])});
+if(pr())document.querySelectorAll('.prm').forEach(c=>{const a=c.closest('.row,.top,.hd,.bn,.ov')?.querySelector('.av');if(a&&!a.classList.contains('lxfr'))a.classList.add('lxfr')});
+}
+new MutationObserver(()=>{clearTimeout(to);to=setTimeout(scan,90)}).observe(document.body,{childList:true,subtree:true});
+document.body.classList.toggle('lxpf',!!S.pf&&pr());setTimeout(()=>{palApply();chk()},1500);
+})();
+</script>
 </body></html>
