@@ -4682,4 +4682,310 @@ tz(function(){
 lotScan(document);tz(emojiBtn);
 })();
 </script>
+<script>/* Logos: lazy CDN libs (video.js, canvas-confetti) */
+(function(){
+var VJS='https://cdn.jsdelivr.net/npm/video.js@8.23.3/dist/',CF='https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js',P={};
+function js(src){return P[src]||(P[src]=new Promise(function(res,rej){var s=document.createElement('script');s.src=src;s.async=true;s.onload=function(){res()};s.onerror=function(){delete P[src];rej(new Error('load '+src))};document.head.appendChild(s)}))}
+function css(href){if(document.querySelector('link[data-lib="'+href+'"]'))return;var l=document.createElement('link');l.rel='stylesheet';l.href=href;l.dataset.lib=href;document.head.appendChild(l)}
+window.loadVideoJS=function(){css(VJS+'video-js.min.css');return window.videojs?Promise.resolve():js(VJS+'video.min.js')};
+window.loadConfetti=function(){return window.confetti?Promise.resolve():js(CF)};
+var st=document.createElement('style');
+st.textContent='.xvv .video-js{width:min(92vw,560px);max-height:80vh;border-radius:18px;overflow:hidden;background:#000}.xvv .video-js .vjs-tech{border-radius:0;max-width:none;max-height:none}.video-js .vjs-big-play-button{border-radius:50%;width:2.2em;height:2.2em;line-height:2.2em;margin-top:-1.1em;margin-left:-1.1em}';
+document.head.appendChild(st);
+/* video.js for normal video messages (round videos stay native) */
+var _x=window.xVid;
+if(typeof _x==='function')window.xVid=function(u,rd){
+  var r=_x.apply(this,arguments);
+  if(rd)return r;
+  var o=document.querySelector('.xvv:last-of-type')||document.querySelector('.xvv');
+  window.loadVideoJS().then(function(){
+    if(!o||!o.isConnected)return;var v=o.querySelector('video');if(!v||v.classList.contains('video-js'))return;
+    v.classList.add('video-js','vjs-big-play-centered');v.setAttribute('controls','');
+    var pl=window.videojs(v,{controls:true,fluid:true,playsinline:true,playbackRates:[.5,1,1.5,2],autoplay:false,preload:'auto',userActions:{hotkeys:true}});
+    var prev=o.onclick;o.onclick=function(e){if(e.target===o){try{pl.dispose()}catch(x){}o.remove()}};
+  }).catch(function(){});
+  return r;
+};
+/* confetti with gifts */
+var _g=window.giftFx;
+if(typeof _g==='function')window.giftFx=function(g){
+  var r=_g.apply(this,arguments);
+  window.loadConfetti().then(function(){
+    var c=(typeof RAR!=='undefined'&&g&&RAR[g.r]&&RAR[g.r][1])||'#ffffff';
+    confetti({particleCount:90,spread:75,origin:{y:.65},colors:[c,'#ffffff','#ffd24a','#ff5d8f','#5bd8ff'],zIndex:9999,disableForReducedMotion:true});
+    setTimeout(function(){confetti({particleCount:50,angle:60,spread:60,origin:{x:0,y:.7},zIndex:9999,disableForReducedMotion:true});confetti({particleCount:50,angle:120,spread:60,origin:{x:1,y:.7},zIndex:9999,disableForReducedMotion:true})},220);
+  }).catch(function(){});
+  return r;
+};
+/* warm up in background */
+(window.requestIdleCallback||function(f){setTimeout(f,4000)})(function(){window.loadVideoJS().catch(function(){});window.loadConfetti().catch(function(){})});
+})();
+</script>
+<script>/* Logos: offline emoji picker, reaction burst (from liquid-glass kit), UI guideline CSS */
+(function(){
+var $=function(s,r){return(r||document).querySelector(s)};
+var ED=[["😀", "😀😁😂😃😄😅😆😇😈😉😊😋😌😍😎😏😐😑😒😓😔😕😖😗😘😙😚😛😜😝😞😟😠😡😢😣😤😥😦😧😨😩😪😫😬😭😮😯😰😱😲😳😴😵😶😷😸😹😺😻😼😽😾😿🙀🙁🙂🙃🙄🙅🙆🙇🙈🙉🙊🙋🙌🙍🙎🙏🤐🤑🤒🤓🤔🤕🤖🤗🤘🤙🤚🤛🤜🤝🤞🤟🤠🤡🤢🤣🤤🤥🤦🤧🤨🤩🤪🤫🤬🤭🤮🤯🥰🥱🥲🥳🥴🥵🥶🥸🥹🥺🧐"], ["👋", "☝️✊️✋️✌️👀👁👂👃👄👅👆👇👈👉👊👋👌👍👎👏👐👦👧👨👩👪👫👬👭👮👯👰👱👲👳👴👵👶👷👸👻👼👽👾👿💀💃🧑🧒🧓🧔🧕🧖🧗🧘🧙🧚🧛🧜🧝💪🙏"], ["❤️", "❤️💓💔💕💖💗💘💙💚💛💜💝💞💟🤍🤎🖤💋💯💢💥💦💧💨💩💪💫✨️⭐️🌟🔥⚡️🏆👑💎"], ["🐶", "🐀🐁🐂🐃🐄🐅🐆🐇🐈🐉🐊🐋🐌🐍🐎🐏🐐🐑🐒🐓🐔🐕🐖🐗🐘🐙🐚🐛🐜🐝🐞🐟🐠🐡🐢🐣🐤🐥🐦🐧🐨🐩🐪🐫🐬🐭🐮🐯🐰🐱🐲🐳🐴🐵🐶🐷🐸🐹🐺🐻🐼🐽🐾🦀🦁🦂🦃🦄🦅🦆🦇🦈🦉🦊🦋🦌🦍🦎🦏🦐🦑🦒🦓🦔🦕🦖🦗🦘🦙🦚🦛🦜🦝🦞🦟🦠🦡🦢🦣🦤🦥🦦🦧🦨🦩🦪🦫🦬🦭🦮"], ["🌸", "🌰🌱🌲🌳🌴🌵🌶🌷🌸🌹🌺🌻🌼🌽🌾🌿🍀🍁🍂🍃🍄🌞🌟🌠🌈☀️☁️⛄️"], ["🍔", "🍅🍆🍇🍈🍉🍊🍋🍌🍍🍎🍏🍐🍑🍒🍓🍔🍕🍖🍗🍘🍙🍚🍛🍜🍝🍞🍟🍠🍡🍢🍣🍤🍥🍦🍧🍨🍩🍪🍫🍬🍭🍮🍯🍰🍱🍲🍳🍴🍵🍶🍷🍸🍹🍺🍻🍼🥐🥑🥒🥓🥔🥕🥖🥗🥘🥙🥚🥛🥜🥝🥞🥟🥠🥡🥢🥣🥤🥥🥦🥧🥨🥩🥪🥫"], ["⚽", "⚽️⚾️🎠🎡🎢🎣🎤🎥🎦🎧🎨🎩🎪🎫🎬🎭🎮🎯🎰🎱🎲🎳🎴🎵🎶🎷🎸🎹🎺🎻🎼🎽🎾🎿🏀🏁🏂🏃🏄"], ["🚀", "🚀🚁🚂🚃🚄🚅🚆🚇🚈🚉🚊🚋🚌🚍🚎🚏🚐🚑🚒🚓🚔🚕🚖🚗🚘🚙🚚🚛🚜🚝🚞🚟🚠🚡🚢🚣🚤🌍🌎🌏🏠🏢🏰✈️"], ["💡", "💡💰💱💲💳💴💵💶💷💸💻📱📷📸📺🔊🔍🔑🔒🔔🎀🎁🎂🎃🎄🎅🎆🎇🎈🎉🎊🎋💣💤"]];
+var st=document.createElement('style');
+st.textContent=
+'.emw{display:flex;flex-direction:column;gap:8px}.emt{display:flex;gap:4px;overflow-x:auto;scrollbar-width:none;padding:2px 0}.emt::-webkit-scrollbar{display:none}'+
+'.emt button{flex:0 0 auto;width:38px;height:38px;border-radius:12px;border:0;background:transparent;font-size:21px;opacity:.55;cursor:pointer}.emt button.on{background:var(--s2,#222);opacity:1}'+
+'.emg{display:grid;grid-template-columns:repeat(8,1fr);gap:2px;height:min(42vh,340px);overflow-y:auto;-webkit-overflow-scrolling:touch;align-content:start}'+
+'.emg button{aspect-ratio:1;border:0;background:transparent;font-size:26px;line-height:1;border-radius:10px;cursor:pointer;padding:0;touch-action:manipulation}.emg button:active{background:var(--s2,#222)}'+
+'.emh{grid-column:1/-1;font-size:12px;opacity:.55;padding:6px 4px 2px}'+
+'.lm-particle{position:fixed;z-index:9999;pointer-events:none;font-size:18px;animation:lm-particle .7s ease-out forwards}@keyframes lm-particle{to{opacity:0;transform:translate(var(--dx),var(--dy)) scale(.35) rotate(30deg)}}'+
+'button,.ib,.it,.row,.stc{touch-action:manipulation}h1,h2,.sht{text-wrap:balance}.tk,time,.nf{font-variant-numeric:tabular-nums}'+
+'@media (prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important;scroll-behavior:auto!important}.lm-particle{display:none}}';
+document.head.appendChild(st);
+
+var REC=function(){try{return JSON.parse(localStorage.lg_emrec||'[]')}catch(e){return[]}};
+var saveRec=function(e){try{var r=REC().filter(function(x){return x!==e});r.unshift(e);localStorage.lg_emrec=JSON.stringify(r.slice(0,24))}catch(x){}};
+function split(s){return Array.from(s.replace(/\uFE0F/g,'\uFE0F|').split('|').join('').match(/(\p{Extended_Pictographic}\uFE0F?(\u200D\p{Extended_Pictographic}\uFE0F?)*)/gu)||[])}
+window.openEmoji=function(){
+  if(typeof sheet!=='function')return;
+  sheet('Эмодзи','<div class="emw"><div class="emt" id="emt"></div><div class="emg" id="emg"></div></div>');
+  var tabs=$('#emt'),grid=$('#emg');if(!tabs||!grid)return;
+  var cats=[['🕘','']].concat(ED.map(function(c){return[c[0],c[1]]}));
+  function show(i){
+    [].forEach.call(tabs.children,function(b,k){b.classList.toggle('on',k===i)});
+    var list=i===0?REC():split(cats[i][1]);
+    grid.innerHTML=(i===0&&!list.length)?'<div class="emh">Здесь появятся недавние эмодзи</div>':list.map(function(e){return'<button type="button">'+e+'</button>'}).join('');
+    grid.scrollTop=0;
+  }
+  cats.forEach(function(c,i){var b=document.createElement('button');b.type='button';b.textContent=c[0];b.onclick=function(){show(i)};tabs.appendChild(b)});
+  grid.onclick=function(ev){
+    var b=ev.target.closest('button');if(!b)return;var e=b.textContent;
+    var i=$('#in');if(!i)return;
+    var s=i.selectionStart==null?i.value.length:i.selectionStart,en=i.selectionEnd==null?s:i.selectionEnd;
+    i.value=i.value.slice(0,s)+e+i.value.slice(en);i.selectionStart=i.selectionEnd=s+e.length;
+    try{i.dispatchEvent(new Event('input',{bubbles:true}))}catch(x){}
+    saveRec(e);try{if(typeof vib==='function')vib(6)}catch(x){}
+  };
+  show(REC().length?0:1);
+};
+
+/* reaction particle burst */
+function burst(el,sym){
+  if(matchMedia('(prefers-reduced-motion: reduce)').matches||!el)return;
+  var r=el.getBoundingClientRect();
+  for(var i=0;i<7;i++){
+    var p=document.createElement('span');p.className='lm-particle';p.textContent=sym||'✨';
+    p.style.left=(r.left+r.width/2)+'px';p.style.top=(r.top+r.height/2)+'px';
+    var a=Math.PI*2*i/7;p.style.setProperty('--dx',Math.cos(a)*(28+Math.random()*25)+'px');p.style.setProperty('--dy',Math.sin(a)*(28+Math.random()*25)+'px');
+    document.body.appendChild(p);p.addEventListener('animationend',function(){this.remove()},{once:true});
+  }
+}
+var _r=window.rxSet;
+if(typeof _r==='function')window.rxSet=function(id,e){
+  var r=_r.apply(this,arguments);
+  try{var k=String(id);if(typeof RX!=='undefined'&&RX[k]&&RX[k][me.id]===e){var el=document.getElementById('m'+k);burst(el&&(el.querySelector('.m')||el),e)}}catch(x){}
+  return r;
+};
+})();
+</script>
+<style id="lg-glass-css">/* ===== Liquid Glass (monochrome) ===== */
+#lgamb{position:fixed;inset:0;z-index:0;pointer-events:none;overflow:hidden;display:none}
+html.lglass #lgamb{display:block}
+#lgamb i{position:absolute;border-radius:50%;background:radial-gradient(circle,rgba(255,255,255,.17),rgba(255,255,255,0) 66%);filter:blur(34px);will-change:transform;animation:lgdrift 28s ease-in-out infinite alternate}
+#lgamb i:nth-child(1){width:70vmax;height:70vmax;left:-28vmax;top:-30vmax}
+#lgamb i:nth-child(2){width:60vmax;height:60vmax;right:-30vmax;top:26vh;animation-duration:34s;animation-delay:-9s;opacity:.8}
+#lgamb i:nth-child(3){width:64vmax;height:64vmax;left:-10vmax;bottom:-36vmax;animation-duration:40s;animation-delay:-18s;opacity:.7}
+@keyframes lgdrift{from{transform:translate3d(0,0,0) scale(1)}to{transform:translate3d(9vmax,6vmax,0) scale(1.18)}}
+html.lglass,html.lglass body{background:#050505}
+html.lglass #app,html.lglass .list,html.lglass .main,html.lglass .msgs{background-color:transparent!important}
+html.lglass #root{position:relative;z-index:1}
+/* tab bar */
+html.lglass .tbp,html.lglass .tbs,html.lglass .nav{background:linear-gradient(180deg,rgba(255,255,255,.15),rgba(255,255,255,.05))!important;-webkit-backdrop-filter:blur(26px) saturate(180%);backdrop-filter:blur(26px) saturate(180%);border:1px solid rgba(255,255,255,.2)!important;box-shadow:inset 0 1px 0 rgba(255,255,255,.4),inset 0 -1px 0 rgba(255,255,255,.07),0 12px 34px rgba(0,0,0,.5)!important}
+html.lglass .tbl{background:linear-gradient(180deg,rgba(255,255,255,.38),rgba(255,255,255,.13))!important;box-shadow:inset 0 1px 0 rgba(255,255,255,.55),inset 0 -1px 0 rgba(255,255,255,.1),0 5px 16px rgba(0,0,0,.4)}
+/* headers & composer */
+html.lglass .top,html.lglass .hd{background:linear-gradient(180deg,rgba(255,255,255,.10),rgba(255,255,255,.03)),rgba(14,14,16,.5)!important;-webkit-backdrop-filter:blur(24px) saturate(170%);backdrop-filter:blur(24px) saturate(170%);box-shadow:inset 0 -1px 0 rgba(255,255,255,.12),inset 0 1px 0 rgba(255,255,255,.08)!important}
+html.lglass .comp{background:transparent!important;border-top:0!important;padding:6px 10px 8px}
+html.lglass .comp #in{background:rgba(255,255,255,.09)!important;border:1px solid rgba(255,255,255,.18);-webkit-backdrop-filter:blur(22px) saturate(170%);backdrop-filter:blur(22px) saturate(170%);box-shadow:inset 0 1px 0 rgba(255,255,255,.25),0 6px 18px rgba(0,0,0,.3)}
+html.lglass .comp .ib:not(.snd),html.lglass .cact .ib:not(.snd){background:rgba(255,255,255,.1)!important;border:1px solid rgba(255,255,255,.18);-webkit-backdrop-filter:blur(18px) saturate(170%);backdrop-filter:blur(18px) saturate(170%);box-shadow:inset 0 1px 0 rgba(255,255,255,.28),0 4px 12px rgba(0,0,0,.3)}
+html.lglass .top .ib,html.lglass .hd .ib{background:rgba(255,255,255,.08);box-shadow:inset 0 1px 0 rgba(255,255,255,.22)}
+/* bubbles */
+html.lglass .m:not(.me){background:linear-gradient(180deg,rgba(255,255,255,.13),rgba(255,255,255,.06))!important;border:1px solid rgba(255,255,255,.12);box-shadow:inset 0 1px 0 rgba(255,255,255,.2),0 4px 14px rgba(0,0,0,.25)}
+html.lglass .m.me{box-shadow:inset 0 1px 0 rgba(255,255,255,.7),inset 0 -1px 0 rgba(0,0,0,.08),0 6px 18px rgba(0,0,0,.35)}
+/* sheets, dialogs, cards */
+html.lglass .sh.in{background:rgba(0,0,0,.34)!important;-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px)}
+html.lglass .shb,html.lglass .dlg>div{background:linear-gradient(180deg,rgba(255,255,255,.14),rgba(255,255,255,.04) 40%),rgba(16,16,18,.6)!important;-webkit-backdrop-filter:blur(36px) saturate(180%);backdrop-filter:blur(36px) saturate(180%);border:1px solid rgba(255,255,255,.16);border-bottom:0;box-shadow:inset 0 1px 0 rgba(255,255,255,.34),0 -14px 50px rgba(0,0,0,.55)!important}
+html.lglass .dlg{background:rgba(0,0,0,.3)!important;-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px)}
+html.lglass .grp,html.lglass .pc,html.lglass .fld{background:linear-gradient(180deg,rgba(255,255,255,.10),rgba(255,255,255,.04))!important;border:1px solid rgba(255,255,255,.13)!important;box-shadow:inset 0 1px 0 rgba(255,255,255,.18)}
+html.lglass .mi,html.lglass .sm{background:rgba(255,255,255,.1);box-shadow:inset 0 1px 0 rgba(255,255,255,.2)}
+html.lglass .srch input{background-color:rgba(255,255,255,.09);border-color:rgba(255,255,255,.2);-webkit-backdrop-filter:blur(20px);backdrop-filter:blur(20px);box-shadow:inset 0 1px 0 rgba(255,255,255,.22)}
+html.lglass .toast{background:linear-gradient(180deg,rgba(255,255,255,.2),rgba(255,255,255,.08)),rgba(24,24,26,.6)!important;color:#fff!important;border:1px solid rgba(255,255,255,.22);-webkit-backdrop-filter:blur(26px) saturate(180%);backdrop-filter:blur(26px) saturate(180%);box-shadow:inset 0 1px 0 rgba(255,255,255,.4),0 14px 34px rgba(0,0,0,.5)}
+/* light themes */
+html.lglass.lt,html.lglass.lt body{background:#e9e9ec}
+html.lglass.lt #lgamb i{background:radial-gradient(circle,rgba(255,255,255,.9),rgba(255,255,255,0) 66%)}
+html.lglass.lt .tbp,html.lglass.lt .tbs,html.lglass.lt .nav,html.lglass.lt .top,html.lglass.lt .hd{background:linear-gradient(180deg,rgba(255,255,255,.78),rgba(255,255,255,.5))!important;border-color:rgba(255,255,255,.8)!important;box-shadow:inset 0 1px 0 #fff,0 10px 28px rgba(0,0,0,.12)!important}
+html.lglass.lt .shb,html.lglass.lt .dlg>div{background:linear-gradient(180deg,rgba(255,255,255,.85),rgba(255,255,255,.6))!important;border-color:rgba(255,255,255,.9);box-shadow:inset 0 1px 0 #fff,0 -14px 50px rgba(0,0,0,.18)!important}
+html.lglass.lt .m:not(.me){background:rgba(255,255,255,.7)!important;border-color:rgba(255,255,255,.9)}
+html.lglass.lt .comp #in,html.lglass.lt .comp .ib:not(.snd){background:rgba(255,255,255,.65)!important;border-color:rgba(255,255,255,.9)}
+html.lglass.lt .grp,html.lglass.lt .pc,html.lglass.lt .fld{background:rgba(255,255,255,.6)!important;border-color:rgba(255,255,255,.9)!important}
+/* performance fallbacks */
+html.nobl.lglass *,html.nofx.lglass *{-webkit-backdrop-filter:none!important;backdrop-filter:none!important}
+html.nobl.lglass .shb,html.nobl.lglass .dlg>div{background:var(--s1)!important}
+html.nofx #lgamb i{animation:none}
+@media (prefers-reduced-motion:reduce){#lgamb i{animation:none}}
+@supports not ((-webkit-backdrop-filter:blur(1px)) or (backdrop-filter:blur(1px))){html.lglass .tbp,html.lglass .top,html.lglass .shb,html.lglass .dlg>div{background:rgba(24,24,26,.94)!important}}
+/* UX pack: skeletons + network status (glass-styled) */
+.mux-skeleton{position:relative;overflow:hidden;background:rgba(255,255,255,.055);border:1px solid rgba(255,255,255,.09);border-radius:16px}
+.mux-skeleton::after{content:"";position:absolute;inset:0;transform:translateX(-100%);background:linear-gradient(90deg,transparent,rgba(255,255,255,.16),transparent);animation:mux-shimmer 1.35s infinite}
+@keyframes mux-shimmer{to{transform:translateX(100%)}}
+.mux-message-skeleton{display:flex;gap:9px;margin:6px 0;align-items:flex-end}.mux-message-skeleton.outgoing{justify-content:flex-end}
+.mux-bubble{width:min(62%,270px);height:46px;border-radius:20px}.mux-bubble.tall{height:68px}
+.mux-fade-in{animation:mux-enter .24s ease both}@keyframes mux-enter{from{opacity:0;transform:translateY(7px) scale(.99)}to{opacity:1;transform:none}}
+#mux-network-status{position:fixed;z-index:9999;left:50%;top:calc(10px + env(safe-area-inset-top));transform:translate(-50%,-20px);opacity:0;pointer-events:none;padding:9px 15px;border-radius:999px;background:rgba(30,30,32,.65);-webkit-backdrop-filter:blur(24px) saturate(170%);backdrop-filter:blur(24px) saturate(170%);border:1px solid rgba(255,255,255,.2);box-shadow:inset 0 1px 0 rgba(255,255,255,.3),0 10px 28px rgba(0,0,0,.45);color:#fff;font:500 13px system-ui,sans-serif;transition:opacity .2s,transform .25s}
+#mux-network-status.visible{opacity:1;transform:translate(-50%,0)}#mux-network-status.offline{background:rgba(110,36,44,.7)}
+@media (prefers-reduced-motion:reduce){.mux-skeleton::after,.mux-fade-in{animation:none}}
+</style>
+<script>/* Messenger UX pack */
+(() => {
+  const $ = (selector, root = document) => root.querySelector(selector);
+
+  function skeletonLine(width = "long") {
+    return `<div class="mux-skeleton mux-line ${width}"></div>`;
+  }
+
+  function showChatSkeletons(target, count = 6) {
+    const el = typeof target === "string" ? $(target) : target;
+    if (!el) return;
+    el.innerHTML = Array.from({ length: count }, (_, i) => `
+      <div class="mux-chat-skeleton mux-fade-in" aria-hidden="true">
+        <div class="mux-skeleton mux-circle"></div>
+        <div class="mux-lines">
+          ${skeletonLine(i % 2 ? "medium" : "long")}
+          ${skeletonLine("short")}
+        </div>
+      </div>`).join("");
+    el.setAttribute("aria-busy", "true");
+  }
+
+  function showMessageSkeletons(target, count = 5) {
+    const el = typeof target === "string" ? $(target) : target;
+    if (!el) return;
+    el.innerHTML = Array.from({ length: count }, (_, i) => `
+      <div class="mux-message-skeleton ${i % 3 === 1 ? "outgoing" : ""}" aria-hidden="true">
+        <div class="mux-skeleton mux-bubble ${i % 2 ? "tall" : ""}"></div>
+      </div>`).join("");
+    el.setAttribute("aria-busy", "true");
+  }
+
+  function reveal(target) {
+    const el = typeof target === "string" ? $(target) : target;
+    if (!el) return;
+    el.removeAttribute("aria-busy");
+    [...el.children].forEach((child, i) => {
+      child.classList.add("mux-fade-in");
+      child.style.animationDelay = `${Math.min(i * 25, 180)}ms`;
+    });
+  }
+
+  function appendMessage(target, node) {
+    const el = typeof target === "string" ? $(target) : target;
+    if (!el || !node) return;
+    node.classList.add("mux-fade-in");
+    el.appendChild(node);
+  }
+
+  function initNetworkStatus() {
+    let status = $("#mux-network-status");
+    if (!status) {
+      status = document.createElement("div");
+      status.id = "mux-network-status";
+      status.setAttribute("role", "status");
+      status.setAttribute("aria-live", "polite");
+      document.body.appendChild(status);
+    }
+    const update = () => {
+      const online = navigator.onLine;
+      status.textContent = online ? "Соединение восстановлено" : "Нет интернета · сообщения не отправлены";
+      status.classList.toggle("offline", !online);
+      status.classList.add("visible");
+      clearTimeout(update.timer);
+      if (online) update.timer = setTimeout(() => status.classList.remove("visible"), 2400);
+    };
+    window.addEventListener("online", update);
+    window.addEventListener("offline", update);
+    if (!navigator.onLine) update();
+    return () => {
+      window.removeEventListener("online", update);
+      window.removeEventListener("offline", update);
+    };
+  }
+
+  async function registerServiceWorker(path = "/sw.js") {
+    if (!("serviceWorker" in navigator)) throw new Error("Service Worker не поддерживается");
+    return navigator.serviceWorker.register(path);
+  }
+
+  async function enablePush({ publicKey, subscribeUrl = "/api/push/subscribe" } = {}) {
+    if (!("serviceWorker" in navigator) || !("PushManager" in window)) {
+      throw new Error("Push не поддерживается этим браузером");
+    }
+    if (!publicKey) throw new Error("Не задан публичный VAPID-ключ");
+    const permission = await Notification.requestPermission();
+    if (permission !== "granted") throw new Error("Пользователь не разрешил уведомления");
+
+    const registration = await navigator.serviceWorker.ready;
+    const existing = await registration.pushManager.getSubscription();
+    const subscription = existing || await registration.pushManager.subscribe({
+      userVisibleOnly: true,
+      applicationServerKey: urlBase64ToUint8Array(publicKey)
+    });
+
+    const response = await fetch(subscribeUrl, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      credentials: "same-origin",
+      body: JSON.stringify(subscription)
+    });
+    if (!response.ok) throw new Error("Не удалось сохранить подписку на сервере");
+    return subscription;
+  }
+
+  function urlBase64ToUint8Array(base64String) {
+    const padding = "=".repeat((4 - base64String.length % 4) % 4);
+    const base64 = (base64String + padding).replace(/-/g, "+").replace(/_/g, "/");
+    const raw = atob(base64);
+    return Uint8Array.from([...raw].map(char => char.charCodeAt(0)));
+  }
+
+  window.MessengerUX = {
+    showChatSkeletons, showMessageSkeletons, reveal, appendMessage,
+    initNetworkStatus, registerServiceWorker, enablePush
+  };
+})();
+</script>
+<script>/* Logos: Liquid Glass toggle, skeletons, network status */
+(function(){
+var H=document.documentElement;
+function on(){try{return localStorage.lg_glass!=='0'}catch(e){return true}}
+function apply(){H.classList.toggle('lglass',on())}
+if(!document.getElementById('lgamb')){var a=document.createElement('div');a.id='lgamb';a.innerHTML='<i></i><i></i><i></i>';document.body.insertBefore(a,document.body.firstChild)}
+apply();
+/* keep the .lt class in sync is done by the app; we only read it in CSS */
+window.lgToggle=function(){
+  try{localStorage.lg_glass=on()?'0':'1'}catch(e){}
+  apply();var s=document.getElementById('lgst');if(s)s.textContent=on()?'Вкл':'Выкл';
+  try{toast('Liquid Glass: '+(on()?'включён':'выключен'))}catch(e){}
+};
+var _s=window.settingsHTML;
+if(typeof _s==='function')window.settingsHTML=function(){
+  var h=_s.apply(this,arguments);
+  var row='<div class="it" onclick=\'lgToggle()\'><span class="ib2">'+ic('sparkle')+'</span><span>Liquid Glass</span><span class="sm" id="lgst" style="margin-left:auto">'+(on()?'Вкл':'Выкл')+'</span></div>';
+  var k=h.indexOf('<div class="it" onclick=\'openMap()\'>');
+  return k<0?h:h.slice(0,k)+row+h.slice(k);
+};
+/* skeleton while a chat without cache loads */
+var _o=window._open;
+if(typeof _o==='function'&&window.MessengerUX)window._open=function(id){
+  var p=_o.apply(this,arguments);
+  try{
+    if(!(typeof MC!=='undefined'&&MC[id]&&MC[id].length)){var ms=document.getElementById('ms');if(ms&&!ms.children.length)MessengerUX.showMessageSkeletons(ms,5)}
+  }catch(e){}
+  return p;
+};
+if(window.MessengerUX)MessengerUX.initNetworkStatus();
+})();
+</script>
 </body></html>
