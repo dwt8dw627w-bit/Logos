@@ -4994,6 +4994,24 @@ document.addEventListener('click',function(e){
  if(Math.abs(e.clientX-d.x)>12||Math.abs(e.clientY-d.y)>12)return;
  e.stopPropagation();e.preventDefault();rep=true;try{d.t.click()}finally{rep=false}
 },true);
+
+/* ===== фото группы/канала + выдача галочки (из настроек чата) ===== */
+var _sc=window.sheetChat;
+if(typeof _sc==='function')window.sheetChat=function(){
+ _sc.apply(this,arguments);
+ try{var c=document.querySelector('#sh .shc');if(!c||typeof cur==='undefined'||!cur)return;
+  var grp=cur.kind==='group'||cur.kind==='channel',own=typeof prof!=='undefined'&&prof&&prof.role==='owner',h='';
+  if(grp&&(own||['owner','admin'].indexOf(cur.role)>=0))h+='<label class="xch" style="cursor:pointer">'+ic('image')+'Фото '+(cur.kind==='channel'?'канала':'группы')+'<input type="file" accept="image/*" hidden onchange="chAv(this.files[0])"></label>';
+  if(own)h+='<button class="xch" onclick="admDo(\'verify\','+(cur.vf?'false':'true')+');closeSheet()">'+ic('sparkle')+(cur.vf?'Снять галочку':'Выдать галочку')+'</button>';
+  if(h)c.insertAdjacentHTML('beforeend',h)}catch(e){console.warn(e)}};
+window.chAv=async function(f){
+ if(!f||typeof cur==='undefined'||!cur)return;var id=cur.id;toast('Загружаю…');
+ try{var url=await up('avatars',await img(f,320,320));if(!url)return toast('Не загрузилось');
+  var r=await SB.rpc('set_chat_avatar',{chat:String(id),url:url});
+  if(r.error){var u=await SB.from('chats').update({avatar_url:url}).eq('id',id).select('id');r=(u.error||!u.data||!u.data.length)?{error:u.error||{message:'rls'}}:{}}
+  if(r.error)return toast('Нет прав. Запустите logos-update13.sql в Supabase');
+  cur.avatar_url=url;var ch=chats.find(function(x){return x.id===id});if(ch)ch.avatar_url=url;
+  closeSheet();toast('Фото обновлено');vib(10);await loadChats();drawList()}catch(e){console.warn(e);toast('Не удалось')}};
 /* клавиатура: список сообщений держит расстояние до низа при любом изменении высоты */
 var ms=null,ro=null,dist=0,lock=false;
 function bind(){var m=document.getElementById('ms');if(!m||m===ms)return;ms=m;dist=0;
