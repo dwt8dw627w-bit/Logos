@@ -4341,8 +4341,8 @@ const jsonp=u=>new Promise((ok,no)=>{const cb='lxj'+Math.random().toString(36).s
 let BASE=null;
 async function api(p,q){const qs=new URLSearchParams(Object.assign({app_name:'Logos'},q||{})).toString();for(const b of (BASE?[BASE]:['https://api.audius.co','https://discoveryprovider.audius.co'])){try{const j=await wf(`${b}/v1${p}?${qs}`,S.cfg.au?{headers:{Authorization:'Bearer '+S.cfg.au}}:{});if(j&&j.data){BASE=b;return j.data}}catch(e){}}throw new Error('audius')}
 const aMap=t=>({title:t.title,artist:t.user&&t.user.name,art:(t.artwork&&(t.artwork['480x480']||t.artwork['150x150']))||'',dur:t.duration,genre:t.genre,isrc:t.isrc||'',src:[{p:'audius',type:'full',id:t.id}]});
-const dz=t=>({title:t.title,artist:t.artist&&t.artist.name,album:t.album&&t.album.title,art:(t.album&&t.album.cover_big)||'',dur:t.duration,isrc:t.isrc||'',src:[]});
-const am=t=>({title:t.trackName,artist:t.artistName,album:t.collectionName,art:(t.artworkUrl100||'').replace('100x100','600x600'),dur:Math.round((t.trackTimeMillis||0)/1000),genre:t.primaryGenreName,src:[]});
+const dz=t=>({title:t.title,artist:t.artist&&t.artist.name,album:t.album&&t.album.title,art:(t.album&&t.album.cover_big)||'',dur:t.duration,isrc:t.isrc||'',src:t.preview?[{p:'deezer',type:'preview',url:t.preview}]:[]});
+const am=t=>({title:t.trackName,artist:t.artistName,album:t.collectionName,art:(t.artworkUrl100||'').replace('100x100','600x600'),dur:Math.round((t.trackTimeMillis||0)/1000),genre:t.primaryGenreName,src:t.previewUrl?[{p:'apple',type:'preview',url:t.previewUrl}]:[]});
 /* ===== провайдеры (единый интерфейс: ok(), search(q)) ===== */
 const spTokP=async()=>{const c=S.sp;if(!c)return null;if(Date.now()<c.exp-3e4)return c.tok;if(c.ref&&S.cfg.sp){try{const j=await wf('https://accounts.spotify.com/api/token',{method:'POST',headers:{'Content-Type':'application/x-www-form-urlencoded'},body:new URLSearchParams({grant_type:'refresh_token',refresh_token:c.ref,client_id:S.cfg.sp})});if(j.access_token){S.sp={tok:j.access_token,exp:Date.now()+j.expires_in*1e3,ref:j.refresh_token||c.ref};save();return S.sp.tok}}catch(e){}}return null};
 const PV={
@@ -4360,7 +4360,7 @@ async function albumTracks(p,id){if(p==='apple'){const j=await wf(`https://itune
 /* ===== поиск полной версии (resolver) ===== */
 const has=(t,p)=>t.src.some(s=>s.p===p);
 const pick=(a,t)=>{const c=a.map(x=>({x,sc:jac(x.artist,t.artist)*.4+jac(normT(x.title,x.artist),normT(t.title,t.artist))*.6})).filter(o=>o.sc>=.62||(t.isrc&&o.x.isrc===t.isrc)).sort((p,q)=>q.sc-p.sc)[0];return c&&c.x.src[0]};
-async function resolve(t){if(t.res)return;t.res=1;const q=t.artist+' '+t.title,jobs=[];if(!has(t,'audius')&&on('audius'))jobs.push(PV.audius.search(q).then(a=>pick(a,t)));if(!has(t,'jamendo')&&on('jamendo'))jobs.push(PV.jamendo.search(q).then(a=>pick(a,t)));if(!has(t,'spotify')&&on('spotify'))jobs.push(PV.spotify.search(t.isrc?'isrc:'+t.isrc:`track:${t.title} artist:${t.artist}`).then(a=>a[0]&&(t.isrc||jac(a[0].artist,t.artist)>=.5)?a[0].src[0]:null));if(!has(t,'youtube')&&on('youtube'))jobs.push(PV.youtube.search(q).then(a=>pick(a,t)));(await Promise.allSettled(jobs)).forEach(r=>{if(r.status==='fulfilled'&&r.value&&!t.src.some(s=>s.p===r.value.p&&(s.id||s.url)===(r.value.id||r.value.url)))t.src.push(r.value)});if(S.fav[t.id])S.fav[t.id].src=t.src,save()}
+async function resolve(t){if(t.res)return;t.res=1;const q=t.artist+' '+t.title,jobs=[];if(!t.src.some(s=>s.type==='preview')){if(on('deezer'))jobs.push(PV.deezer.search(q).then(a=>pick(a,t)));if(on('apple'))jobs.push(PV.apple.search(q).then(a=>pick(a,t)))}if(!has(t,'audius')&&on('audius'))jobs.push(PV.audius.search(q).then(a=>pick(a,t)));if(!has(t,'jamendo')&&on('jamendo'))jobs.push(PV.jamendo.search(q).then(a=>pick(a,t)));if(!has(t,'spotify')&&on('spotify'))jobs.push(PV.spotify.search(t.isrc?'isrc:'+t.isrc:`track:${t.title} artist:${t.artist}`).then(a=>a[0]&&(t.isrc||jac(a[0].artist,t.artist)>=.5)?a[0].src[0]:null));if(!has(t,'youtube')&&on('youtube'))jobs.push(PV.youtube.search(q).then(a=>pick(a,t)));(await Promise.allSettled(jobs)).forEach(r=>{if(r.status==='fulfilled'&&r.value&&!t.src.some(s=>s.p===r.value.p&&(s.id||s.url)===(r.value.id||r.value.url)))t.src.push(r.value)});if(S.fav[t.id])S.fav[t.id].src=t.src,save()}
 /* ===== плеер ===== */
 const tm=s=>{s=Math.max(0,Math.round(s||0));return Math.floor(s/60)+':'+String(s%60).padStart(2,'0')};
 const hue=id=>{let h=0;for(const c of String(id))h=(h*31+c.charCodeAt(0))%360;return h};
@@ -4383,7 +4383,7 @@ async function playS(t,s){const tok=++PT;t.cur=s;document.getElementById('lxpl')
 let urls;try{urls=s.p==='loc'?[await urlOf(s)]:s.p==='audius'?auHosts().map(h=>`${h}/v1/tracks/${s.id}/stream?app_name=Logos`):[s.url]}catch(e){if(tok===PT){toast('Не удалось открыть файл');UI()}return}
 let ok=0;for(const u of urls){if(tok!==PT)return;try{await auTry(u);ok=1;break}catch(e){if(tok!==PT)return}}
 if(tok!==PT)return;if(!ok){auReset();toast(navigator.onLine?'Не удалось воспроизвести этот трек':'Нет сети: доступна музыка из «Моё»')}msn();UI()}
-async function playT(i,sidx){qi=i;const t=Q[i];if(!t)return;rec(t);UI();let s=sidx!=null?t.src[sidx]:best(t);if(!s){toast('Ищу, где слушать…');await resolve(t);s=best(t);UI();if(!s)return toast('Аудио не найдено. Откройте «⋯» и найдите в сервисах')}await playS(t,s);if(s.type==='preview'&&!t.res){resolve(t).then(()=>{const b=best(t);UI();if(cq()===t&&b&&b.type==='full'&&AU.currentTime<4&&t.cur&&t.cur.type==='preview'){playS(t,b);toast('Включена полная версия')}})}}
+async function playT(i,sidx){qi=i;const t=Q[i];if(!t)return;rec(t);UI();let s=sidx!=null?t.src[sidx]:best(t);if(!s){toast('Ищу, где слушать…');await resolve(t);s=best(t);UI();if(!s)return toast('Аудио не найдено. Откройте «⋯» и найдите в сервисах')}await playS(t,s);if(s.type==='preview'&&cq()===t)toast('Фрагмент 30 сек. Полная версия — через YouTube/Spotify в настройках');if(s.type==='preview'&&!t.res){resolve(t).then(()=>{const b=best(t);UI();if(cq()===t&&b&&b.type==='full'&&AU.currentTime<4&&t.cur&&t.cur.type==='preview'){playS(t,b);toast('Включена полная версия')}})}}
 async function waveMore(){const T=S.taste||{g:{},a:{}},gs=Object.entries(T.g).filter(x=>x[1]>0),as=Object.values(T.a).filter(x=>x.s>0).map(x=>[x.n,x.s]),wp=a=>{const sum=a.reduce((p,x)=>p+x[1],0);let r=Math.random()*sum;for(const x of a){r-=x[1];if(r<=0)return x[0]}return a[0]&&a[0][0]},all=GL.filter(x=>x.a).map(x=>x.a),jobs=[],g1=gs.length?wp(gs):null;
 if(g1)jobs.push(api('/tracks/trending',{limit:40,time:Math.random()<.5?'week':'month',genre:g1}));
 if(g1&&REL[g1]){const r=REL[g1][Math.floor(Math.random()*REL[g1].length)];jobs.push(api('/tracks/trending',{limit:30,time:'month',genre:r}))}
@@ -4985,6 +4985,59 @@ if(typeof _s==='function')window.settingsHTML=function(){
   var m=h.indexOf('<div class="grp">');
   return m<0?h+g:h.slice(0,m)+g+h.slice(m);
 };
+})();
+</script>
+<script>
+/* ===== Подарок Logos Prime: месяц / год / 2 года, оплата звёздами ===== */
+(()=>{
+const vb=n=>{try{vib(n)}catch(e){}};
+const N=n=>String(Math.round(n||0)).replace(/\B(?=(\d{3})+(?!\d))/g,'\u00A0');
+const E=s=>String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+/* цены в звёздах: меняются здесь и в logos-update18.sql */
+const GP=[['m','1 месяц',5000,'',30],['y','1 год',33000,'Выгодно',365],['2y','2 года',58000,'−51%',730]];
+let GS=1;
+const word={m:'на месяц',y:'на год','2y':'на 2 года'};
+const sty=document.createElement('style');
+sty.textContent='.pgw .plns{margin:10px 0 12px}.pgw .pln b{display:flex;align-items:center;justify-content:center;gap:4px;font-size:15px}.pgw .gcl{max-height:42vh;overflow:auto}.pgw .gcr small.pg{color:#c4a4ff}.pgbal{display:flex;justify-content:center;align-items:center;gap:6px;margin:8px 0 2px;color:var(--mu);font-size:13px}.pgbtn{margin-top:12px!important;background:linear-gradient(135deg,#ffd75e,#ff7ab0)!important;color:#2a0a17!important;box-shadow:0 10px 26px -12px #ff7ab0!important}';
+document.head.appendChild(sty);
+const coin=s=>{try{return coin3d(s)}catch(e){return '★'}};
+const until=p=>p&&p.prime_until&&new Date(p.prime_until)>Date.now()?new Date(p.prime_until):null;
+function body(){
+  const L=(typeof contacts!=='undefined'&&contacts||[]).filter(c=>c&&c.id);
+  const row=c=>{const u=until(c);return `<button class="gcr" data-n="${E(((c.name||'')+' '+(c.username||'')).toLowerCase())}" onclick="primeGiftSend('${E(c.id)}',this)">${av(c,40)}<span><b>${E(c.name)}</b><small>${c.username?'@'+E(c.username):''}${u?`<small class="pg"> · Prime до ${u.toLocaleDateString('ru')}</small>`:''}</small></span></button>`};
+  return `<div class="pgw"><div class="plns">${GP.map((p,i)=>`<button class="pln${i===GS?' on':''}" onclick="primeGiftPlan(${i},this)">${p[3]?`<i>${p[3]}</i>`:''}<small>${p[1]}</small><b>${coin(15)}${N(p[2])}</b></button>`).join('')}</div>
+  <div class="sub" style="text-align:center;margin-bottom:8px">Выберите, кому подарить. Если у человека уже есть Prime, срок продлится.</div>
+  ${L.length?`<div class="stsb" style="display:block"><input placeholder="Поиск по контактам…" oninput="const q=this.value.toLowerCase().trim();document.querySelectorAll('.pgw .gcr').forEach(e=>e.style.display=!q||e.dataset.n.includes(q)?'':'none')"></div><div class="gcl">${L.map(row).join('')}</div>`:`<div class="gempty">В контактах пока никого. Добавьте человека во вкладке «Контакты»</div>`}
+  <div class="pgbal">Баланс: ${coin(14)} ${N(prof&&prof.coins)}</div><button class="gback" onclick="sheetPrime()">← Назад</button></div>`}
+window.primeGift=()=>{vb(8);sheet('Подарить Prime',body())};
+window.primeGiftPlan=(i,el)=>{GS=i;document.querySelectorAll('.pgw .pln').forEach(b=>b.classList.toggle('on',b===el));vb(8)};
+window.primeGiftSend=async(pid,b)=>{
+  const p=GP[GS];if(!p||!pid)return;
+  if((prof.coins||0)<p[2]){toast('Недостаточно звёзд');vb([30,40,30]);try{buyCoins()}catch(e){}return}
+  const nm=(contacts.find(c=>c.id===pid)||{}).name||'';
+  if(b)b.disabled=true;
+  if(typeof DEMO!=='undefined'&&DEMO){prof.coins-=p[2];closeSheet();toast('Prime подарен: '+nm,{icon:'★'});return}
+  try{
+    const r=await SB.rpc('gift_prime',{target:pid,plan:p[0]});
+    if(r.error)throw r.error;
+    const d=r.data||{};if(typeof d.coins==='number')prof.coins=d.coins;else prof.coins-=p[2];
+    vb([14,30,20]);try{tone('chime',.7)}catch(e){}
+    /* сообщение в личный чат */
+    try{const c0=await SB.rpc('create_dm',{other:pid});if(!c0.error&&c0.data){await SB.from('messages').insert({chat_id:c0.data,sender_id:me.id,body:'🎁 Дарю тебе Logos Prime '+word[p[0]]+'!',kind:'text'});if(typeof loadChats==='function'){await loadChats();if(tab==='chats')drawList()}}}catch(e){}
+    closeSheet();toast('Prime подарен: '+nm,{icon:'★'});
+    if(tab==='settings')drawList();
+  }catch(x){
+    if(b)b.disabled=false;const e=(x&&x.message)||'';
+    if(/no_coins/.test(e)){toast('Недостаточно звёзд');return}
+    if(/banned/.test(e))return toast('Ваш аккаунт заблокирован');
+    if(/self/.test(e))return toast('Себе подарок не нужен: подключите Prime в окне Prime');
+    toast(/function|schema|candidate|does not exist|gift_prime/i.test(e)?'Запустите logos-update18.sql в Supabase':'Не получилось подарить')
+  }
+};
+/* кнопка в окне Prime */
+if(typeof sheetPrime==='function'){const _sp=sheetPrime;sheetPrime=window.sheetPrime=function(){const r=_sp.apply(this,arguments);
+  const add=()=>{if(document.getElementById('pgb'))return;const a=document.querySelector('.sh .pmst');if(!a)return;let ic0='🎁';try{ic0=ic('gift')}catch(e){}a.insertAdjacentHTML('afterend','<button id="pgb" class="pmb pgbtn" onclick="primeGift()">'+ic0+' Подарить Prime</button>')};
+  [0,60,160,350,700].forEach(d=>setTimeout(add,d));return r}}
 })();
 </script>
 </body></html>
