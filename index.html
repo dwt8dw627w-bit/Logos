@@ -4983,6 +4983,17 @@ function sw(k){H.classList.add('lg-sw');try{PF.th=k;savePF()}catch(e){}try{apply
 window.setTh=function(k){sw(k)};
 document.addEventListener('click',function(e){var t=e.target.closest&&e.target.closest('.sh .tl[data-k]');if(t&&t.dataset.k!=='custom'){e.stopPropagation();sw(t.dataset.k)}},true);
 document.addEventListener('visibilitychange',force);setTimeout(force,0);
+
+/* ремонт тапов: если клик ушёл в общего предка (сдвиг слоя между down/up), запускаем onclick там, где нажали */
+var dn=null,rep=false;
+document.addEventListener('pointerdown',function(e){var t=e.target;while(t&&t!==document.body&&!(t.getAttribute&&t.getAttribute('onclick')))t=t.parentElement;
+ dn=(t&&t!==document.body)?{t:t,x:e.clientX,y:e.clientY,tm:Date.now()}:null},true);
+document.addEventListener('click',function(e){
+ if(rep||!dn||!e.isTrusted)return;var d=dn;dn=null;
+ if(Date.now()-d.tm>900||e.target===d.t||d.t.contains(e.target))return;
+ if(Math.abs(e.clientX-d.x)>12||Math.abs(e.clientY-d.y)>12)return;
+ e.stopPropagation();e.preventDefault();rep=true;try{d.t.click()}finally{rep=false}
+},true);
 /* клавиатура: список сообщений держит расстояние до низа при любом изменении высоты */
 var ms=null,ro=null,dist=0,lock=false;
 function bind(){var m=document.getElementById('ms');if(!m||m===ms)return;ms=m;dist=0;
