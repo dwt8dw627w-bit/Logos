@@ -4314,7 +4314,7 @@ window.lxPlay=el=>{const d=el.dataset;let p=$('#lxpl');if(p)p.remove();document.
 window.lxMuPrev=v=>{const i=mi(v.trim()),b=$('#lxmp');if(!b)return;b.innerHTML=i?`<div class="lxo"><small>${esc(i.s)} · ${KR[i.k]||''}</small></div><iframe src="${i.src.replace('auto_play=true','auto_play=false')}" sandbox="allow-scripts allow-same-origin allow-popups allow-presentation allow-forms" style="width:100%;height:${i.h}px;border:0;border-radius:12px;margin-bottom:10px"></iframe>`:(v.trim()?'<div class="sub" style="margin-bottom:10px">Ссылка не распознана. Нужна ссылка на трек, альбом или плейлист из Spotify, SoundCloud или Яндекс Музыки.</div>':'')};
 window.lxMuPaste=async()=>{try{const t=await navigator.clipboard.readText();$('#lxmu').value=t;lxMuPrev(t)}catch(e){toast('Нет доступа к буферу. Вставьте ссылку вручную')}};
 window.lxMuSend=()=>{const v=($('#lxmu')?.value||'').trim();if(!mi(v))return toast('Вставьте ссылку на музыку');if(!cur)return toast('Откройте чат, чтобы отправить');closeSheet();$('#in').value=v;send()};
-window.lxMusic=()=>sheet(li('note',18)+' Музыка',`<div class="sub" style="margin-bottom:10px">Найдите трек в сервисе, скопируйте ссылку и вставьте сюда. В чате она станет плеером.</div><div class="lxsv"><a href="https://open.spotify.com/search" target="_blank" rel="noopener" style="--c:#1db954">Spotify</a><a href="https://soundcloud.com/search" target="_blank" rel="noopener" style="--c:#ff5500">SoundCloud</a><a href="https://music.yandex.ru/search" target="_blank" rel="noopener" style="--c:#ffcc00">Яндекс Музыка</a></div><input class="lxin" id="lxmu" placeholder="Ссылка на трек, альбом или плейлист" oninput="lxMuPrev(this.value)"><div class="lxrow" onclick="lxMuPaste()"><span>Вставить из буфера</span><span>›</span></div><div id="lxmp"></div><button class="btn" style="width:100%;margin-bottom:8px" onclick="lxMuSave()">Сохранить в Избранное</button><button class="btn" style="width:100%" onclick="lxMuSend()">Отправить в чат</button><div class="sub" style="margin-top:10px">Spotify и Яндекс Музыка могут играть только фрагмент без входа в аккаунт.</div>`);
+window.lxMusic=()=>sheet(li('note',18)+' Музыка',`<div class="sub" style="margin-bottom:10px">Найдите трек в сервисе, скопируйте ссылку и вставьте сюда. В чате она станет плеером.</div><div class="lxsv"><a href="https://open.spotify.com/search" target="_blank" rel="noopener" style="--c:#1db954">Spotify</a><a href="https://soundcloud.com/search" target="_blank" rel="noopener" style="--c:#ff5500">SoundCloud</a><a href="https://music.yandex.ru/search" target="_blank" rel="noopener" style="--c:#ffcc00">Яндекс Музыка</a></div><input class="lxin" id="lxmu" placeholder="Ссылка на трек, альбом или плейлист" oninput="lxMuPrev(this.value)"><div class="lxrow" onclick="lxMuPaste()"><span>Вставить из буфера</span><span>›</span></div><div id="lxmp"></div><button class="btn" style="width:100%;margin-bottom:8px" onclick="lxMuSave()">Сохранить в Избранное</button><button class="btn" style="width:100%" onclick="lxMuSend()">Отправить</button><div class="sub" style="margin-top:10px">Spotify и Яндекс Музыка могут играть только фрагмент без входа в аккаунт.</div>`);
 /* ---------- Logos Music: мультиисточниковый движок (только Prime) ---------- */
 Object.assign(IP,{play:['M8 5v14l11-7z',1],pause:['M7 5h3.5v14H7zM13.5 5H17v14h-3.5z',1],next:['M6 5l9 7-9 7zM17 5h2v14h-2z',1],prev:['M18 5l-9 7 9 7zM5 5h2v14H5z',1],repeat:['M17 2l3 3-3 3M4 11V9a4 4 0 0 1 4-4h12M7 22l-3-3 3-3M20 13v2a4 4 0 0 1-4 4H4'],shuffle:['M16 3h5v5M4 20L21 3M21 16v5h-5M15 15l6 6M4 4l5 5'],back:['M15 5l-7 7 7 7'],down:['M6 9l6 6 6-6'],up:['M6 15l6-6 6 6'],close:['M6 6l12 12M18 6L6 18'],plus:['M12 5v14M5 12h14'],trash:['M5 7h14M10 7V4h4v3M7 7l1 13h8l1-13'],sliders:['M4 7h10M18 7h2M4 17h2M10 17h10M14 5v4M8 15v4'],dots:['M3.4 12a1.6 1.6 0 1 0 3.2 0 1.6 1.6 0 1 0-3.2 0M10.4 12a1.6 1.6 0 1 0 3.2 0 1.6 1.6 0 1 0-3.2 0M17.4 12a1.6 1.6 0 1 0 3.2 0 1.6 1.6 0 1 0-3.2 0',1]});
 const DB=()=>new Promise((ok,no)=>{const r=indexedDB.open('lx_music',1);r.onupgradeneeded=()=>r.result.createObjectStore('f',{keyPath:'id'});r.onsuccess=()=>ok(r.result);r.onerror=()=>no(r.error)});
@@ -4606,7 +4606,7 @@ window.openEmoji=function(){
 var PIN='<svg viewBox="0 0 28 36" width="28" height="36"><path d="M14 1C7 1 2 6.3 2 13c0 9 12 22 12 22s12-13 12-22C26 6.3 21 1 14 1z" fill="#fff" stroke="#000" stroke-width="2"/><circle cx="14" cy="13" r="4.5" fill="#000"/></svg>';
 var GEO=/^📍 geo:(-?\d+(?:\.\d+)?),(-?\d+(?:\.\d+)?)$/;
 function mkMap(el,lat,lng,z){
-  var m=new L.Map(el,{center:[lat,lng],zoom:z||15,zoomControl:true,attributionControl:true});
+  var m=new L.Map(el,{center:[lat,lng],zoom:z||15,zoomControl:true,attributionControl:true});try{m.attributionControl.setPrefix(false)}catch(e){}
   new L.TileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:19,attribution:'© OpenStreetMap'}).addTo(m);
   var mk=new L.Marker([lat,lng],{icon:new L.DivIcon({className:'lfpin',html:PIN,iconSize:[28,36],iconAnchor:[14,36]})}).addTo(m);
   setTimeout(function(){try{m.invalidateSize()}catch(e){}},350);
@@ -4619,7 +4619,7 @@ window.openMapAt=function(lat,lng){
 };
 window.openMap=function(){
   if(!window.L||typeof sheet!=='function')return;
-  sheet('Карта','<div class="lfwrap"><div id="lfmap"></div></div><div style="display:flex;gap:8px;margin-top:10px"><button class="btn" id="lfme" style="flex:1">Моё местоположение</button><button class="btn alt" id="lfsend" style="flex:1">Отправить в чат</button></div>');
+  sheet('Карта','<div class="lfwrap"><div id="lfmap"></div></div><div style="display:flex;gap:8px;margin-top:10px"><button class="btn" id="lfme" style="flex:1">Где я</button><button class="btn alt" id="lfsend" style="flex:1">Отправить</button></div>');
   var pos=[55.7558,37.6173],obj=null;
   setTimeout(function(){
     tz(function(){
@@ -4995,8 +4995,25 @@ var LS=window.localStorage,H=document.documentElement;
 var st=document.createElement('style');
 st.id='lg-glass-css';
 st.textContent=
-'html.lglass .top{position:relative;z-index:6;margin:8px 10px -68px;padding:9px 10px;border:1px solid rgba(255,255,255,.16);border-radius:26px;box-shadow:inset 0 1px 0 rgba(255,255,255,.26),0 10px 32px rgba(0,0,0,.38)!important}'+
-'html.lglass .msgs{padding-top:82px}';
+'@media (max-width:899px){html.lglass #app.chat .list{visibility:hidden;transition:visibility 0s .3s}html.lglass #app:not(.chat) .list{visibility:visible}}'+
+'html.lglass .top{padding:7px 10px}'+
+'html.lglass .top .ib,html.lglass .comp .ib:not(.snd){width:36px;height:36px}'+
+'html.lglass .comp{padding:4px 10px 6px;gap:6px}'+
+'html.lglass .comp #in{height:40px}'+
+'html.lglass:not(.lt) #lgamb{opacity:.3}'+
+'html.lglass:not(.lt),html.lglass:not(.lt) body{background:#080808}'+
+'html.lglass:not(.lt) .top,html.lglass:not(.lt) .hd{background:linear-gradient(180deg,rgba(255,255,255,.04),rgba(255,255,255,.01)),rgba(10,10,10,.8)!important;box-shadow:inset 0 -1px 0 rgba(255,255,255,.06)!important}'+
+'html.lglass:not(.lt) .tbp,html.lglass:not(.lt) .tbs,html.lglass:not(.lt) .nav{background:linear-gradient(180deg,rgba(255,255,255,.07),rgba(255,255,255,.02)),rgba(12,12,12,.8)!important;border-color:rgba(255,255,255,.1)!important;box-shadow:inset 0 1px 0 rgba(255,255,255,.14),0 10px 28px rgba(0,0,0,.5)!important}'+
+'html.lglass:not(.lt) .m:not(.me){background:linear-gradient(180deg,rgba(255,255,255,.05),rgba(255,255,255,.02)),rgba(26,26,28,.9)!important;border-color:rgba(255,255,255,.06);box-shadow:inset 0 1px 0 rgba(255,255,255,.08)}'+
+'html.lglass:not(.lt) .comp #in{background:rgba(255,255,255,.055)!important;border-color:rgba(255,255,255,.1);box-shadow:inset 0 1px 0 rgba(255,255,255,.1)}'+
+'html.lglass:not(.lt) .comp .ib:not(.snd),html.lglass:not(.lt) .cact .ib:not(.snd){background:rgba(255,255,255,.055)!important;border-color:rgba(255,255,255,.1);box-shadow:inset 0 1px 0 rgba(255,255,255,.12)}'+
+'html.lglass:not(.lt) .top .ib,html.lglass:not(.lt) .hd .ib{background:rgba(255,255,255,.05)}'+
+'html.lglass:not(.lt) .shb,html.lglass:not(.lt) .dlg>div{background:linear-gradient(180deg,rgba(255,255,255,.06),rgba(255,255,255,.015) 40%),rgba(12,12,13,.86)!important;border-color:rgba(255,255,255,.1);box-shadow:inset 0 1px 0 rgba(255,255,255,.16),0 -14px 50px rgba(0,0,0,.6)!important}'+
+'html.lglass:not(.lt) .grp,html.lglass:not(.lt) .pc,html.lglass:not(.lt) .fld{background:linear-gradient(180deg,rgba(255,255,255,.05),rgba(255,255,255,.02))!important;border-color:rgba(255,255,255,.08)!important}'+
+'html.lglass:not(.lt) .srch input{background-color:rgba(255,255,255,.055);border-color:rgba(255,255,255,.1)}'+
+'html.lglass .m{padding:7px 12px}'+
+'.thg .pl2.gt{position:static!important;height:auto!important;border:0!important;border-radius:0!important;background:none!important;box-shadow:none!important;overflow:visible!important;padding:0!important;margin:10px 2px 2px!important;color:var(--mu)}'+
+'.leaflet-control-attribution{background:rgba(0,0,0,.5)!important;color:#ddd!important;font-size:10px!important;padding:1px 6px!important;border-radius:8px 0 0 0}.leaflet-control-attribution a{color:#ddd!important;text-decoration:none!important}';
 document.head.appendChild(st);
 
 /* PWA: service worker (sw.js lies next to index.html) */
