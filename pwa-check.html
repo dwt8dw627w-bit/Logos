@@ -1,0 +1,18 @@
+<!doctype html><html lang="ru"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Проверка LOGOS PWA</title>
+<style>body{font:16px/1.45 -apple-system,system-ui,sans-serif;margin:0;padding:20px;background:#000;color:#eee}h1{font-size:22px}.r{display:flex;gap:10px;align-items:center;padding:10px 12px;margin:8px 0;border-radius:12px;background:#1a1a1c}.r b{flex:none;width:22px}.ok b{color:#4ade80}.no b{color:#f87171}.r small{display:block;color:#999;word-break:break-all}img{width:40px;height:40px;border-radius:9px;background:#222;flex:none}p{color:#aaa}</style></head><body>
+<h1>Проверка установки LOGOS</h1><p id="where"></p><div id="out"></div>
+<script>
+var base=location.href.replace(/[^\/]*$/,''),out=document.getElementById('out');
+document.getElementById('where').textContent='Папка сайта: '+base;
+function row(ok,t,u,img){var d=document.createElement('div');d.className='r '+(ok?'ok':'no');d.innerHTML='<b>'+(ok?'✓':'✗')+'</b>'+(img&&ok?'<img src="'+img+'">':'')+'<div>'+t+'<small>'+u+'</small></div>';out.appendChild(d)}
+function chkImg(name,rel){return new Promise(function(res){var i=new Image();i.onload=function(){row(i.naturalWidth>0,name+' ('+i.naturalWidth+'×'+i.naturalHeight+')',base+rel,base+rel+'?'+Date.now());res()};i.onerror=function(){row(false,name+' — НЕ найден (404)',base+rel);res()};i.src=base+rel+'?'+Date.now()})}
+(async function(){
+ try{var r=await fetch(base+'manifest.json?'+Date.now(),{cache:'no-store'});if(!r.ok)throw 0;var m=await r.json();row(true,'manifest.json найден, название: '+m.name,base+'manifest.json')}catch(e){row(false,'manifest.json — НЕ найден',base+'manifest.json')}
+ await chkImg('apple-touch-icon (для iPhone)','icons/apple-touch-icon.png');
+ await chkImg('icon-192 (Android)','icons/icon-192.png');
+ await chkImg('icon-512 (Android)','icons/icon-512.png');
+ await chkImg('icon-maskable-512','icons/icon-maskable-512.png');
+ try{var h=await (await fetch(base+'index.html?'+Date.now(),{cache:'no-store'})).text();row(/apple-touch-icon" sizes="180x180" href="icons\/apple-touch-icon\.png"/.test(h),'index.html на сайте — новая версия (со ссылкой на иконку)',base+'index.html')}catch(e){row(false,'index.html не прочитан','')}
+ row(!!navigator.standalone||matchMedia('(display-mode:standalone)').matches,'Открыто как установленное приложение','(✗ — нормально, если вы открыли в браузере)');
+})();
+</script></body></html>
