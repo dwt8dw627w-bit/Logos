@@ -4971,6 +4971,43 @@ html:not(.nobl) .nav,html:not(.nobl) .toast,html:not(.nobl) .dlg>div,html:not(.n
 html.lg-sw *{transition:background-color .28s,color .28s,border-color .28s,box-shadow .28s!important}
 html[data-theme=fantasy] #fbg i{animation:none}
 @media(prefers-reduced-motion:reduce){.lgn,.dlg>div{animation:none}}
+
+/* ===== звонок v2: референс iOS FaceTime / Dribbble ===== */
+.cl.vid.on{padding:0;background:#000}
+.cl.vid.on .cltop{left:0;right:0;top:0;align-items:center;text-align:center;gap:6px;padding:calc(env(safe-area-inset-top) + 12px) 70px 34px;background:linear-gradient(#000b,transparent);transition:opacity .32s,transform .4s var(--ease2)}
+.cl.vid.on .cln{font-size:18px;font-weight:600}
+.cl.vid.on .cls{background:#ffffff24;-webkit-backdrop-filter:blur(14px);backdrop-filter:blur(14px);padding:3px 12px;border-radius:14px;font-size:14px;color:#fff}
+.cl.vid.on .clb{position:absolute;left:0;right:0;bottom:0;margin:0;padding:34px 12px calc(env(safe-area-inset-bottom) + 20px);background:linear-gradient(transparent,#000c);gap:14px;flex-wrap:nowrap;transition:opacity .32s,transform .4s var(--ease2)}
+.cl.vid.on .clk{font-size:0;gap:0}
+.cl.vid.on .clk button{width:58px;height:58px;background:#2a2a2e8c;color:#fff;-webkit-backdrop-filter:blur(20px) saturate(160%);backdrop-filter:blur(20px) saturate(160%);box-shadow:inset 0 1px 0 #ffffff2e;transition:transform .2s,background .2s}
+.cl.vid.on .clk button:active{transform:scale(.92)}
+.cl.vid.on .clk .red{background:#d83a4e}
+.cl.vid.on .clk .tog.on{background:#fff;color:#111}
+.cl.uih .cltop{opacity:0;transform:translateY(-16px);pointer-events:none}
+.cl.uih .clb{opacity:0;transform:translateY(22px);pointer-events:none}
+.cl.uih .clmin{opacity:0;pointer-events:none}
+.clmin{display:none;position:absolute;left:14px;top:calc(env(safe-area-inset-top) + 8px);z-index:5;width:42px;height:42px;border-radius:50%;place-items:center;background:#2a2a2e8c;color:#fff;-webkit-backdrop-filter:blur(20px);backdrop-filter:blur(20px);box-shadow:inset 0 1px 0 #ffffff2e;transition:opacity .32s}
+.cl.live .clmin{display:grid}
+.cl #lv{touch-action:none;cursor:grab;border:1.5px solid #ffffff40}
+.clmt{display:none}
+.cl.mini{inset:auto;top:calc(env(safe-area-inset-top) + 12px);right:12px;left:auto;width:108px;height:156px;padding:0;border-radius:22px;z-index:90;touch-action:none;box-shadow:0 12px 40px #000a,0 0 0 1px #ffffff26;animation:none;background:#000}
+.cl.mini .clb,.cl.mini #lv,.cl.mini .clmin,.cl.mini .clbg,.cl.mini .cln,.cl.mini .cls{display:none!important}
+.cl.mini .cltop{position:static;padding:0;background:none}
+.cl.mini .clav,.cl.mini .clav .av{width:64px;height:64px;font-size:26px;margin:0}
+.cl.mini.vid.on .clav{display:none}
+.cl.mini .clmt{display:block;position:absolute;left:0;right:0;bottom:8px;text-align:center;font-size:13px;font-weight:600;color:#fff;text-shadow:0 1px 6px #000}
+.cl.mini{justify-content:center}
+@media(orientation:landscape){.cl #lv{width:138px;height:98px}.cl.vid.on .clk button{width:50px;height:50px}.cl.vid.on .cltop{padding-bottom:20px}.cl.vid.on .clb{padding-top:20px;padding-bottom:calc(env(safe-area-inset-bottom) + 10px)}}
+
+html .cl.vid.on .cltop::before{display:none!important}
+html .cl.vid.on .cln{font-size:18px!important}
+html .cl.vid.on .clb{border:0!important;border-radius:0!important;background:linear-gradient(transparent,#000c)!important;padding:34px 12px calc(env(safe-area-inset-bottom) + 20px)!important;gap:10px!important;flex-wrap:nowrap!important;justify-content:space-evenly!important;align-items:center!important}
+html .cl.vid.on .clk{font-size:0!important}
+html .cl.vid.on .clk button{width:clamp(44px,calc((100vw - 64px)/6),58px)!important;height:clamp(44px,calc((100vw - 64px)/6),58px)!important;background:#2a2a2e99!important;color:#fff!important}
+html .cl.vid.on .clk .red{background:#d83a4e!important;color:#fff!important;box-shadow:none!important}
+html .cl.vid.on .clk .tog.on{background:#fff!important;color:#111!important}
+/* голосовые: тоньше и воздушнее */
+.m.vm{min-width:250px}.vw{gap:2.5px}.vw i{max-width:3px;min-width:2px;flex:1 0 2px}
 </style>
 <script id="lg-glass-js">
 (function(){
@@ -5065,6 +5102,70 @@ new MutationObserver(function(ml){bind();var a=[];
  a.forEach(function(n){n.classList.add('lgn');setTimeout(function(){n.classList.remove('lgn')},450)})
 }).observe(document.body,{childList:true,subtree:true});
 bind();
+})();
+
+/* ===== звонок v2: поведение ===== */
+(function(){
+var SVG={min:'<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>',
+ flip:'<svg class="i" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 0 1 15.5-6.2L21 8"/><path d="M21 3v5h-5"/><path d="M21 12a9 9 0 0 1-15.5 6.2L3 16"/><path d="M3 21v-5h5"/></svg>',
+ spk:'<svg class="i" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M11 5 6 9H2v6h4l5 4z"/><path d="M15.5 8.5a5 5 0 0 1 0 7"/><path d="M19 5a10 10 0 0 1 0 14"/></svg>'};
+var corner='tr',drag=false,spkOn=false,spkDev=null,pr=null,tick=null;
+function $c(){return document.getElementById('call')}
+function safe(){if(!pr){pr=document.createElement('div');pr.style.cssText='position:fixed;top:0;padding-top:env(safe-area-inset-top);padding-bottom:env(safe-area-inset-bottom);visibility:hidden;pointer-events:none';document.body.appendChild(pr)}
+ var cs=getComputedStyle(pr);return{t:parseFloat(cs.paddingTop)||0,b:parseFloat(cs.paddingBottom)||0}}
+function place(anim){var o=$c(),lv=document.getElementById('lv');if(!o||!lv||drag||o.classList.contains('mini'))return;
+ var W=o.clientWidth,H=o.clientHeight,w=lv.offsetWidth,h=lv.offsetHeight,m=14,sf=safe(),b=document.getElementById('clb'),
+ bh=o.classList.contains('uih')?sf.b+m:(b?b.offsetHeight:90)+m,x=corner[1]==='l'?m:W-w-m,tp=document.querySelector('#call .cltop'),y=corner[0]==='t'?(o.classList.contains('uih')||!tp?sf.t+m:tp.offsetHeight+4):H-h-bh;
+ lv.style.transition=anim?'left .34s cubic-bezier(.32,.72,0,1),top .34s cubic-bezier(.32,.72,0,1)':'none';
+ lv.style.right='auto';lv.style.bottom='auto';lv.style.left=x+'px';lv.style.top=y+'px'}
+function btn(cls,fn,ico){return '<div class="clk cfx"><button class="'+cls+'" onclick="'+fn+'">'+ico+'</button></div>'}
+function enh(){var c=CL,o=$c();if(!o||!c)return;
+ if(!o.__e){o.__e=1;o.insertAdjacentHTML('beforeend','<button class="clmin" id="clmin" aria-label="Свернуть">'+SVG.min+'</button><div class="clmt" id="clmt"></div>');wire(o)}
+ var vid=c.state==='on'&&c.video;o.classList.toggle('live',c.state==='on');
+ if(!vid)o.classList.remove('uih');
+ var b=document.getElementById('clb');
+ if(b&&c.state==='on'&&!b.querySelector('.cfx')){var h='',end=b.querySelector('.red');
+  if(spkDev)h+=btn('tog'+(spkOn?' on':''),'callSpk()',SVG.spk);
+  if(c.video)h+=btn('tog','callFlip()',SVG.flip);
+  if(h&&end)end.closest('.clk').insertAdjacentHTML('beforebegin',h)}
+ if(vid)place(false);
+ if(!tick)tick=setInterval(function(){var t=document.getElementById('cls'),m=document.getElementById('clmt');if(t&&m)m.textContent=t.textContent;if(!CL){clearInterval(tick);tick=null}},500)}
+function mini(on){var o=$c();if(!o)return;o.classList.toggle('mini',on);o.classList.remove('uih');
+ o.style.left=o.style.top=o.style.right='';if(!on)setTimeout(function(){place(false)},0)}
+function wire(o){
+ o.addEventListener('click',function(e){if(o.classList.contains('mini')||e.target.closest('button,#lv'))return;
+  if(!(CL&&CL.state==='on'&&CL.video))return;o.classList.toggle('uih');setTimeout(function(){place(true)},0)});
+ document.getElementById('clmin').onclick=function(e){e.stopPropagation();mini(true);try{vib(8)}catch(x){}};
+ /* перетаскивание своего видео + прилипание к углам */
+ o.addEventListener('pointerdown',function(e){var lv=e.target.closest&&e.target.closest('#lv');if(!lv)return;
+  var r=lv.getBoundingClientRect(),dx=e.clientX-r.left,dy=e.clientY-r.top;drag=true;lv.style.transition='none';lv.setPointerCapture(e.pointerId);
+  var mv=function(ev){lv.style.right='auto';lv.style.bottom='auto';lv.style.left=Math.max(4,Math.min(o.clientWidth-lv.offsetWidth-4,ev.clientX-dx))+'px';lv.style.top=Math.max(4,Math.min(o.clientHeight-lv.offsetHeight-4,ev.clientY-dy))+'px'},
+  up=function(){lv.removeEventListener('pointermove',mv);lv.removeEventListener('pointerup',up);lv.removeEventListener('pointercancel',up);
+   var q=lv.getBoundingClientRect();corner=((q.top+q.height/2)<o.clientHeight/2?'t':'b')+((q.left+q.width/2)<o.clientWidth/2?'l':'r');drag=false;place(true)};
+  lv.addEventListener('pointermove',mv);lv.addEventListener('pointerup',up);lv.addEventListener('pointercancel',up)});
+ /* перетаскивание/раскрытие компактного окна */
+ o.addEventListener('pointerdown',function(e){if(!o.classList.contains('mini'))return;
+  var r=o.getBoundingClientRect(),sx=e.clientX,sy=e.clientY,dx=sx-r.left,dy=sy-r.top,moved=false;o.setPointerCapture(e.pointerId);
+  var mv=function(ev){if(Math.abs(ev.clientX-sx)+Math.abs(ev.clientY-sy)>8)moved=true;if(!moved)return;o.style.transition='none';o.style.right='auto';
+   o.style.left=Math.max(6,Math.min(innerWidth-o.offsetWidth-6,ev.clientX-dx))+'px';o.style.top=Math.max(6,Math.min(innerHeight-o.offsetHeight-6,ev.clientY-dy))+'px'},
+  up=function(){o.removeEventListener('pointermove',mv);o.removeEventListener('pointerup',up);o.removeEventListener('pointercancel',up);o.style.transition='';
+   if(!moved){mini(false);return}var q=o.getBoundingClientRect();o.style.transition='left .3s cubic-bezier(.32,.72,0,1)';o.style.left=((q.left+q.width/2)<innerWidth/2?10:innerWidth-o.offsetWidth-10)+'px'};
+  o.addEventListener('pointermove',mv);o.addEventListener('pointerup',up);o.addEventListener('pointercancel',up)})}
+window.callFlip=async function(){var c=CL;if(!c||!c.video||!c.stream||c.flipping)return;c.flipping=true;
+ var next=(c.facing||'user')==='user'?'environment':'user',old=c.stream.getVideoTracks()[0];
+ async function get(f){return navigator.mediaDevices.getUserMedia({video:{facingMode:{ideal:f},width:{ideal:640},height:{ideal:480}},audio:false})}
+ try{if(old)old.stop();var ns;try{ns=await get(next)}catch(e){ns=await get(c.facing||'user');next=c.facing||'user'}
+  var nt=ns.getVideoTracks()[0],sd=c.pc&&c.pc.getSenders().find(function(s){return s.track&&s.track.kind==='video'||(!s.track&&s.dtmf===undefined)});
+  if(sd)await sd.replaceTrack(nt);nt.enabled=c.cam!==false;if(old)c.stream.removeTrack(old);c.stream.addTrack(nt);c.facing=next;
+  var lv=document.getElementById('lv');if(lv){lv.srcObject=c.stream;lv.style.transform=next==='user'?'scaleX(-1)':'none';lv.play&&lv.play().catch(function(){})}
+  try{vib(8)}catch(e){}}catch(e){console.warn(e);toast('Не удалось переключить камеру')}finally{c.flipping=false}};
+window.callSpk=async function(){if(!spkDev)return;var a=typeof ra==='function'?ra():null;if(!a||!a.setSinkId)return;
+ try{await a.setSinkId(spkOn?'default':spkDev);spkOn=!spkOn;callUI();try{vib(8)}catch(e){}}catch(e){toast('Не удалось переключить звук')}};
+/* динамик: только там, где браузер позволяет выбирать вывод звука (Android/desktop Chrome); на iOS Safari — системная кнопка */
+try{if(HTMLMediaElement.prototype.setSinkId&&navigator.mediaDevices&&navigator.mediaDevices.enumerateDevices)navigator.mediaDevices.enumerateDevices().then(function(d){var s=d.filter(function(x){return x.kind==='audiooutput'&&/speaker|динамик/i.test(x.label)})[0];if(s)spkDev=s.deviceId}).catch(function(){})}catch(e){}
+try{navigator.mediaSession&&navigator.mediaSession.setActionHandler('enterpictureinpicture',function(){var v=document.getElementById('rv');if(v&&v.requestPictureInPicture)v.requestPictureInPicture().catch(function(){})})}catch(e){}
+var _cu=window.callUI;if(typeof _cu==='function')window.callUI=function(){var r=_cu.apply(this,arguments);try{enh()}catch(e){console.warn(e)}return r};
+addEventListener('resize',function(){place(false)});addEventListener('orientationchange',function(){setTimeout(function(){place(false)},350)});
 })();
 </script>
 </body></html>
