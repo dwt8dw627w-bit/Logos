@@ -5012,6 +5012,45 @@ window.chAv=async function(f){
   if(r.error)return toast('Нет прав. Запустите logos-update13.sql в Supabase');
   cur.avatar_url=url;var ch=chats.find(function(x){return x.id===id});if(ch)ch.avatar_url=url;
   closeSheet();toast('Фото обновлено');vib(10);await loadChats();drawList()}catch(e){console.warn(e);toast('Не удалось')}};
+
+/* ===== свои папки чатов (хранятся на устройстве) ===== */
+var FK='lg_folders',CF=null,lp=false,lpt=null;
+function fl(){try{return JSON.parse(localStorage.getItem(FK)||'[]')}catch(e){return[]}}
+function fsv(a){try{localStorage.setItem(FK,JSON.stringify(a));return true}catch(e){toast('Не удалось сохранить');return false}}
+function inF(f,c){return f.ids.indexOf(String(c.id))>=0}
+var _ch=window.chatsHTML;
+if(typeof _ch==='function')window.chatsHTML=function(){
+ var f=CF&&fl().filter(function(x){return x.id===CF})[0];if(!f){CF=null;return _ch.apply(this,arguments)}
+ var all=chats;chats=all.filter(function(c){return inF(f,c)});
+ try{return _ch.apply(this,arguments)}finally{chats=all}};
+var _lf=window.lxFold;
+if(typeof _lf==='function')window.lxFold=function(k){CF=null;return _lf(k)};
+function bar(){var b=document.getElementById('lxf');if(!b||b.querySelector('.cfb'))return;
+ var h=fl().map(function(f){var n=chats.filter(function(c){return inF(f,c)&&c.un>0&&!c.arch}).length;
+  return '<button class="cfb'+(CF===f.id?' on':'')+'" data-f="'+f.id+'">'+esc(f.name)+(n?'<b>'+n+'</b>':'')+'</button>'}).join('')+'<button class="cfb cfa" data-f="+" aria-label="Новая папка">+</button>';
+ b.insertAdjacentHTML('beforeend',h);
+ if(CF)b.querySelectorAll('button:not(.cfb)').forEach(function(x){x.classList.remove('on')})}
+var _dl=window.drawList;
+if(typeof _dl==='function')window.drawList=function(){var r=_dl.apply(this,arguments);try{bar()}catch(e){}return r};
+document.addEventListener('pointerdown',function(e){lp=false;clearTimeout(lpt);var b=e.target.closest&&e.target.closest('#lxf .cfb');
+ if(b&&b.dataset.f!=='+')lpt=setTimeout(function(){lp=true;try{vib(12)}catch(x){}folderSheet(b.dataset.f)},520)},true);
+['pointerup','pointercancel','pointermove'].forEach(function(t){document.addEventListener(t,function(){clearTimeout(lpt)},true)});
+document.addEventListener('contextmenu',function(e){if(e.target.closest&&e.target.closest('#lxf .cfb'))e.preventDefault()},true);
+document.addEventListener('click',function(e){var b=e.target.closest&&e.target.closest('#lxf .cfb');if(!b)return;
+ e.stopPropagation();e.preventDefault();if(lp){lp=false;return}
+ var k=b.dataset.f;if(k==='+'){folderSheet();return}
+ try{vib(6)}catch(x){}
+ if(CF===k){CF=null}else{if(_lf)_lf('all');CF=k}
+ window.drawList()},true);
+window.folderSheet=function(id){var f=fl().filter(function(x){return x.id===id})[0]||{id:'',name:'',ids:[]};
+ var rows=chats.filter(function(c){return !c.arch||inF(f,c)}).map(function(c){
+  return '<label class="xch" style="cursor:pointer;gap:12px">'+av(c,36)+'<span style="flex:1;text-align:left">'+esc(c.name||'Чат')+'</span><input type="checkbox" value="'+esc(String(c.id))+'"'+(inF(f,c)?' checked':'')+'></label>'}).join('')||'<div class="pl2">Пока нет чатов</div>';
+ sheet(f.id?'Папка':'Новая папка','<div class="adm"><label class="fld"><small>Название</small><input id="cfN" maxlength="20" value="'+esc(f.name)+'" placeholder="Например: Работа"></label><div id="cfL" style="max-height:42vh;overflow:auto;margin:8px 0">'+rows+'</div><button class="btn" onclick="folderSave(\''+f.id+'\')">Сохранить</button>'+(f.id?'<button class="btn bad" onclick="folderDel(\''+f.id+'\')">Удалить папку</button>':'')+'</div>')};
+window.folderSave=function(id){var n=(document.getElementById('cfN').value||'').trim().slice(0,20);if(!n)return toast('Введите название');
+ var ids=[].map.call(document.querySelectorAll('#cfL input:checked'),function(x){return x.value});if(!ids.length)return toast('Выберите чаты');
+ var a=fl(),f=a.filter(function(x){return x.id===id})[0];if(f){f.name=n;f.ids=ids}else a.push({id:'cf_'+Date.now().toString(36),name:n,ids:ids});
+ if(!fsv(a))return;closeSheet();toast('Папка сохранена');window.drawList()};
+window.folderDel=function(id){fsv(fl().filter(function(x){return x.id!==id}));if(CF===id)CF=null;closeSheet();toast('Папка удалена');window.drawList()};
 /* клавиатура: список сообщений держит расстояние до низа при любом изменении высоты */
 var ms=null,ro=null,dist=0,lock=false;
 function bind(){var m=document.getElementById('ms');if(!m||m===ms)return;ms=m;dist=0;
