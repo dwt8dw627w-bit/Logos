@@ -2224,10 +2224,10 @@ const canRec=()=>{if(!navigator.mediaDevices?.getUserMedia||!window.MediaRecorde
 const getCam=f=>navigator.mediaDevices.getUserMedia({audio:{echoCancellation:true,noiseSuppression:true},video:{facingMode:f,width:{ideal:480},height:{ideal:480},frameRate:{ideal:30}}});
 async function recVoice(){if(R||!cur||!canRec())return;stopV();try{AC=AC||new(window.AudioContext||webkitAudioContext)();AC.resume?.()}catch(e){}
 let st;try{st=await navigator.mediaDevices.getUserMedia({audio:{echoCancellation:true,noiseSuppression:true}})}catch(e){return toast('Нет доступа к микрофону')}
-R={k:'voice',st,phase:'pre',w:[]};beginRec()}
+R={k:'voice',st,phase:'pre',w:[],cid:cur?.id};beginRec()}
 async function recCircle(){if(R||!cur||!canRec())return;stopV();try{AC=AC||new(window.AudioContext||webkitAudioContext)();AC.resume?.()}catch(e){}
 let st;try{st=await getCam('user')}catch(e){return toast('Нет доступа к камере')}
-R={k:'circle',st,face:'user',phase:'pre',w:[]};camUI()}
+R={k:'circle',st,face:'user',phase:'pre',w:[],cid:cur?.id};camUI()}
 function camUI(){const o=document.createElement('div');o.className='cov';o.innerHTML=`<div class="cvw"><video id="cvv" playsinline muted autoplay></video><svg class="cring" viewBox="0 0 100 100"><circle class="bg" cx="50" cy="50" r="48"/><circle class="pg" cx="50" cy="50" r="48"/></svg><div class="ctm" id="ctm">0:00</div></div>
 <div class="cbt"><button class="cb pre" onclick="recCancel()">${ic('close')}</button><button class="cb rd2 pre" onclick="beginRec()"><i></i></button><button class="cb pre" onclick="flipCam()">${ic('flip')}</button><button class="cb rc" onclick="recCancel()">${ic('trash')}</button><button class="cb go rc" onclick="recStop()">${ic('check')}</button></div>`;
 document.body.appendChild(o);const v=o.querySelector('video');v.srcObject=R.st;v.style.transform='scaleX(-1)';v.play?.().catch(()=>{});requestAnimationFrame(()=>o.classList.add('in'))}
@@ -2252,12 +2252,12 @@ function recKill(){const r=R;R=null;window.holdClear&&holdClear();if(!r)return;c
 document.getElementById('recb')?.classList.remove('on');const c=document.querySelector('.cov');if(c){c.classList.add('out');setTimeout(()=>c.remove(),300)}}
 const bars=(w,n)=>{if(!w.length)return Array(n).fill(20);const o=[];for(let i=0;i<n;i++){const a=Math.floor(i*w.length/n),b=Math.max(a+1,Math.floor((i+1)*w.length/n));let m=0;for(let j=a;j<b&&j<w.length;j++)m=Math.max(m,w[j]);o.push(Math.round(Math.max(.1,Math.min(1,m))*100))}return o};
 function recDone(){const r=R;if(!r)return;const dur=(Date.now()-r.t0)/1000,ch=r.ch,mt=r.mt,k=r.k,w=r.w,cn=r.cancel;recKill();if(cn||dur<.8){if(!cn&&r.hold)toast('Удерживайте кнопку для записи');return}
-const blob=new Blob(ch,{type:mt||(k==='voice'?'audio/webm':'video/webm')});if(!blob.size)return toast('Пустая запись');sendMedia(k,blob,{d:+dur.toFixed(1),w:k==='voice'?bars(w,40):undefined})}
-async function sendMedia(kind,blob,meta){if(!cur)return;const cid=cur.id,ct=(blob.type||'').split(';')[0]||(kind==='voice'?'audio/webm':'video/webm'),ext=ct.includes('mp4')?(kind==='voice'?'m4a':'mp4'):ct.includes('ogg')?'ogg':'webm',local=URL.createObjectURL(blob),rid=rp?.id||null,body=JSON.stringify(meta);
-const t={id:'t'+Date.now(),sender_id:me.id,kind,body,media_url:local,created_at:new Date().toISOString(),pending:true,reply_to:rid};pend++;rp=null;drawRp();addMsg(t);sndTone();
+const blob=new Blob(ch,{type:mt||(k==='voice'?'audio/webm':'video/webm')});if(!blob.size)return toast('Пустая запись');sendMedia(k,blob,{d:+dur.toFixed(1),w:k==='voice'?bars(w,40):undefined},r.cid)}
+async function sendMedia(kind,blob,meta,cid0){const cid=cid0||cur?.id;if(!cid)return;const ct=(blob.type||'').split(';')[0]||(kind==='voice'?'audio/webm':'video/webm'),ext=ct.includes('mp4')?(kind==='voice'?'m4a':'mp4'):ct.includes('ogg')?'ogg':'webm',local=URL.createObjectURL(blob),rid=cur?.id===cid?(rp?.id||null):null,body=JSON.stringify(meta);
+const t={id:'t'+Date.now(),sender_id:me.id,kind,body,media_url:local,created_at:new Date().toISOString(),pending:true,reply_to:rid};pend++;if(cur?.id===cid){rp=null;drawRp();addMsg(t)}sndTone();
 const fail=x=>{pend--;const k=msgs.findIndex(m=>m.id===t.id);if(k>-1)msgs.splice(k,1);document.getElementById('m'+t.id)?.remove();toast(x)};
-const path=`${me.id}/${Date.now()}.${ext}`,{error:e1}=await SB.storage.from('media').upload(path,blob,{contentType:ct});if(e1)return fail('Не загрузилось. Запустите logos-update6.sql');
-const url=SB.storage.from('media').getPublicUrl(path).data.publicUrl,{data,error}=await SB.from('messages').insert({chat_id:cid,reply_to:rid,kind,body,media_url:url}).select().single();if(error)return fail('Не отправилось. Запустите logos-update6.sql');pend--;
+const path=`${me.id}/${Date.now()}.${ext}`;let e1;for(let a=0;a<2;a++){({error:e1}=await SB.storage.from('media').upload(path,blob,{contentType:ct,upsert:true}));if(!e1)break;await new Promise(r=>setTimeout(r,900))}if(e1){console.error('media upload',e1);return fail(navigator.onLine?'Не удалось загрузить запись. Попробуйте ещё раз':'Нет сети: запись не отправлена')}
+const url=SB.storage.from('media').getPublicUrl(path).data.publicUrl,{data,error}=await SB.from('messages').insert({chat_id:cid,reply_to:rid,kind,body,media_url:url}).select().single();if(error){console.error('message insert',error);return fail('Не отправилось. Попробуйте ещё раз')}pend--;
 if(cur?.id===cid){const k=msgs.findIndex(x=>x.id===t.id);if(k>-1){msgs[k]=data;const el=document.getElementById('m'+t.id);if(el)el.outerHTML=mh(data,k)}}
 setTimeout(()=>URL.revokeObjectURL(local),15000);await loadChats();if(tab==='chats')drawList()}
 function stopV(){if(VA){const a=VA;VA=null;try{a.pause()}catch(e){}}if(VE){const b=VE;VE=null;b.classList.remove('pl');b.querySelector('.vt').textContent=mmss(+b.dataset.d);vprog(b,0)}
@@ -2272,7 +2272,7 @@ function seekV(e,w){const b=w.closest('.vo'),r=w.getBoundingClientRect(),p=Math.
 function spdV(){const l=[1,1.5,2],n=l[(l.indexOf(PF.sp||1)+1)%3];PF.sp=n;savePF();document.querySelectorAll('.vs').forEach(e=>e.textContent=n+'×');if(VA)VA.playbackRate=n;vib(6)}
 function playC(el){const v=el.querySelector('video');if(CE===el){v.paused?v.play():v.pause();el.classList.toggle('pl',!v.paused);return}stopV();CE=el;v.muted=false;try{v.currentTime=0}catch(e){}el.classList.add('pl');
 v.ontimeupdate=()=>{const D=isFinite(v.duration)&&v.duration>0?v.duration:(+el.dataset.d||1);el.querySelector('.cpg').style.strokeDashoffset=301.6*(1-Math.min(1,v.currentTime/D));el.querySelector('.ct').textContent=mmss(v.currentTime)};
-v.onended=()=>{if(CE===el)stopV()};v.play().catch(()=>{if(CE===el){toast('Не удалось воспроизвести');stopV()}})}
+v.onended=()=>{if(CE===el)stopV()};v.onerror=()=>{if(CE===el){toast('Не удалось воспроизвести');stopV()}};v.play().catch(()=>{if(CE===el){toast('Не удалось воспроизвести');stopV()}})}
 function bodyH(m){if(m.kind==='photo'&&m.media_url)return `<img class="ph" src="${esc(m.media_url)}" onclick="view(this.src)">`+(m.body?`<div>${fx(m.body)}</div>`:'');
 if(m.kind==='voice'&&m.media_url){const j=mj(m),w=j.w&&j.w.length?j.w:Array(40).fill(34);return `<div class="vo" data-u="${esc(m.media_url)}" data-d="${+j.d||0}"><button class="vp" onclick="playV(this)"><span class="pi">${ic('play')}</span><span class="pa">${ic('pause')}</span></button><div class="vwc"><div class="vw" onclick="seekV(event,this)">${w.map(v=>`<i style="height:${Math.max(14,Math.min(100,+v||20))}%"></i>`).join('')}</div><div class="vm2"><span class="vt">${mmss(j.d)}</span><button class="vs" onclick="spdV()">${PF.sp||1}×</button></div></div></div>`}
 if(m.kind==='circle'&&m.media_url){const j=mj(m);return `<div class="ci" data-d="${+j.d||0}" onclick="playC(this)"><video src="${esc(m.media_url)}#t=0.1" playsinline webkit-playsinline muted preload="metadata"></video><svg class="cring2" viewBox="0 0 100 100"><circle class="cpg" cx="50" cy="50" r="48"/></svg><span class="cpi">${ic('play')}</span><span class="ct">${mmss(j.d)}</span></div>`}
@@ -2321,7 +2321,7 @@ const ICE={iceServers:[
 if(TURN_CUSTOM)ICE.iceServers.push(TURN_CUSTOM);
 const clog=(...a)=>{try{console.log('%c[CALL]','color:#22c55e;font-weight:bold',((performance.now()/1000).toFixed(1))+'s',...a)}catch(e){}};
 const ctype=c=>(/ typ (\w+)/.exec((c&&c.candidate)||'')||[])[1]||'?';
-let CL=null,inbox=null,ringT=null;const outs={};
+let CL=null,inbox=null,ringT=null;const outs={},ENDED=new Set();
 /* --- звук: один глобальный <audio id="ra"> (без muted), разблокируется жестом пользователя --- */
 const SIL='data:audio/wav;base64,UklGRiQAAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQAAAAA=';
 function ra(){let a=document.getElementById('ra');if(!a){a=document.createElement('audio');a.id='ra';a.autoplay=true;a.setAttribute('playsinline','');a.playsInline=true;a.muted=false;a.style.display='none';document.body.appendChild(a)}return a}
@@ -2393,7 +2393,13 @@ if(v&&CL.video&&v.srcObject!==CL.remote){v.srcObject=CL.remote;v.play?.().catch(
 function callOn(){if(!CL||CL.state==='on')return;CL.state='on';CL.t0=Date.now();ringStop();tone('ok',1);callUI();CL.tm=setInterval(()=>{const e=$('#cls');if(e&&CL)e.textContent=mmss((Date.now()-CL.t0)/1000)},500)}
 async function flushIce(){const q=CL.q.splice(0);if(q.length)clog('применяем ICE из очереди:',q.length);for(const c of q){try{await CL.pc.addIceCandidate(c)}catch(e){clog('queued ICE error',e&&e.message)}}}
 async function onSig(m){const t=m.t;clog('sig ←',t,m.id||'');
-if(t==='invite'){if(CL){if(CL.id!==m.id)sig(m.from,{t:'busy',id:m.id});return}
+if(t==='invite'){if(ENDED.has(m.id)){sig(m.from,{t:'decline',id:m.id});return}
+if(CL&&CL.id===m.id)return;
+if(CL&&CL.to===m.from&&CL.state==='ring'){
+if(CL.dir==='in'){clog('старый входящий от того же абонента заменён новым');endCall(false,'replaced')}
+else if(m.id<CL.id){clog('встречный вызов: уступаем');endCall(false,'glare')}
+else{clog('встречный вызов: наш приоритет');return}}
+if(CL){sig(m.from,{t:'busy',id:m.id});return}
 const c=chats.find(x=>x.pid===m.from);
 CL={id:m.id,to:m.from,chat:m.chat||c?.id,dir:'in',video:!!m.v,name:c?.name||m.name||'Logos',avatar:c?.avatar_url||m.av||'',state:'ring',q:[],t0:0,muted:false,cam:true};
 clog('входящий звонок от',m.from.slice(0,6),m.v?'видео':'аудио');callUI();ringStart(PF.rg||'ring1',2400,1);CL.to2=setTimeout(()=>{if(CL&&CL.state==='ring')endCall(false,'missed')},50000);return}
@@ -2417,14 +2423,14 @@ const callHang=()=>{if(CL)endCall(true,CL.state==='ring'&&CL.dir==='out'?'cancel
 function callMute(){if(!CL)return;CL.muted=!CL.muted;CL.stream?.getAudioTracks().forEach(t=>t.enabled=!CL.muted);callUI();vib(8)}
 function callCam(){if(!CL)return;CL.cam=!CL.cam;CL.stream?.getVideoTracks().forEach(t=>t.enabled=CL.cam);callUI();vib(8)}
 function logCall(chat,body){if(!chat||!body)return;Promise.resolve(SB.from('messages').insert({chat_id:chat,kind:'text',body})).then(async()=>{await loadChats();if(tab==='chats')drawList()},()=>{})}
-function endCall(notify,reason){const c=CL;if(!c)return;CL=null;
+function endCall(notify,reason){const c=CL;if(!c)return;CL=null;ENDED.add(c.id);
 clearInterval(c.iv);clearTimeout(c.to2);clearInterval(c.tm);clearTimeout(c.dt);ringStop();wlOff();clog('endCall:',reason,'notify='+notify);try{const ea=document.getElementById('ra');if(ea){ea.pause();ea.srcObject=null}}catch(e){}
 if(notify)sig(c.to,{t:reason==='decline'?'decline':(c.state==='ring'&&c.dir==='out'?'cancel':'end'),id:c.id});
 try{c.pc&&c.pc.close()}catch(e){}c.stream&&c.stream.getTracks().forEach(t=>t.stop());
 const o=$('#call');if(o){o.classList.add('bye');setTimeout(()=>o.remove(),300)}
 const dur=c.t0?Math.round((Date.now()-c.t0)/1000):0;
 tone(['busy','fail','declined'].includes(reason)?'err':'end',1);
-if(c.dir==='out'){const k=c.video?'Видеозвонок':'Звонок';
+if(c.dir==='out'&&reason!=='glare'){const k=c.video?'Видеозвонок':'Звонок';
 const b=dur?`${k}, ${mmss(dur)}`:({declined:'Звонок отклонён',busy:'Абонент занят',timeout:'Пропущенный звонок',cancel:'Отменённый звонок',fail:'Не удалось соединиться'}[reason]||'Звонок завершён');
 logCall(c.chat,b)}
 else if(reason==='cancel-in')toast('Вызов отменён')}
@@ -3501,7 +3507,7 @@ async function holdStart(kind,btn,e){
  try{st=kind==='voice'?await navigator.mediaDevices.getUserMedia({audio:{echoCancellation:true,noiseSuppression:true}}):await getCam('user')}
  catch(x){if(H===h)H=null;holdClear();return toast(kind==='voice'?'Нет доступа к микрофону':'Нет доступа к камере')}
  if(H!==h){st.getTracks().forEach(t=>t.stop());return}
- R={k:kind,st,face:'user',phase:'pre',w:[],hold:1};
+ R={k:kind,st,face:'user',phase:'pre',w:[],hold:1,cid:cur?.id};
  if(kind==='circle'){const v=document.querySelector('.hcirc video');if(v){v.srcObject=st;v.play&&v.play().catch(()=>{})}}
  beginRec();
 }
@@ -3837,17 +3843,33 @@ if(tab==='contacts'){const b=document.querySelector('#lc .hd button.ib');if(b){b
 return r};
 const isG=c=>c&&(c.kind==='group'||c.kind==='channel'),adm=c=>c&&['owner','admin'].includes(c.role);
 window.grpInfo=async()=>{const c=cur;if(!isG(c))return;
-sheet(esc(c.name),`<div style="display:flex;align-items:center;gap:14px;margin-bottom:12px">${av(c,64)}<div><div style="font-size:20px;font-weight:700">${esc(c.name)}</div><div class="sub" id="gmc">${c.kind==='channel'?'Канал':'Группа'}</div></div></div><div class="xch-w">${adm(c)?`<button class="xch" onclick="grpAdd()">${ic('cplus')}Добавить участников</button><button class="xch" onclick="grpRename()">${ic('pencil')}Изменить название</button>`:''}<button class="xch" onclick="closeSheet(true);delAsk('${c.id}')" style="color:#f87171">${ic('out')}${c.kind==='channel'?'Отписаться':'Выйти из группы'}</button></div><div class="pl2">Участники</div><div id="gml"><div class="sub" style="padding:8px">Загрузка…</div></div>`);
+sheet(esc(c.name),`<div style="display:flex;align-items:center;gap:14px;margin-bottom:12px">${av(c,64)}<div><div style="font-size:20px;font-weight:700">${esc(c.name)}</div><div class="sub" id="gmc">${c.kind==='channel'?'Канал':'Группа'}</div></div></div><div class="xch-w">${adm(c)?`<button class="xch" onclick="grpAdd()">${ic('cplus')}Добавить участников</button><button class="xch" onclick="grpRename()">${ic('pencil')}Изменить название</button><button class="xch" onclick="grpInvite()">${ic('copy')}Пригласительная ссылка</button>`:''}<button class="xch" onclick="grpLeave()" style="color:#f87171">${ic('out')}${c.kind==='channel'?'Отписаться':'Выйти из группы'}</button></div><div class="pl2">Участники</div><div id="gml"><div class="sub" style="padding:8px">Загрузка…</div></div>`);
 const r=await SB.from('chat_members').select('user_id,role,profiles(id,name,username,avatar_url)').eq('chat_id',c.id);
 const L=r.data||[],e=$('#gml');if(!e)return;
 const rk={owner:0,admin:1,member:2};L.sort((a,b)=>(rk[a.role]??2)-(rk[b.role]??2));
 $('#gmc').textContent=(c.kind==='channel'?'Канал':'Группа')+' · '+L.length+' '+(L.length%10===1&&L.length%100!==11?'участник':'участников');
-e.innerHTML=L.map(x=>{const p=x.profiles||{name:'?'};return `<div class="row" style="padding:6px 2px">${av(p,40)}<div class="b"><div class="n">${esc(p.name)}${x.user_id===me.id?' (вы)':''}</div><div class="sub">${p.username?'@'+esc(p.username):''}</div></div>${x.role!=='member'?`<span class="sub">${x.role==='owner'?'владелец':'админ'}</span>`:''}</div>`}).join('')||'<div class="sub" style="padding:8px">Пока никого</div>'};
+e.innerHTML=L.map(x=>{const p=x.profiles||{name:'?'};GMN[x.user_id]=p.name;const act=adm(c)&&x.user_id!==me.id&&x.role!=='owner'&&(c.role==='owner'||x.role==='member');return `<div class="row" style="padding:6px 2px"${act?` onclick="grpMem('${x.user_id}','${x.role}')"`:''}>${av(p,40)}<div class="b"><div class="n">${esc(p.name)}${x.user_id===me.id?' (вы)':''}</div><div class="sub">${p.username?'@'+esc(p.username):''}</div></div>${x.role!=='member'?`<span class="sub">${x.role==='owner'?'владелец':'админ'}</span>`:''}</div>`}).join('')||'<div class="sub" style="padding:8px">Пока никого</div>'};
 window.grpAdd=async()=>{const c=cur;const r=await SB.from('chat_members').select('user_id').eq('chat_id',c.id),has=new Set((r.data||[]).map(x=>x.user_id)),L=contacts.filter(p=>p&&!has.has(p.id));GS=new Set();
 sheet('Добавить участников',L.length?`<div class="gch" id="gch"></div><div class="gpl">${L.map(p=>`<div class="row gp" onclick="gTog('${p.id}',this)">${av(p,38)}<div class="b"><div class="n">${esc(p.name)}</div><div class="sub">${at(p.username)}</div></div><i class="gck"></i></div>`).join('')}</div><button class="btn" id="gok" style="width:100%;margin-top:10px" onclick="grpAddDo()">Добавить</button>`:'<div class="sub" style="padding:10px 2px;white-space:normal">Все ваши контакты уже здесь. Новых людей можно добавить в «Контакты».</div>')};
 window.grpAddDo=async()=>{if(!GS.size)return toast('Выберите людей');const{error}=await SB.rpc('add_group_members',{cid:cur.id,members:[...GS]});if(error)return toast('Запустите logos-groups.sql в Supabase');toast('Добавлено: '+GS.size);GM[cur.id]=null;closeSheet(true);grpInfo()};
 window.grpRename=()=>{sheet('Название',`<label class="fld"><small>Новое название</small><input id="grn" maxlength="60" value="${esc(cur.name)}"></label><button class="btn" style="width:100%;margin-top:10px" onclick="grpRenameDo()">Сохранить</button>`);setTimeout(()=>$('#grn')?.focus(),120)};
 window.grpRenameDo=async()=>{const t=($('#grn')?.value||'').trim();if(!t)return toast('Введите название');const{error}=await SB.rpc('rename_group',{cid:cur.id,t});if(error)return toast('Запустите logos-groups.sql в Supabase');cur.name=t;const c=chats.find(x=>x.id===cur.id);if(c)c.name=t;closeSheet(true);drawList();const e=document.querySelector('#main .top .n');if(e){const n=[...e.childNodes].find(x=>x.nodeType===3);if(n)n.nodeValue=t}toast('Название изменено')};
+/* ===== v20: группы/каналы — выход, удаление участников, роли, ссылка-приглашение (нужен logos-stage3.sql) ===== */
+const GMN={},sqlHint=e=>/function|schema cache|does not exist|could not find/i.test((e&&e.message)||'')?'Запустите logos-stage3.sql в Supabase':((e&&e.message)||'Ошибка'),kw=c=>c.kind==='channel'?'канала':'группы';
+window.grpMem=(uid,role)=>{const c=cur;if(!isG(c)||!adm(c))return;const n=GMN[uid]||'Участник';sheet(esc(n),`<div class="xch-w">${c.role==='owner'?`<button class="xch" onclick="grpRole('${uid}','${role==='admin'?'member':'admin'}')">${ic('users')}${role==='admin'?'Снять админа':'Назначить админом'}</button>`:''}<button class="xch" style="color:#f87171" onclick="grpKick('${uid}')">${ic('trash')}Удалить из ${kw(c)}</button></div>`)};
+window.grpRole=async(uid,r)=>{const{error}=await SB.rpc('set_member_role',{cid:String(cur.id),uid,r});if(error){console.error(error);return toast(sqlHint(error))}toast(r==='admin'?'Назначен админом':'Админ снят');closeSheet(true);grpInfo()};
+window.grpKick=async uid=>{const{error}=await SB.rpc('kick_member',{cid:String(cur.id),uid});if(error){console.error(error);return toast(sqlHint(error))}toast('Участник удалён');closeSheet(true);grpInfo()};
+window.grpLeave=()=>{const c=cur;if(!isG(c))return;sheet(c.kind==='channel'?'Отписаться?':'Выйти из группы?',`<div class="sub" style="white-space:normal;margin-bottom:12px">${c.role==='owner'?'Вы владелец: права перейдут другому участнику.':'Чат исчезнет из вашего списка.'}</div><button class="btn" style="width:100%;background:#dc2626" onclick="grpLeaveDo()">${c.kind==='channel'?'Отписаться':'Выйти'}</button>`)};
+window.grpLeaveDo=async()=>{const c=cur,id=c.id;let{error}=await SB.rpc('leave_chat',{cid:String(id)});
+if(error){console.error(error);if(c.role==='owner')return toast(sqlHint(error));const r=await SB.from('chat_members').delete().eq('chat_id',id).eq('user_id',me.id);if(r.error)return toast(sqlHint(error))}
+closeSheet(true);closeChat();await rowOut(id);toast(c.kind==='channel'?'Вы отписались':'Вы вышли из группы');await loadChats();if(tab==='chats')drawList()};
+window.grpInvite=async reset=>{const{data,error}=await SB.rpc(reset===true?'chat_invite_reset':'chat_invite',{cid:String(cur.id)});if(error){console.error(error);return toast(sqlHint(error))}
+const url=location.href.split('#')[0]+'#join='+data;sheet('Пригласительная ссылка',`<div class="sub" style="white-space:normal;word-break:break-all;margin-bottom:12px">${esc(url)}</div><button class="btn" style="width:100%" onclick="grpCopy(this.dataset.u)" data-u="${esc(url)}">Скопировать</button><button class="btn" style="width:100%;margin-top:8px;background:var(--s3)" onclick="grpInvite(true)">Сбросить ссылку</button>`)};
+window.grpCopy=async u=>{try{await navigator.clipboard.writeText(u);toast('Ссылка скопирована')}catch(e){prompt('Скопируйте ссылку',u)}};
+async function grpJoin(code){try{const{data,error}=await SB.rpc('join_by_invite',{code});if(error)throw error;history.replaceState(null,'',location.href.split('#')[0]);await loadChats();if(tab==='chats')drawList();toast('Вы вступили в чат');if(data)openChat(data)}catch(e){console.error(e);toast(sqlHint(e))}}
+const joinHash=()=>{const m=/^#join=([A-Za-z0-9]{6,32})$/.exec(location.hash);return m&&m[1]};
+let jtries=0;const jw=setInterval(()=>{if(!joinHash()||++jtries>120){clearInterval(jw);return}let ok=false;try{ok=!!(me&&me.id)}catch(e){}if(ok){clearInterval(jw);grpJoin(joinHash())}},700);
+addEventListener('hashchange',()=>{const c=joinHash();if(c)grpJoin(c)});
 const _sp=showP;showP=async function(){if(isG(cur))return grpInfo();return _sp.apply(this,arguments)};
 })();
 /* ===== свайп как в Telegram: круглые кнопки, без «призраков» ===== */
