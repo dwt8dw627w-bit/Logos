@@ -156,5 +156,45 @@ if(!document.getElementById('lg-edmark')){
   document.head.appendChild(s);
 }
 
+// Extra: edited mark in message HTML + edit action in menu (safe re-apply)
+(function(){
+  if(window.__lgExtraMsg)return;window.__lgExtraMsg=1;
+  const _mh = window.mh || (typeof mh==='function'?mh:null);
+  if(typeof _mh==='function'){
+    window.mh = function(m,i){
+      let h = _mh(m,i);
+      if((m.edited||m.edited_at) && h.indexOf('edmark')<0){
+        h = h.replace(/<time>/,'<time><span class="edmark">изм.</span>');
+      }
+      return h;
+    };
+  }
+  const _mm = window.msgMenu;
+  if(typeof _mm==='function'){
+    window.msgMenu = function(i){
+      _mm(i);
+      try{
+        const m = msgs[i];
+        if(!m || !cur || cur.kind!=='channel' || !['owner','admin'].includes(cur.role)) return;
+        if(m.kind && m.kind!=='text') return;
+        const dlg = document.querySelector('.dlg');
+        if(!dlg || dlg.querySelector('[data-a="e"]')) return;
+        const delBtn = dlg.querySelector('[data-a="d"]');
+        const btn = document.createElement('button');
+        btn.className = 'b2 mi';
+        btn.dataset.a = 'e';
+        btn.innerHTML = (typeof ic==='function'?ic('pencil'):'')+'Изменить';
+        btn.onclick = function(){
+          dlg.remove();
+          const t = prompt('Изменить сообщение', typeof m.body==='string'?m.body:(m.body&&m.body.text)||'');
+          if(t!=null && t.trim()) editChannelMsg(m.id, t.trim());
+        };
+        if(delBtn) delBtn.parentNode.insertBefore(btn, delBtn);
+        else dlg.querySelector('div').appendChild(btn);
+      }catch(e){}
+    };
+  }
+})();
+
 console.log('[Logos] groups/channels patch loaded');
 })();
