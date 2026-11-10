@@ -5260,4 +5260,89 @@ function bg(){var i0=document.querySelector('#fbg i');if(!i0){h.classList.add('f
 if(chk())ready();else{var mo=new MutationObserver(function(){if(chk()){mo.disconnect();ready()}});mo.observe(r,{childList:true});setTimeout(function(){if(!h.classList.contains('lg-ready'))ready()},4000)}
 })();
 </script>
+<style id="lg-liquid">
+/* ===== LOGOS · Liquid Glass =====
+   Схема из liquid-glass (MIT, dpawlikowski): живое преломление через backdrop-filter:url()
+   там, где браузер умеет (Chromium), иначе — копия фона со смещением; плюс карта линзы (выпуклая кромка). */
+:root{--lgs-ov:none;--lgs-img:none;--lgb:#05030c;--lgx-out:0 12px 32px #0000008c,0 0 30px #6a3dff33}
+html:root .lgx,html:root #tb .tbp.lgx{position:relative;isolation:isolate;background:transparent!important;border:0!important}
+html:root :is(.lgx,#tb .tbp.lgx)::before{content:"";position:absolute!important;inset:0!important;left:0!important;top:0!important;right:0!important;bottom:0!important;width:auto!important;height:auto!important;z-index:-2!important;border-radius:inherit!important;pointer-events:none;opacity:1!important;animation:none!important;transform:translateZ(0)!important;box-shadow:none!important;
+ background:var(--lgt) 0 0/100% 100% no-repeat,var(--lgs-ov) var(--sx,0) var(--sy,0)/var(--sw,100vw) var(--sh,100vh) no-repeat,var(--lgs-img) var(--ix,0) var(--iy,0)/var(--iw,100vw) var(--ih,100vh) no-repeat,var(--lgb)!important}
+html:root .lgx:not(.lgx-ref)::before,html:root #tb .tbp.lgx:not(.lgx-ref)::before{background:var(--lgt) 0 0/100% 100% no-repeat!important}
+html.lg-sprite:root .lgx-ref::before,html.lg-sprite:root #tb .tbp.lgx-ref::before{filter:var(--lgf,none) brightness(.95) saturate(1.5)!important}
+html.lg-live:root .lgx-ref::before,html.lg-live:root #tb .tbp.lgx-ref::before{background:var(--lgt) 0 0/100% 100% no-repeat!important;filter:none!important}
+html.lg-live:root .lgx-ref{-webkit-backdrop-filter:var(--lgf) blur(1.5px) saturate(1.6)!important;backdrop-filter:var(--lgf) blur(1.5px) saturate(1.6)!important}
+html.lg-flat:root .lgx::before{background:var(--lgt) 0 0/100% 100% no-repeat!important;filter:none!important}
+html.lg-flat:root .lgx{-webkit-backdrop-filter:blur(16px) saturate(1.6)!important;backdrop-filter:blur(16px) saturate(1.6)!important}
+html:not(.nobl):not(.lg-flat):root :is(.lgx-bar,.lgx-sheet,.lgx-field){-webkit-backdrop-filter:blur(16px) saturate(1.6)!important;backdrop-filter:blur(16px) saturate(1.6)!important}
+/* грани, блики, глубина (как на фото: двойная кромка, вспышка в углу, свет по нижней грани, диагональный блик) */
+html:root :is(.lgx,#tb .tbp.lgx)::after{content:"";position:absolute!important;inset:0!important;left:0!important;top:0!important;right:0!important;bottom:0!important;width:auto!important;height:auto!important;z-index:3!important;border-radius:inherit!important;pointer-events:none;opacity:1!important;animation:none!important;transform:none!important;mix-blend-mode:screen;
+ background:radial-gradient(40% 75% at 9% -8%,#ffffffd9 0,#ffffff00 70%),radial-gradient(62% 42% at 50% 114%,#b89cffa0 0,#b89cff00 72%),linear-gradient(115deg,transparent 30%,#ffffff1f 44%,#c6b0ff2e 51%,transparent 64%)!important;
+ box-shadow:inset 0 1.5px 0 #fffffff2,inset 0 0 0 1px #cdbcff5c,inset 0 0 0 5px #7c5cff12,inset 3px 0 4px -2px #dcd0ff85,inset -3px 0 4px -2px #bfa9ff70,inset 0 -12px 20px -9px #a47cffb3!important}
+html:root .lgx-btn::after{background:radial-gradient(55% 60% at 22% -4%,#fffffff2 0,#ffffff00 68%),radial-gradient(70% 44% at 50% 116%,#c4a8ffcc 0,#c4a8ff00 72%),linear-gradient(125deg,transparent 28%,#ffffff33 44%,#d2c0ff40 52%,transparent 66%)!important;box-shadow:inset 0 1.5px 0 #fffffffa,inset 0 0 0 1px #d9ccff75,inset 0 0 0 3px #8a66ff1f,inset 2px 0 3px -1px #e6dcff99,inset -2px 0 3px -1px #cdbcff80,inset 0 -8px 12px -5px #ad8cffcc!important}
+html:root :is(.lgx-card,.lgx-sheet,.lgx-field,.lgx-bar)::after{opacity:.8!important}
+/* прозрачность по размеру: большие панели плотнее, мелкие кнопки прозрачнее */
+html:root .lgx-nav{--lgt:linear-gradient(135deg,#0d0830eb,#07041cd1 48%,#3a2290a6);box-shadow:var(--lgx-out)!important}
+html:root .lgx-btn{--lgt:linear-gradient(135deg,#1a0f4a73,#0b072a40 50%,#6c48f04d);box-shadow:0 8px 20px #0000007a,0 0 20px #7d52ff40!important}
+html:root .lgx-card{--lgt:linear-gradient(135deg,#0c0728f2,#07041ee8 55%,#2e1a7ad9);box-shadow:0 10px 28px #00000070,0 0 28px #6a3dff26!important}
+html:root .lgx-bar{--lgt:linear-gradient(180deg,#0a0620d9,#07041bcc);box-shadow:none!important}
+html:root .lgx-sheet{--lgt:linear-gradient(160deg,#100a36f7,#08051ff5 60%,#2a1870f0);box-shadow:0 -10px 40px #0009,0 0 40px #6a3dff30!important}
+html:root .lgx-field{--lgt:linear-gradient(135deg,#1a1048b3,#0d0830b3);box-shadow:none!important}
+html.lgl:root .lgx{--lgt:linear-gradient(135deg,#ffffffd9,#ffffffa6)}
+html:root .lgx-field::after,html:root .lgx-bar::after{box-shadow:inset 0 1px 0 #ffffff55,inset 0 0 0 1px #cdbcff33!important;background:none!important}
+@media(prefers-reduced-transparency:reduce){html:root .lgx::before{filter:none!important}}
+</style>
+<script id="lg-liquid-js">
+(function(){
+var H=document.documentElement,NS='http://www.w3.org/2000/svg',Q=location.search;
+var okF=!!(window.CSS&&CSS.supports&&CSS.supports('filter','url(#a)'));
+var okB=!!(window.CSS&&CSS.supports&&(CSS.supports('backdrop-filter','url(#a) blur(1px)')||CSS.supports('-webkit-backdrop-filter','url(#a) blur(1px)')));
+var q=/[?&]glass=(flat|sprite|live)/.exec(Q),pref=q?q[1]:(function(){try{return localStorage.lg_glass||''}catch(e){return ''}})();
+var mode=pref==='flat'||!okF?'flat':(pref==='sprite'?'sprite':(pref==='live'?'live':(okB?'live':'sprite')));
+H.classList.add('lg-'+mode);
+var defs=document.createElementNS(NS,'svg');defs.setAttribute('width','0');defs.setAttribute('height','0');defs.style.cssText='position:absolute';defs.setAttribute('aria-hidden','true');
+var D=document.createElementNS(NS,'defs');defs.appendChild(D);document.body.appendChild(defs);
+var cache={},uid=0,IMG=null;
+function makeMap(w,h,r,bz){var c=document.createElement('canvas');c.width=w;c.height=h;var g=c.getContext('2d'),im=g.createImageData(w,h),d=im.data,hw=w/2,hh=h/2,ix=hw-r,iy=hh-r;
+ for(var y=0;y<h;y++)for(var x=0;x<w;x++){var px=x+.5-hw,py=y+.5-hh,qx=Math.abs(px)-ix,qy=Math.abs(py)-iy,nx=0,ny=0,dist,ox=Math.max(qx,0),oy=Math.max(qy,0),out=Math.sqrt(ox*ox+oy*oy);
+  if(out>0){nx=Math.sign(px)*ox/out;ny=Math.sign(py)*oy/out;dist=r-out}else if(qx>qy){nx=Math.sign(px);dist=-qx}else{ny=Math.sign(py);dist=-qy}
+  var t=1-dist/bz,m=t>0?Math.pow(Math.min(t,1),2.2):0,i=(y*w+x)*4;d[i]=Math.round(128-nx*m*127);d[i+1]=Math.round(128-ny*m*127);d[i+2]=128;d[i+3]=255}
+ g.putImageData(im,0,0);return c.toDataURL()}
+function filterFor(w,h,r,bz,sc){var k=[w,h,r,bz,sc].join('_');if(cache[k])return cache[k];var id='lgl'+(++uid),f=document.createElementNS(NS,'filter');
+ f.setAttribute('id',id);f.setAttribute('x','0');f.setAttribute('y','0');f.setAttribute('width','100%');f.setAttribute('height','100%');f.setAttribute('color-interpolation-filters','sRGB');
+ f.innerHTML='<feImage href="'+makeMap(w,h,r,bz)+'" x="0" y="0" width="'+w+'" height="'+h+'" preserveAspectRatio="none" result="m0"/><feGaussianBlur in="m0" stdDeviation="1.4" result="m"/><feDisplacementMap in="SourceGraphic" in2="m" scale="'+sc+'" xChannelSelector="R" yChannelSelector="G"/>';
+ D.appendChild(f);return cache[k]=id}
+var PS=[['nav','#tb .tbp',1,.55,24],['btn','.ib:not(.snd),.xpen',1,.85,16],['bar','.top,.comp',0],['card','.pc,.grp,.xact,.xgift',0],['field','.srch,.seg',0],['sheet','.sh .shb,.dlg>div',0]];
+var reg=new Set();
+function radius(el,w,h){var v=getComputedStyle(el).borderTopLeftRadius||'0px',n=parseFloat(v)||0;if(/%$/.test(v))n=Math.min(w,h)*n/100;return Math.max(0,Math.min(n,w/2,h/2))}
+function upd(el){var c=el._lg;if(!c||!el.isConnected)return;var b=el.getBoundingClientRect(),w=Math.round(b.width),h=Math.round(b.height);if(!w||!h)return;
+ if(!c.ref||mode==='flat')return;var st=el.style,r=radius(el,w,h);
+ st.setProperty('--lgf','url(#'+filterFor(w,h,r,Math.min(w,h)*c.bz*.5+4,c.sc)+')');
+ if(mode==='sprite'){var W=innerWidth,Hh=innerHeight;st.setProperty('--sx',-b.left+'px');st.setProperty('--sy',-b.top+'px');st.setProperty('--sw',W+'px');st.setProperty('--sh',Hh+'px');
+  if(IMG){var s=Math.max(W/IMG.w,Hh/IMG.h),iw=IMG.w*s,ih=IMG.h*s;st.setProperty('--iw',iw+'px');st.setProperty('--ih',ih+'px');st.setProperty('--ix',((W-iw)/2-b.left)+'px');st.setProperty('--iy',((Hh-ih)/2-b.top)+'px')}}}
+var ro=window.ResizeObserver?new ResizeObserver(function(es){es.forEach(function(e){upd(e.target)})}):null;
+function attach(el,p){if(el.classList.contains('lgx'))return;
+ var bc=getComputedStyle(el,'::before').content,ac=getComputedStyle(el,'::after').content,own=el.matches('#tb .tbp');
+ if(!own&&((bc&&bc!=='none'&&bc!=='normal')||(ac&&ac!=='none'&&ac!=='normal')))return;
+ el._lg={ref:!!p[2],bz:p[3]||.6,sc:p[4]||16};el.classList.add('lgx','lgx-'+p[0]);if(p[2])el.classList.add('lgx-ref');
+ if(getComputedStyle(el).position==='static')el.style.position='relative';
+ reg.add(el);if(ro&&p[2])ro.observe(el);upd(el)}
+function scan(root){if(!root||root.nodeType!==1)return;PS.forEach(function(p){if(root.matches&&root.matches(p[1]))attach(root,p);root.querySelectorAll&&root.querySelectorAll(p[1]).forEach(function(e){attach(e,p)})})}
+function updAll(){reg.forEach(function(el){if(!el.isConnected){reg.delete(el);return}if(el._lg.ref)upd(el)})}
+var raf=0;function later(){if(raf)return;raf=requestAnimationFrame(function(){raf=0;updAll()})}
+var tmr=0;function debounced(){clearTimeout(tmr);tmr=setTimeout(later,120)}
+/* сцена для режима «копия фона»: тот же фон, что рисует приложение (#fbg) */
+function scene(){var fan=H.dataset.theme==='fantasy'||!H.dataset.theme,i0=document.querySelector('#fbg i');
+ if(!fan||!i0){H.style.setProperty('--lgs-img','none');H.style.setProperty('--lgs-ov','none');H.style.setProperty('--lgb',getComputedStyle(H).getPropertyValue('--bg').trim()||'#05030c');IMG=null;later();return}
+ var m=/url\(["']?([^"')]+)["']?\)/.exec(i0.getAttribute('style')||'');H.style.setProperty('--lgs-ov','linear-gradient(#05030c99,#05030c70 40%,#05030ccc)');H.style.setProperty('--lgb','#05030c');
+ if(!m)return;var im=new Image();im.onload=function(){IMG={w:im.naturalWidth,h:im.naturalHeight};H.style.setProperty('--lgs-img','url('+m[1]+')');later()};im.src=m[1]}
+new MutationObserver(function(ml){ml.forEach(function(m){m.addedNodes.forEach(scan)})}).observe(document.body,{childList:true,subtree:true});
+new MutationObserver(function(){scene()}).observe(H,{attributes:true,attributeFilter:['data-theme']});
+addEventListener('resize',later);addEventListener('orientationchange',function(){setTimeout(later,350)});
+document.addEventListener('transitionend',debounced,true);document.addEventListener('animationend',debounced,true);
+if(mode==='sprite')document.addEventListener('scroll',debounced,true);
+scan(document.body);if(mode==='sprite')setTimeout(scene,400);
+window.__lg={mode:mode,reg:reg,scan:function(){scan(document.body)}};
+})();
+</script>
 </body></html>
