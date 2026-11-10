@@ -1,0 +1,11 @@
+See local apply: the full patched index.html is prepared; this is a unified diff of the changes for review.
+
+Apply with: patch -p0 < patches/2026-11-10-groups-channels.patch
+(from repo root after ensuring index.html matches the base commit)
+
+Changes summary:
+- newGroup/channel: avatar, description, channel username + live link preview, contact search for groups
+- grpInfo: avatar picker + deleted messages journal button for admins
+- delMsg records into deleted_messages / local cache
+- channel admins can edit published messages; edited mark in UI
+- SQL companion: logos-del-log.sql (already on main)
