@@ -3,7 +3,7 @@
 if(window.__lgPatchGroups)return;window.__lgPatchGroups=1;
 const $=s=>document.querySelector(s);
 const toast=(m)=>{try{window.toast(m)}catch(e){}};
-const esc=window.esc||(t=>String(t||'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])));
+const esc=window.esc||(t=>String(t||'').replace(/[&<>"']/g,c=>({'&':'&','<':'<','>':'>','"':'"',"'":'&#39;'}[c])));
 const ic=window.ic||(()=>'');
 const av=window.av||(()=>'<div></div>');
 const at=window.at||(u=>u?'@'+u:'');
@@ -63,7 +63,6 @@ if(typeof window.delMsg==='function'){
   };
 }
 
-/* --- create group/channel with avatar, desc, username, contact search --- */
 if(typeof window.newGroup==='function'){
   window.gFilterContacts=function(q){
     const box=$('#gch_list');if(!box)return;
@@ -135,7 +134,6 @@ if(typeof window.newGroup==='function'){
   };
 }
 
-/* grpInfo: deleted log + avatar change for owner/admin */
 const _gi=window.grpInfo;
 if(typeof _gi==='function'){
   window.grpInfo=async function(){
@@ -167,7 +165,6 @@ if(!document.getElementById('lg-edmark')){
   document.head.appendChild(s);
 }
 
-/* edited mark + edit action in channel msg menu */
 (function(){
   if(window.__lgExtraMsg)return;window.__lgExtraMsg=1;
   const _mh = window.mh || (typeof mh==='function'?mh:null);
@@ -207,7 +204,6 @@ if(!document.getElementById('lg-edmark')){
   }
 })();
 
-/* light perf: throttle list redraw on rapid updates */
 (function(){
   if(window.__lgPerf)return;window.__lgPerf=1;
   try{
@@ -219,6 +215,15 @@ if(!document.getElementById('lg-edmark')){
       };
     }
   }catch(e){}
+})();
+
+/* auto-load UI patch */
+(function(){
+  if(window.__lgUiPatch || document.querySelector('script[src="logos-ui-patch.js"]'))return;
+  var s=document.createElement('script');
+  s.src='logos-ui-patch.js';
+  s.defer=true;
+  document.head.appendChild(s);
 })();
 
 console.log('[Logos] groups/channels patch loaded');
