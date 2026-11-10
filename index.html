@@ -19,7 +19,7 @@
 <title>LOGOS</title>
 <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin><link rel="dns-prefetch" href="https://unpkg.com">
 <style id="lg-boot">html,body{background:#05030c;color:#f2f2f2}
-html:not([data-theme]),html[data-theme=fantasy]{background:radial-gradient(120% 60% at 50% -8%,#1c1048 0%,transparent 62%),radial-gradient(90% 50% at 100% 100%,#12082e 0%,transparent 70%),#05030c}
+html:not([data-theme]),html[data-theme=fantasy]{background:radial-gradient(120% 60% at 50% -8%,#130b33 0%,transparent 62%),radial-gradient(90% 50% at 100% 100%,#0d0620 0%,transparent 70%),#05030c}
 html:not([data-theme]) body,html[data-theme=fantasy] body{background:transparent}
 #fbg{opacity:0;transition:opacity 1.2s ease}html.fbg-on #fbg{opacity:1}
 #fbg i{animation:none!important}#fbg i:not(:first-child){display:none}
@@ -2279,7 +2279,7 @@ if(m.kind==='sticker')return m.media_url?`<div class="stk"><img src="${esc(m.med
 return fx(m.kind==='text'?m.body:prev(m))}
 
 /* ---- настройки ---- */
-const TH=[['mono','Монохром','#0a0a0a','#f2f2f2'],['fantasy','Тёмное фэнтези','#03031a','#8c9bff'],['oled','Чёрный','#000','#ffffff'],['graph','Графит','#181818','#e8e8e8'],['carbon','Тёмно-серый','#232323','#f0f0f0'],['ocean','Океан','#000','#fff'],['forest','Лес','#000','#fff'],['dusk','Сумерки','#000','#fff'],['rose','Роза','#000','#fff'],['amber','Янтарь','#000','#fff'],['lava','Лава','#000','#fff'],['ice','Лёд','#000','#fff'],['indigo','Индиго','#000','#fff'],['coffee','Кофе','#000','#fff'],['neon','Неон','#000','#fff'],['slate','Сланец','#000','#fff'],['deep','Глубина','#000','#fff'],['teal','Бирюза','#000','#fff'],['mint','Мята','#000','#fff'],['lime','Лайм','#000','#fff'],['matrix','Матрица','#000','#fff'],['cyber','Кибер','#000','#fff'],['gold','Золото','#000','#fff'],['sunrise','Рассвет','#000','#fff'],['cherry','Вишня','#000','#fff'],['plum','Слива','#000','#fff'],['grape','Виноград','#000','#fff'],['galaxy','Галактика','#000','#fff'],['aurora','Сияние','#000','#fff'],['nebula','Туманность','#000','#fff'],['abyss','Бездна','#000','#fff'],['ember','Угли','#000','#fff'],['emerald','Изумруд','#000','#fff'],['royal','Корона','#000','#fff'],['void','Пустота','#000','#fff'],['sakura','Сакура','#000','#fff'],['paper','Бумага','#fff','#000',1],['lilac','Сирень','#fff','#000',1],['sky','Небо','#fff','#000',1],['aqua','Аква','#fff','#000',1],['mintl','Мятная','#fff','#000',1],['lemon','Лимон','#fff','#000',1],['sand','Песок','#fff','#000',1],['peach','Персик','#fff','#000',1],['candy','Конфета','#fff','#000',1],['cloud','Облако','#fff','#000',1],['ios','iOS','#fff','#000',1],['pearl','Жемчуг','#fff','#000',1],['blush','Румяна','#fff','#000',1],['sage','Шалфей','#fff','#000',1]];
+const TH=[['mono','Монохром','#0a0a0a','#f2f2f2'],['fantasy','Dark Fantasy','#03031a','#8c9bff'],['oled','Чёрный','#000','#ffffff'],['graph','Графит','#181818','#e8e8e8'],['carbon','Тёмно-серый','#232323','#f0f0f0'],['ocean','Океан','#000','#fff'],['forest','Лес','#000','#fff'],['dusk','Сумерки','#000','#fff'],['rose','Роза','#000','#fff'],['amber','Янтарь','#000','#fff'],['lava','Лава','#000','#fff'],['ice','Лёд','#000','#fff'],['indigo','Индиго','#000','#fff'],['coffee','Кофе','#000','#fff'],['neon','Неон','#000','#fff'],['slate','Сланец','#000','#fff'],['deep','Глубина','#000','#fff'],['teal','Бирюза','#000','#fff'],['mint','Мята','#000','#fff'],['lime','Лайм','#000','#fff'],['matrix','Матрица','#000','#fff'],['cyber','Кибер','#000','#fff'],['gold','Золото','#000','#fff'],['sunrise','Рассвет','#000','#fff'],['cherry','Вишня','#000','#fff'],['plum','Слива','#000','#fff'],['grape','Виноград','#000','#fff'],['galaxy','Галактика','#000','#fff'],['aurora','Сияние','#000','#fff'],['nebula','Туманность','#000','#fff'],['abyss','Бездна','#000','#fff'],['ember','Угли','#000','#fff'],['emerald','Изумруд','#000','#fff'],['royal','Корона','#000','#fff'],['void','Пустота','#000','#fff'],['sakura','Сакура','#000','#fff'],['paper','Бумага','#fff','#000',1],['lilac','Сирень','#fff','#000',1],['sky','Небо','#fff','#000',1],['aqua','Аква','#fff','#000',1],['mintl','Мятная','#fff','#000',1],['lemon','Лимон','#fff','#000',1],['sand','Песок','#fff','#000',1],['peach','Персик','#fff','#000',1],['candy','Конфета','#fff','#000',1],['cloud','Облако','#fff','#000',1],['ios','iOS','#fff','#000',1],['pearl','Жемчуг','#fff','#000',1],['blush','Румяна','#fff','#000',1],['sage','Шалфей','#fff','#000',1]];
 const WP=[['none','Без фона'],['dots','Точки'],['grid','Сетка'],['waves','Волны'],['hex','Соты'],['stars','Звёзды'],['doodle','Каракули'],['geo','Фигуры'],['mount','Горы'],['stripes','Линии'],['aurora','Аврора'],['glow','Сияние'],['cross','Крестики'],['circles','Круги'],['diamond','Ромбы'],['zigzag','Зигзаг'],['tri','Треугольники'],['rain','Дождь'],['bubbles','Пузыри']];
 /* свой цвет: одна ручка оттенка строит всю тему */
 function cvars(h,lt){h=+h||0;const A=s=>`hsl(${h} ${s})`,B=(d,s)=>`hsl(${(h+d)%360} ${s})`;
@@ -5042,7 +5042,7 @@ function sw(k){H.classList.add('lg-sw');try{PF.th=k;savePF()}catch(e){}try{apply
  document.querySelectorAll('.sh .tl').forEach(function(b){b.classList.toggle('on',b.dataset.k===k)});try{vib(8)}catch(e){}
  clearTimeout(sw.t);sw.t=setTimeout(function(){H.classList.remove('lg-sw')},360)}
 window.setTh=function(k){sw(k)};
-document.addEventListener('click',function(e){var t=e.target.closest&&e.target.closest('.sh .tl[data-k]');if(t&&t.dataset.k!=='custom'){e.stopPropagation();sw(t.dataset.k)}},true);
+document.addEventListener('click',function(e){var t=e.target.closest&&e.target.closest('.sh .tl[data-k]');if(t&&t.dataset.k!=='custom'){e.stopPropagation();window.setTh(t.dataset.k)}},true);
 document.addEventListener('visibilitychange',force);setTimeout(force,0);
 
 /* ремонт тапов: если клик ушёл в общего предка (сдвиг слоя между down/up), запускаем onclick там, где нажали */
@@ -5334,7 +5334,7 @@ var tmr=0;function debounced(){clearTimeout(tmr);tmr=setTimeout(later,120)}
 /* сцена для режима «копия фона»: тот же фон, что рисует приложение (#fbg) */
 function scene(){var fan=H.dataset.theme==='fantasy'||!H.dataset.theme,i0=document.querySelector('#fbg i');
  if(!fan||!i0){H.style.setProperty('--lgs-img','none');H.style.setProperty('--lgs-ov','none');H.style.setProperty('--lgb',getComputedStyle(H).getPropertyValue('--bg').trim()||'#05030c');IMG=null;later();return}
- var m=/url\(["']?([^"')]+)["']?\)/.exec(i0.getAttribute('style')||'');H.style.setProperty('--lgs-ov','linear-gradient(#05030c99,#05030c70 40%,#05030ccc)');H.style.setProperty('--lgb','#05030c');
+ var m=/url\(["']?([^"')]+)["']?\)/.exec(i0.getAttribute('style')||'');H.style.setProperty('--lgs-ov','linear-gradient(#05030cd9,#05030cc2 40%,#05030cf0)');H.style.setProperty('--lgb','#05030c');
  if(!m)return;var im=new Image();im.onload=function(){IMG={w:im.naturalWidth,h:im.naturalHeight};H.style.setProperty('--lgs-img','url('+m[1]+')');later()};im.src=m[1]}
 new MutationObserver(function(ml){ml.forEach(function(m){m.addedNodes.forEach(scan)})}).observe(document.body,{childList:true,subtree:true});
 new MutationObserver(function(){scene()}).observe(H,{attributes:true,attributeFilter:['data-theme']});
@@ -5343,6 +5343,69 @@ document.addEventListener('transitionend',debounced,true);document.addEventListe
 if(mode==='sprite')document.addEventListener('scroll',debounced,true);
 scan(document.body);if(mode==='sprite')setTimeout(scene,400);
 window.__lg={mode:mode,reg:reg,scan:function(){scan(document.body)}};
+})();
+</script>
+<style id="lg-dark">
+/* ===== LOGOS · премиальное тёмное стекло (тоньше блики, почти чёрная основа, серебристо-фиолетовые отражения) ===== */
+html:root{--lgx-out:0 12px 30px #000000b3,0 0 16px #5a3fd01a;--press:cubic-bezier(.3,.7,.2,1)}
+html:root .lgx-nav{--lgt:linear-gradient(135deg,#06030ff5,#04020bec 50%,#150d38b8)}
+html:root .lgx-btn{--lgt:linear-gradient(135deg,#0d0828a6,#06041a80 50%,#2a1a6a66);box-shadow:0 6px 16px #0000008c,0 0 12px #5a3fd01f!important}
+html:root .lgx-card{--lgt:linear-gradient(135deg,#07041af7,#05030ff0 55%,#160e3ce8);box-shadow:0 10px 26px #00000080,0 0 18px #5a3fd014!important}
+html:root .lgx-bar{--lgt:linear-gradient(180deg,#07041ae6,#05030fe0)}
+html:root .lgx-sheet{--lgt:linear-gradient(160deg,#0a0626fa,#05030ffa 60%,#150d3cf5);box-shadow:0 -10px 40px #000000b3,0 0 24px #5a3fd01f!important}
+html:root .lgx-field{--lgt:linear-gradient(135deg,#0f0a30c4,#08051dc4)}
+html:root :is(.lgx,#tb .tbp.lgx)::after{
+ background:radial-gradient(40% 70% at 9% -8%,#e6e2f85c 0,#ffffff00 70%),radial-gradient(62% 40% at 50% 114%,#9a8ad04a 0,#9a8ad000 72%),linear-gradient(115deg,transparent 32%,#ffffff0d 46%,#b8b0dc14 52%,transparent 64%)!important;
+ box-shadow:inset 0 1px 0 #ffffff8c,inset 0 0 0 1px #c9c4e440,inset 0 0 0 5px #6c52d00d,inset 2px 0 3px -2px #d8d4ee4d,inset -2px 0 3px -2px #b8b0dc3d,inset 0 -10px 18px -10px #8a76d04d!important}
+html:root .lgx-btn::after{
+ background:radial-gradient(55% 60% at 22% -4%,#f0edff66 0,#ffffff00 68%),radial-gradient(70% 44% at 50% 116%,#a898dc5c 0,#a898dc00 72%),linear-gradient(125deg,transparent 30%,#ffffff1a 45%,#c4bee824 52%,transparent 66%)!important;
+ box-shadow:inset 0 1px 0 #ffffffa6,inset 0 0 0 1px #cfcae85c,inset 0 0 0 3px #7a60d012,inset 2px 0 3px -2px #e0dcf26b,inset -2px 0 3px -2px #c4bee859,inset 0 -7px 11px -6px #9a86d08c!important}
+html:root :is(.lgx-field,.lgx-bar)::after{box-shadow:inset 0 1px 0 #ffffff33,inset 0 0 0 1px #c9c4e424!important;background:none!important}
+/* активная вкладка: чуть светлее, без свечения */
+html:not(.lgl) #tb .tbp .tbl{background:linear-gradient(180deg,#32323a,#1f1f25)!important;box-shadow:inset 0 1px 0 #ffffff26,0 1px 4px #0006!important}
+/* фон: приглушённые фиолетовые пятна */
+#fbg::after{background:linear-gradient(#05030cd9,#05030cc2 40%,#05030cf0)!important}
+/* плавные нажатия */
+.ib,.xact,.xgift,#lxf button,.seg button,.btn,#tb .tbp button{transition:transform .22s var(--press),opacity .2s,background-color .25s}
+.ib:active,.xact:active,.xgift:active,#lxf button:active,.btn:active{transform:scale(.93)}
+#tb .tbp button:active{transform:scale(.88)}
+#lc .sc .row,.it{transition:background-color .25s ease,transform .2s var(--press)}
+#lc .sc .row:active{background-color:#ffffff0c!important;transform:scale(.992)}
+.it:active{background-color:#ffffff0d}
+/* разделители между чатами и непрочитанные */
+#lc .sc .row::after{height:1px!important;background:linear-gradient(90deg,#b8b0dc2e,#b8b0dc0a)!important}
+#lc .sc .row .bd{background:linear-gradient(180deg,#8b74e8,#5a43b8)!important;color:#fff!important;box-shadow:inset 0 1px 0 #ffffff4d,0 2px 10px #3a2a8a66;border-radius:11px;font-weight:700}
+#lc .sc .row:has(.bd) .n{font-weight:700;color:#fff}
+#lc .sc .row:has(.bd) .rt .ac{color:var(--ac)!important}
+#lc .sc .row:has(.bd) .b .sub{color:#d8d2f0!important}
+#lc .sc .row:has(.bd)::before{content:"";position:absolute;left:5px;top:50%;width:6px;height:6px;margin-top:-3px;border-radius:50%;background:var(--ac);box-shadow:0 0 8px #8b74e866}
+/* уведомления */
+.toast{background:#0a0720ee!important;color:#f1ecff!important;border:1px solid #c9c4e424;border-radius:22px;box-shadow:inset 0 1px 0 #ffffff33,0 12px 30px #000000b3!important;-webkit-backdrop-filter:blur(16px);backdrop-filter:blur(16px)}
+</style>
+<script id="lg-dark-js">
+(function(){var L={"search": "<path d=\"m21 21-4.34-4.34\" /> <circle cx=\"11\" cy=\"11\" r=\"8\" />", "user": "<path d=\"M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2\" /> <circle cx=\"12\" cy=\"7\" r=\"4\" />", "archive": "<rect width=\"20\" height=\"5\" x=\"2\" y=\"3\" rx=\"1\" /> <path d=\"M4 8v11a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8\" /> <path d=\"M10 12h4\" />", "bellOff": "<path d=\"M10.268 21a2 2 0 0 0 3.464 0\" /> <path d=\"M17 17H4a1 1 0 0 1-.74-1.673C4.59 13.956 6 12.499 6 8a6 6 0 0 1 .258-1.742\" /> <path d=\"m2 2 20 20\" /> <path d=\"M8.668 3.01A6 6 0 0 1 18 8c0 2.687.77 4.653 1.707 6.05\" />", "copy": "<rect width=\"14\" height=\"14\" x=\"8\" y=\"8\" rx=\"2\" ry=\"2\" /> <path d=\"M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2\" />", "down": "<path d=\"m6 9 6 6 6-6\" />", "palette": "<path d=\"M12 22a1 1 0 0 1 0-20 10 9 0 0 1 10 9 5 5 0 0 1-5 5h-2.25a1.75 1.75 0 0 0-1.4 2.8l.3.4a1.75 1.75 0 0 1-1.4 2.8z\" /> <circle cx=\"13.5\" cy=\"6.5\" r=\".5\" fill=\"currentColor\" /> <circle cx=\"17.5\" cy=\"10.5\" r=\".5\" fill=\"currentColor\" /> <circle cx=\"6.5\" cy=\"12.5\" r=\".5\" fill=\"currentColor\" /> <circle cx=\"8.5\" cy=\"7.5\" r=\".5\" fill=\"currentColor\" />", "info": "<circle cx=\"12\" cy=\"12\" r=\"10\" /> <path d=\"M12 16v-4\" /> <path d=\"M12 8h.01\" />", "out": "<path d=\"m16 17 5-5-5-5\" /> <path d=\"M21 12H9\" /> <path d=\"M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4\" />", "moon": "<path d=\"M20.985 12.486a9 9 0 1 1-9.473-9.472c.405-.022.617.46.402.803a6 6 0 0 0 8.268 8.268c.344-.215.825-.004.803.401\" />", "sound": "<path d=\"M11 4.702a.705.705 0 0 0-1.203-.498L6.413 7.587A1.4 1.4 0 0 1 5.416 8H3a1 1 0 0 0-1 1v6a1 1 0 0 0 1 1h2.416a1.4 1.4 0 0 1 .997.413l3.383 3.384A.705.705 0 0 0 11 19.298z\" /> <path d=\"M16 9a5 5 0 0 1 0 6\" /> <path d=\"M19.364 18.364a9 9 0 0 0 0-12.728\" />", "stack": "<path d=\"M12.83 2.18a2 2 0 0 0-1.66 0L2.6 6.08a1 1 0 0 0 0 1.83l8.58 3.91a2 2 0 0 0 1.66 0l8.58-3.9a1 1 0 0 0 0-1.83z\" /> <path d=\"M2 12a1 1 0 0 0 .58.91l8.6 3.91a2 2 0 0 0 1.65 0l8.58-3.9A1 1 0 0 0 22 12\" /> <path d=\"M2 17a1 1 0 0 0 .58.91l8.6 3.91a2 2 0 0 0 1.65 0l8.58-3.9A1 1 0 0 0 22 17\" />", "circle": "<circle cx=\"12\" cy=\"12\" r=\"1\" /> <circle cx=\"12\" cy=\"12\" r=\"10\" />", "pause": "<rect x=\"14\" y=\"3\" width=\"5\" height=\"18\" rx=\"1\" /> <rect x=\"5\" y=\"3\" width=\"5\" height=\"18\" rx=\"1\" />", "flip": "<path d=\"M11 19H4a2 2 0 0 1-2-2V7a2 2 0 0 1 2-2h5\" /> <path d=\"M13 5h7a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2h-5\" /> <circle cx=\"12\" cy=\"12\" r=\"3\" /> <path d=\"m18 22-3-3 3-3\" /> <path d=\"m6 2 3 3-3 3\" />", "check": "<path d=\"M20 6 9 17l-5-5\" />", "phoneoff": "<path d=\"M10.1 13.9a14 14 0 0 0 3.732 2.668 1 1 0 0 0 1.213-.303l.355-.465A2 2 0 0 1 17 15h3a2 2 0 0 1 2 2v3a2 2 0 0 1-2 2 18 18 0 0 1-12.728-5.272\" /> <path d=\"M22 2 2 22\" /> <path d=\"M4.76 13.582A18 18 0 0 1 2 4a2 2 0 0 1 2-2h3a2 2 0 0 1 2 2v3a2 2 0 0 1-.8 1.6l-.468.351a1 1 0 0 0-.292 1.233 14 14 0 0 0 .244.473\" />", "videooff": "<path d=\"M10.66 6H14a2 2 0 0 1 2 2v2.5l5.248-3.062A.5.5 0 0 1 22 7.87v8.196\" /> <path d=\"M16 16a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h2\" /> <path d=\"m2 2 20 20\" />", "micoff": "<path d=\"M12 19v3\" /> <path d=\"M15 9.34V5a3 3 0 0 0-5.68-1.33\" /> <path d=\"M16.95 16.95A7 7 0 0 1 5 12v-2\" /> <path d=\"M18.89 13.23A7 7 0 0 0 19 12v-2\" /> <path d=\"m2 2 20 20\" /> <path d=\"M9 9v3a3 3 0 0 0 5.12 2.12\" />", "plus": "<path d=\"M5 12h14\" /> <path d=\"M12 5v14\" />", "brush": "<path d=\"m11 10 3 3\" /> <path d=\"M6.5 21A3.5 3.5 0 1 0 3 17.5a2.62 2.62 0 0 1-.708 1.792A1 1 0 0 0 3 21z\" /> <path d=\"M9.969 17.031 21.378 5.624a1 1 0 0 0-3.002-3.002L6.967 14.031\" />", "cplus": "<path d=\"M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2\" /> <circle cx=\"9\" cy=\"7\" r=\"4\" /> <line x1=\"19\" x2=\"19\" y1=\"8\" y2=\"14\" /> <line x1=\"22\" x2=\"16\" y1=\"11\" y2=\"11\" />", "screen": "<rect width=\"20\" height=\"14\" x=\"2\" y=\"3\" rx=\"2\" /> <line x1=\"8\" x2=\"16\" y1=\"21\" y2=\"21\" /> <line x1=\"12\" x2=\"12\" y1=\"17\" y2=\"21\" />", "trash": "<path d=\"M10 11v6\" /> <path d=\"M14 11v6\" /> <path d=\"M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6\" /> <path d=\"M3 6h18\" /> <path d=\"M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2\" />"};
+ /* Lucide (ISC): единые линейные иконки для оставшихся значков, толщина задаётся общим CSS (1.7) */
+ try{Object.keys(L).forEach(function(k){if(typeof P!=='undefined'&&P[k]!==undefined)P[k]=L[k]})}catch(e){console.warn('lucide',e)}
+})();
+</script>
+<style id="lg-prime-theme">
+.tl.lgpr{position:relative}.tl.lgpr .pvw{filter:saturate(.7) brightness(.8)}
+.lgprb{position:absolute;top:8px;right:8px;z-index:3;font:700 10px/1 -apple-system,Inter,sans-serif;letter-spacing:.05em;padding:4px 7px;border-radius:9px;background:#0a0720e0;color:#e6e0ff;border:1px solid #c9c4e433;box-shadow:inset 0 1px 0 #ffffff26}
+</style>
+<script id="lg-prime-theme-js">
+(function(){
+function ok(){try{return !!(prof&&(prof.role==='owner'||(prof.prime_until&&new Date(prof.prime_until)>Date.now())))}catch(e){return false}}
+function inApp(){try{return !!prof}catch(e){return false}}
+/* Dark Fantasy — только для подписчиков Logos Prime (проверка на устройстве) */
+var _s=window.setTh;
+window.setTh=function(k){
+ if(k==='fantasy'&&inApp()&&!ok()){try{toast('Dark Fantasy — для Logos Prime',{icon:'★'})}catch(e){}try{vib(10)}catch(e){}setTimeout(function(){try{sheetPrime()}catch(e){}},260);return}
+ return _s.apply(this,arguments)};
+var _a=window.applyPF;
+if(typeof _a==='function')window.applyPF=function(){try{if(inApp()&&PF&&PF.th==='fantasy'&&!ok()){PF.th='mono';savePF()}}catch(e){}return _a.apply(this,arguments)};
+function mark(n){if(n.nodeType!==1||ok())return;var t=n.matches&&n.matches('.tl[data-k="fantasy"]')?[n]:(n.querySelectorAll?n.querySelectorAll('.tl[data-k="fantasy"]'):[]);
+ [].forEach.call(t,function(e){if(e.querySelector('.lgprb'))return;e.classList.add('lgpr');e.insertAdjacentHTML('beforeend','<b class="lgprb">PRIME</b>')})}
+new MutationObserver(function(ml){ml.forEach(function(m){m.addedNodes.forEach(mark)})}).observe(document.body,{childList:true,subtree:true});
 })();
 </script>
 </body></html>
