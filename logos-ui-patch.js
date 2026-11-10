@@ -2,6 +2,7 @@
 (function(){
 if(window.__lgUiPatch)return;window.__lgUiPatch=1;
 
+/* ---------- glass + rounded tab bar ---------- */
 try{
 var css=document.createElement('style');
 css.id='lg-ui-v4';
@@ -14,6 +15,7 @@ css.textContent=`
   --lg-inset:inset 0 1px 0 rgba(255,255,255,.28),inset 0 -1px 0 rgba(0,0,0,.12);
   --lg-shadow:0 10px 36px rgba(0,0,0,.28);
   --ease-out:cubic-bezier(.22,1,.36,1);
+  --ease-spring:cubic-bezier(.34,1.4,.64,1);
 }
 html::before{display:none!important;content:none!important}
 html:root :is(.lgx,#tb .tbp.lgx)::after,html:root .lgx-btn::after,
@@ -58,6 +60,7 @@ html:root :is(.lgx,#tb .tbp.lgx)::after,html:root .lgx-btn::after,
   border-radius:16px!important;
   box-shadow:var(--lg-inset)!important;
 }
+/* unified rec button */
 .cact .ib.cam,.cact .ib.mic,.cact [data-hold="circle"],.cact [data-hold="voice"]{display:none!important}
 .cact .ib.recmode{
   width:48px;height:48px;min-width:48px;border-radius:50%;
@@ -71,6 +74,7 @@ html:root :is(.lgx,#tb .tbp.lgx)::after,html:root .lgx-btn::after,
   box-shadow:0 0 0 2px rgba(255,255,255,.25)!important;
 }
 .cact .ib.recmode:active{transform:scale(.92)}
+/* bigger circle preview */
 .hcirc .hcv,.hcirc .hcv video{
   width:min(78vw,320px)!important;height:min(78vw,320px)!important;
   border-radius:50%!important;object-fit:cover!important;
@@ -85,7 +89,9 @@ html:root :is(.lgx,#tb .tbp.lgx)::after,html:root .lgx-btn::after,
   background:rgba(0,0,0,.4);color:#fff;display:grid;place-items:center;
   -webkit-backdrop-filter:blur(12px);backdrop-filter:blur(12px);
 }
-.hcirc,.recb{transition:transform .28s var(--ease-out),opacity .28s var(--ease-out),filter .28s!important}
+.hcirc,.recb{
+  transition:transform .28s var(--ease-out),opacity .28s var(--ease-out),filter .28s!important;
+}
 .hcirc.lock .hh,.recb.lock .rhint{color:#a7f3d0!important}
 .hcirc.cx,.recb.cx{filter:saturate(.6) brightness(.85)}
 .hcirc.toss{
@@ -104,12 +110,18 @@ html:root :is(.lgx,#tb .tbp.lgx)::after,html:root .lgx-btn::after,
   0%{transform:scale(1);opacity:1}
   100%{transform:translateY(110px) scale(.35);opacity:0}
 }
-.crow,.row,#cl .row{transition:background .18s var(--ease-out),transform .18s var(--ease-out)!important}
-#sh .shc,.dlg{transition:transform .32s var(--ease-out),opacity .28s var(--ease-out)!important}
+/* smoother list / sheet transitions */
+.crow,.row,#cl .row{
+  transition:background .18s var(--ease-out),transform .18s var(--ease-out)!important;
+}
+#sh .shc,.dlg{
+  transition:transform .32s var(--ease-out),opacity .28s var(--ease-out)!important;
+}
 `;
 document.head.appendChild(css);
 }catch(e){}
 
+/* scrub leaked text */
 try{
   function scrub(){
     var w=document.createTreeWalker(document.body,NodeFilter.SHOW_TEXT,null),k=[];
@@ -122,14 +134,17 @@ try{
   scrub();setTimeout(scrub,400);
 }catch(e){}
 
+/* ---------- unified mic/circle ---------- */
 window.__recMode=window.__recMode||'voice';
 var __busy=0;
+
 function modeIcon(){
   try{
-    if(window.__recMode==='circle') return typeof ic==='function'?ic('circle'):'\u25EF';
-    return typeof ic==='function'?ic('mic'):'\uD83C\uDFA4';
-  }catch(e){return '\u25CF'}
+    if(window.__recMode==='circle') return typeof ic==='function'?ic('circle'):'◯';
+    return typeof ic==='function'?ic('mic'):'🎤';
+  }catch(e){return '●'}
 }
+
 function ensureRecBtn(){
   if(__busy) return;
   __busy=1;
@@ -144,9 +159,10 @@ function ensureRecBtn(){
       btn=document.createElement('button');
       btn.type='button';
       btn.className='ib recmode';
-      btn.setAttribute('aria-label','\u0417\u0430\u043f\u0438\u0441\u044c');
+      btn.setAttribute('aria-label','Запись');
       var snd=act.querySelector('.ib.snd');
       if(snd) act.insertBefore(btn,snd); else act.appendChild(btn);
+
       var t0=0,moved=0,holding=0,timer=0;
       btn.addEventListener('pointerdown',function(e){
         if(e.button) return;
@@ -170,7 +186,7 @@ function ensureRecBtn(){
           btn.dataset.hold=window.__recMode;
           btn.classList.toggle('on-circle',window.__recMode==='circle');
           btn.innerHTML=modeIcon();
-          try{toast(window.__recMode==='circle'?'\u041a\u0440\u0443\u0436\u043e\u043a':'\u0413\u043e\u043b\u043e\u0441\u043e\u0432\u043e\u0435')}catch(x){}
+          try{toast(window.__recMode==='circle'?'Кружок':'Голосовое')}catch(x){}
           try{vib&&vib(8)}catch(x){}
         }
         holding=0;
@@ -184,6 +200,8 @@ function ensureRecBtn(){
   }catch(e){}
   __busy=0;
 }
+
+/* only hook drawMain once, rAF once */
 try{
   if(typeof window.drawMain==='function' && !window.drawMain.__lg4){
     var _dm=window.drawMain;
@@ -198,6 +216,7 @@ try{
 setTimeout(ensureRecBtn,500);
 setTimeout(ensureRecBtn,1600);
 
+/* ---------- gestures: up=lock, left=cancel+trash (smooth) ---------- */
 try{
   var _holdUI=window.holdUI;
   window.holdUI=function(h){
@@ -206,17 +225,17 @@ try{
       if(!h) return;
       if(h.kind==='voice'){
         var t=document.getElementById('rhint');
-        if(t) t.textContent='\u2191 \u0444\u0438\u043a\u0441\u0430\u0446\u0438\u044f  \u00b7  \u2190 \u043e\u0442\u043c\u0435\u043d\u0430';
+        if(t) t.textContent='↑ фиксация  ·  ← отмена';
       } else {
         var o=document.querySelector('.hcirc');
         if(o){
           var hh=o.querySelector('.hh');
-          if(hh) hh.textContent='\u2191 \u0444\u0438\u043a\u0441\u0430\u0446\u0438\u044f  \u00b7  \u2190 \u043e\u0442\u043c\u0435\u043d\u0430';
+          if(hh) hh.textContent='↑ фиксация  ·  ← отмена';
           if(!o.querySelector('.hctl')){
             var ctl=document.createElement('div');
             ctl.className='hctl';
-            ctl.innerHTML='<button type="button" data-a="flip">'+(typeof ic==='function'?ic('flip'):'\u27F3')+'</button>'+
-              '<button type="button" data-a="flash">'+(typeof ic==='function'?ic('sparkle'):'\u26A1')+'</button>';
+            ctl.innerHTML='<button type="button" data-a="flip">'+(typeof ic==='function'?ic('flip'):'⟳')+'</button>'+
+              '<button type="button" data-a="flash">'+(typeof ic==='function'?ic('sparkle'):'⚡')+'</button>';
             o.appendChild(ctl);
             ctl.addEventListener('pointerdown',function(e){e.stopPropagation()},{passive:true});
             ctl.addEventListener('click',function(e){
@@ -238,13 +257,14 @@ window.toggleFlash=async function(btn){
     var track=R.st.getVideoTracks()[0];
     if(!track) return;
     var caps=track.getCapabilities&&track.getCapabilities();
-    if(!caps||!caps.torch){try{toast('\u0412\u0441\u043f\u044b\u0448\u043a\u0430 \u043d\u0435\u0434\u043e\u0441\u0442\u0443\u043f\u043d\u0430')}catch(x){} return}
+    if(!caps||!caps.torch){try{toast('Вспышка недоступна')}catch(x){} return}
     R.torch=!R.torch;
     await track.applyConstraints({advanced:[{torch:!!R.torch}]});
     if(btn) btn.style.background=R.torch?'rgba(250,204,21,.35)':'rgba(0,0,0,.4)';
-  }catch(e){try{toast('\u0412\u0441\u043f\u044b\u0448\u043a\u0430 \u043d\u0435\u0434\u043e\u0441\u0442\u0443\u043f\u043d\u0430')}catch(x){}}
+  }catch(e){try{toast('Вспышка недоступна')}catch(x){}}
 };
 
+/* smooth gesture tracking — rAF throttled */
 var __gRaf=0,__gE=null;
 function applyGesture(){
   __gRaf=0;
@@ -254,25 +274,27 @@ function applyGesture(){
     if(H.x0==null){ H.x0=e.clientX; H.y0=e.clientY; }
     var dy=H.y0-e.clientY;
     var dx=H.x0-e.clientX;
+    /* lock up */
     if(dy>52 && !H.locked){
       H.locked=true; H.cx=false;
       try{
         var rb=document.getElementById('recb'); if(rb) rb.classList.add('lock');
         var hc=document.querySelector('.hcirc'); if(hc) hc.classList.add('lock');
-        var t=document.getElementById('rhint'); if(t) t.textContent='\u0417\u0430\u043f\u0438\u0441\u044c \u0437\u0430\u0444\u0438\u043a\u0441\u0438\u0440\u043e\u0432\u0430\u043d\u0430';
-        var hh=document.querySelector('.hcirc .hh'); if(hh) hh.textContent='\u0417\u0430\u043f\u0438\u0441\u044c \u0437\u0430\u0444\u0438\u043a\u0441\u0438\u0440\u043e\u0432\u0430\u043d\u0430 \u00b7 \u043d\u0430\u0436\u043c\u0438\u0442\u0435 \u2713';
+        var t=document.getElementById('rhint'); if(t) t.textContent='Запись зафиксирована';
+        var hh=document.querySelector('.hcirc .hh'); if(hh) hh.textContent='Запись зафиксирована · нажмите ✓';
         if(typeof vib==='function') vib(14);
       }catch(x){}
     }
+    /* cancel left */
     var cancel=!H.locked && dx>48;
     if(cancel!==!!H.cx){
       H.cx=cancel;
       try{ if(typeof holdCx==='function') holdCx(H,cancel); }catch(x){}
       try{
         var t2=document.getElementById('rhint');
-        if(t2) t2.textContent=cancel?'\u041e\u0442\u043f\u0443\u0441\u0442\u0438\u0442\u0435 \u2014 \u0432 \u043a\u043e\u0440\u0437\u0438\u043d\u0443':'\u2191 \u0444\u0438\u043a\u0441\u0430\u0446\u0438\u044f  \u00b7  \u2190 \u043e\u0442\u043c\u0435\u043d\u0430';
+        if(t2) t2.textContent=cancel?'Отпустите — в корзину':'↑ фиксация  ·  ← отмена';
         var hh2=document.querySelector('.hcirc .hh');
-        if(hh2) hh2.textContent=cancel?'\u041e\u0442\u043f\u0443\u0441\u0442\u0438\u0442\u0435 \u2014 \u0432 \u043a\u043e\u0440\u0437\u0438\u043d\u0443':'\u2191 \u0444\u0438\u043a\u0441\u0430\u0446\u0438\u044f  \u00b7  \u2190 \u043e\u0442\u043c\u0435\u043d\u0430';
+        if(hh2) hh2.textContent=cancel?'Отпустите — в корзину':'↑ фиксация  ·  ← отмена';
       }catch(x){}
     }
   }catch(err){}
@@ -289,13 +311,14 @@ try{
     try{
       if(typeof H!=='undefined'&&H&&H.locked&&!H.cx&&!cancelled){
         try{H.btn&&H.btn.releasePointerCapture(H.id)}catch(x){}
+        var lockedKind=H.kind;
         window.H=null; H=null;
         try{
           var b=document.getElementById('recb');
           if(b&&!b.querySelector('.sbtn')){
             var go=document.createElement('button');
             go.className='sbtn';
-            go.innerHTML=typeof ic==='function'?ic('send'):'\u27A4';
+            go.innerHTML=typeof ic==='function'?ic('send'):'➤';
             go.onclick=function(){try{recStop()}catch(x){}};
             b.appendChild(go);
           }
@@ -303,7 +326,7 @@ try{
           if(cov&&!cov.querySelector('[data-a="stop"]')){
             var ctl=cov.querySelector('.hctl')||cov;
             var stop=document.createElement('button');
-            stop.dataset.a='stop'; stop.textContent='\u2713';
+            stop.dataset.a='stop'; stop.textContent='✓';
             stop.onclick=function(){try{recStop()}catch(x){}};
             ctl.appendChild(stop);
           }
@@ -317,7 +340,7 @@ try{
             ball.classList.add('toss');
             var trash=document.createElement('div');
             trash.className='rec-trash-fly';
-            trash.textContent='\uD83D\uDDD1';
+            trash.textContent='🗑';
             document.body.appendChild(trash);
             setTimeout(function(){try{trash.remove()}catch(x){}},520);
           }
