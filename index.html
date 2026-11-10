@@ -1933,7 +1933,7 @@ if(rr.error)rr=await SB.from('chat_members').select('chat_id,role,archived,muted
 if(rr.error)rr=await SB.from('chat_members').select('chat_id,role,archived,muted,chats(id,kind,title,avatar_url)').eq('user_id',me.id);
 if(rr.error)rr=await SB.from('chat_members').select('chat_id,role,chats(id,kind,title,avatar_url)').eq('user_id',me.id);
 const mem=rr.data||[],ids=mem.map(m=>m.chat_id);if(!ids.length){chats=[];return}
-const PR='profiles(id,name,username,avatar_url,last_seen,bio,banner_url)',PRX='profiles(id,name,username,avatar_url,last_seen,bio,banner_url,phone,priv,verified,scam,prime_until)';
+const PR='profiles(id,name,username,avatar_url,last_seen,bio,banner_url,pn,pfx,pem,pfr)',PRX='profiles(id,name,username,avatar_url,last_seen,bio,banner_url,phone,priv,verified,scam,prime_until,pn,pfx,pem,pfr)';
 let[o1,ms]=await Promise.all([SB.from('chat_members').select('chat_id,last_read,'+PRX).in('chat_id',ids).neq('user_id',me.id),SB.from('messages').select('chat_id,sender_id,body,kind,created_at').in('chat_id',ids).order('created_at',{ascending:false}).limit(300)]);
 for(const sel of ['chat_id,last_read,'+PR,'chat_id,'+PR,'chat_id,profiles(id,name,username,avatar_url)']){if(!o1.error)break;o1=await SB.from('chat_members').select(sel).in('chat_id',ids).neq('user_id',me.id)}
 const oth=o1.data||[],ml=ms.data||[];
@@ -1946,7 +1946,8 @@ const nav=()=>`<div class="nav">${[['chats','chat','Чаты'],['contacts','user
 function render(){drawList();drawMain()}
 
 const CROWN='<img class="prm" src="'+SPR.scrown+'" style="width:16px;height:14px;object-fit:contain;margin-right:3px;vertical-align:-2px">';
-const badges=p=>(p?.prime_until&&new Date(p.prime_until)>Date.now()?(window.crownOf?crownOf(p):CROWN):'')+((p?.verified||p?.vf)?'<svg class="vtick" viewBox="0 0 24 24"><path d=\"M22.25 12c0-1.43-.88-2.67-2.19-3.34.46-1.39.2-2.9-.81-3.91s-2.52-1.27-3.91-.81c-.66-1.31-1.91-2.19-3.34-2.19s-2.67.88-3.33 2.19c-1.4-.46-2.91-.2-3.92.81s-1.26 2.52-.8 3.91c-1.31.67-2.2 1.91-2.2 3.34s.89 2.67 2.2 3.34c-.46 1.39-.21 2.9.8 3.91s2.52 1.26 3.91.81c.67 1.31 1.91 2.19 3.34 2.19s2.68-.88 3.34-2.19c1.39.45 2.9.2 3.91-.81s1.27-2.52.81-3.91c1.31-.67 2.19-1.91 2.19-3.34zm-11.71 4.2L6.8 12.46l1.41-1.42 2.26 2.26 4.8-5.23 1.47 1.36-6.2 6.77z\"/></svg>':'')+((p?.scam||p?.sc)?'<span class="scamtag">SCAM</span>':'');
+const badges0=p=>(p?.prime_until&&new Date(p.prime_until)>Date.now()?(window.crownOf?crownOf(p):CROWN):'')+((p?.verified||p?.vf)?'<svg class="vtick" viewBox="0 0 24 24"><path d=\"M22.25 12c0-1.43-.88-2.67-2.19-3.34.46-1.39.2-2.9-.81-3.91s-2.52-1.27-3.91-.81c-.66-1.31-1.91-2.19-3.34-2.19s-2.67.88-3.33 2.19c-1.4-.46-2.91-.2-3.92.81s-1.26 2.52-.8 3.91c-1.31.67-2.2 1.91-2.2 3.34s.89 2.67 2.2 3.34c-.46 1.39-.21 2.9.8 3.91s2.52 1.26 3.91.81c.67 1.31 1.91 2.19 3.34 2.19s2.68-.88 3.34-2.19c1.39.45 2.9.2 3.91-.81s1.27-2.52.81-3.91c1.31-.67 2.19-1.91 2.19-3.34zm-11.71 4.2L6.8 12.46l1.41-1.42 2.26 2.26 4.8-5.23 1.47 1.36-6.2 6.77z\"/></svg>':'')+((p?.scam||p?.sc)?'<span class="scamtag">SCAM</span>':'');
+const badges=p=>badges0(p)+(window.pxBadge?pxBadge(p):'');
 const row=(p,n,s,r,click)=>`<div class="row" onclick="${click}">${av(p)}<div class="b"><div class="n">${esc(n)}${badges(p)}</div><div class="sub">${esc(s)}</div></div>${r||''}</div>`;
 function drawList(){openRow=null;const st0=$('#lc .sc')?.scrollTop||0;const hd=t=>`<div class="hd"><h1>${t}</h1></div>`;let h='';
 if(tab==='chats')h=chatsHTML();
@@ -1962,7 +1963,7 @@ return (r.length?r.map(p=>row(p,p.name,at(p.username),'',`dm('${p.id}')`)).join(
 function closeSearch(){tab=sFrom||'chats';sq='';found=[];drawList();slide('ti-l')}
 let st;function doSearch(v){sq=String(v||'').trim();if(sMode==='contacts'){$('#res').innerHTML=resHTML();return}clearTimeout(st);st=setTimeout(async()=>{v=v.replace(/[,()%]/g,'').replace(/^@/,'').trim();if(v.length<2){found=[];$('#res').innerHTML=resHTML();return}
 if(DEMO){found=PEOPLE.filter(p=>(p.name+p.username).toLowerCase().includes(v.toLowerCase()));$('#res').innerHTML=resHTML();return}const{data}=await SB.from('profiles').select('id,name,username,avatar_url,prime_until,priv').or(`username.ilike.%${v}%,name.ilike.%${v}%`).neq('id',me.id).limit(20);found=data||[];$('#res').innerHTML=resHTML()},300)}
-async function loadContacts(){if(DEMO){drawList();return}let{data,error}=await SB.from('contacts').select('p:profiles!contact(id,name,username,avatar_url,verified,scam,prime_until,priv)').eq('owner',me.id);if(error)({data}=await SB.from('contacts').select('p:profiles!contact(id,name,username,avatar_url)').eq('owner',me.id));contacts=(data||[]).map(x=>x.p);if(tab==='contacts')drawList()}
+async function loadContacts(){if(DEMO){drawList();return}let{data,error}=await SB.from('contacts').select('p:profiles!contact(id,name,username,avatar_url,verified,scam,prime_until,priv,pn,pfx,pem,pfr)').eq('owner',me.id);if(error)({data}=await SB.from('contacts').select('p:profiles!contact(id,name,username,avatar_url)').eq('owner',me.id));contacts=(data||[]).map(x=>x.p);if(tab==='contacts')drawList()}
 async function addC(id){if(DEMO)return toast('Добавлен в контакты');const{error}=await SB.from('contacts').upsert({contact:id});toast(error?'Не удалось':'Добавлен в контакты')}
 async function dm(id){if(DEMO){const c=chats.find(x=>x.pid===id);return c&&openChat(c.id)}const{data,error}=await SB.rpc('create_dm',{other:id});if(error)return toast('Ошибка чата');PF.dl=(PF.dl||[]).filter(x=>x!==data);savePF();await loadChats();openChat(data)}
 
@@ -4310,7 +4311,7 @@ const AC=[['first','sprout','Первое слово','Отправь перво
 const CO=[['frame','Золотая рамка','Prime','prime'],['image','Фон «Аврора»','Редкий','rx10'],['medal','Значок «Сотка»','Обычный','c100'],['globe','Значок «Полиглот»','Обычный','tr5'],['crown','Корона над сообщением','Prime','prime'],['star','Знак «Любопытный»','Редкий','ai1']];
 const lvl=()=>Math.floor(Math.sqrt(S.xp/20))+1;
 const xpAdd=n=>{S.xp+=n};
-function chk(){AC.forEach(a=>{if(!S.ach[a[0]]&&a[4]()){S.ach[a[0]]=1;xpAdd(50);try{toast('Достижение: '+a[2],{icon:li(a[1],18)})}catch(e){}}});save()}
+function chk(){return;AC.forEach(a=>{if(!S.ach[a[0]]&&a[4]()){S.ach[a[0]]=1;xpAdd(50);try{toast('Достижение: '+a[2],{icon:li(a[1],18)})}catch(e){}}});save()}
 function bump(k){S.c[k]=(S.c[k]||0)+1;if(k==='sent'){const d=new Date().toDateString();if(S.day.d!==d)S.day={d,n:0};if(S.day.n<30){S.day.n++;xpAdd(1)}const h=new Date().getHours();if(h<5)S.c.owl=1}chk()}
 /* ---------- анимированные реакции ---------- */
 if(typeof RXE!=='undefined'&&RXE.indexOf('👑')<0)RXE.push('👑');
@@ -4338,7 +4339,7 @@ window.lxTr=async(el,id)=>{const box=el.parentElement.querySelector('.lxtx');if(
 window.lxSched=()=>{if(!pr()||!cur)return;const v=($('#in')?.value||'').trim();if(!v)return toast('Сначала напишите сообщение');const d=new Date(Date.now()+36e5),p=n=>String(n).padStart(2,'0'),val=`${d.getFullYear()}-${p(d.getMonth()+1)}-${p(d.getDate())}T${p(d.getHours())}:${p(d.getMinutes())}`;
 sheet(li('clock',18)+' Отправить позже',`<div class="lxo">${esc(v)}</div><input class="lxin" id="lxdt" type="datetime-local" value="${val}"><button class="btn" style="width:100%" onclick="lxSchedOk()">Запланировать</button><div class="sub" style="margin-top:10px">Отправится, пока Logos открыт. Запланировано: ${S.sch.length}</div>`)};
 window.lxSchedOk=()=>{const t=new Date($('#lxdt').value).getTime(),v=($('#in')?.value||'').trim();if(!t||t<Date.now()+3e4)return toast('Выберите время в будущем');S.sch.push({cid:cur.id,t,body:v});$('#in').value='';bump('sch');save();closeSheet();toast('Запланировано',{icon:li('clock',18)})};
-setInterval(async()=>{if(!S.sch.length||typeof SB==='undefined')return;const due=S.sch.filter(x=>x.t<=Date.now());if(!due.length)return;S.sch=S.sch.filter(x=>x.t>Date.now());save();for(const x of due){const r=await SB.from('messages').insert({chat_id:x.cid,kind:'text',body:x.body});if(r.error){S.sch.push({...x,t:Date.now()+6e4});save()}else bump('sent')}},10000);
+setInterval(async()=>{if(1||!S.sch.length||typeof SB==='undefined')return;const due=S.sch.filter(x=>x.t<=Date.now());if(!due.length)return;S.sch=S.sch.filter(x=>x.t>Date.now());save();for(const x of due){const r=await SB.from('messages').insert({chat_id:x.cid,kind:'text',body:x.body});if(r.error){S.sch.push({...x,t:Date.now()+6e4});save()}else bump('sent')}},10000);
 /* ---------- Logos AI (локальный помощник по чату) ---------- */
 const SW=new Set('и в во не что он на я с со как а то все она так его но да ты к у же вы за бы по только ее мне было вот от меня еще нет о из ему теперь когда даже ну вдруг ли если уже или ни быть был него до вас нибудь опять уж вам ведь там потом себя ничего ей может они тут где есть надо ней для мы тебя их чем была сам чтоб без будто чего раз тоже себе под будет ж тогда кто этот того потому этого какой совсем ним здесь этом один почти мой тем чтобы нее сейчас были куда зачем всех никогда можно при наконец два об другой хоть после над больше тот через эти нас про всего них какая много разве три эту моя впрочем хорошо свою этой перед иногда лучше чуть том нельзя такой им более всегда конечно всю между the a an is are to of and in it you for on that this with i be have'.split(' '));
 const txt=()=>(typeof msgs!=='undefined'?msgs:[]).filter(m=>m.kind==='text'&&m.body&&!/^\[gift:/.test(m.body));
@@ -4350,7 +4351,7 @@ window.lxFind=v=>{v=v.trim().toLowerCase();const r=v.length<2?[]:txt().filter(m=
 window.lxAIm=()=>pr()&&sheet(li('spark',18)+' Logos AI',`<div class="lxrow" onclick="lxAI('sum')"><span>${li('doc',18)} Кратко пересказать чат</span><span>›</span></div><div class="lxrow" onclick="lxAI('find')"><span>${li('search',18)} Найти в чате</span><span>›</span></div><div class="sub">Logos AI работает на устройстве: ничего не отправляется на сервер.</div>`);
 
 /* ---------- список возможностей в окне Prime ---------- */
-if(typeof sheetPrime==='function'){const _sp=sheetPrime;sheetPrime=window.sheetPrime=function(){const r=_sp.apply(this,arguments);const X=['Достижения, уровни и коллекция редких предметов','Logos AI: пересказ и поиск по чату','Планировщик сообщений: напиши сейчас, отправь позже','Анимированная рамка аватара и Prime-карточка профиля','Цвета сообщений и золотое сияние','Реакция-корона'];const add=()=>{const ul=document.querySelector('.sh .pml');if(!ul||!/Талисман/.test(ul.textContent)||/Logos AI/.test(ul.textContent))return;const ck=ul.querySelector('i')?ul.querySelector('i').innerHTML:'';ul.insertAdjacentHTML('beforeend',X.map(t=>`<li><i>${ck}</i>${t}</li>`).join(''))};[0,60,160,350].forEach(d=>setTimeout(add,d));return r}}
+if(typeof sheetPrime==='function'){const _sp=sheetPrime;sheetPrime=window.sheetPrime=function(){const r=_sp.apply(this,arguments);const X=['Достижения, уровни и коллекция редких предметов','Анимированная рамка аватара и Prime-карточка профиля','Цвета сообщений и золотое сияние','Реакция-корона'];const add=()=>{const ul=document.querySelector('.sh .pml');if(!ul||!/Талисман/.test(ul.textContent)||/Logos AI/.test(ul.textContent))return;const ck=ul.querySelector('i')?ul.querySelector('i').innerHTML:'';ul.insertAdjacentHTML('beforeend',X.map(t=>`<li><i>${ck}</i>${t}</li>`).join(''))};[0,60,160,350].forEach(d=>setTimeout(add,d));return r}}
 /* ---------- хаб: Prime, достижения, коллекция ---------- */
 let HT='me';
 window.lxHub=t=>{if(!pr())return;if(t)HT=t;const L=lvl(),b=(L-1)**2*20,n=L**2*20,pc=Math.min(100,Math.round((S.xp-b)/(n-b)*100)),P=pr(),nm=esc(prof?.name||'Вы');
@@ -4372,8 +4373,8 @@ if(!pr())document.querySelectorAll('.lxs,.lxai,#lxit').forEach(e=>e.remove());
 if(typeof tab!=='undefined'&&tab==='chats'&&!$('#lxf')&&$('#lc .sc')){const un=chats.filter(c=>c.un>0&&!c.arch).length;$('#lc .sc').insertAdjacentHTML('afterbegin','<div id="lxf">'+FD.map(f=>`<button class="${S.fold===f[0]?'on':''}" onclick="lxFold('${f[0]}')">${f[1]}${f[0]==='un'&&un?'<b>'+un+'</b>':''}</button>`).join('')+'</div>')}
 if(!pr()){const x=$('#lxit');if(x)x.remove()}
 if(pr()&&typeof tab!=='undefined'&&tab==='settings'&&!$('#lxit')){const it=$('#lc .it');if(it)it.insertAdjacentHTML('beforebegin','<div class="it" id="lxit" onclick="lxHub(\'me\')"><span class="ib2" style="display:grid;place-items:center">'+im('prime',28)+'</span><span>Logos Prime</span></div>')}
-const cp=$('#main .comp');if(pr()&&cp&&!cp.querySelector('.lxs')){const a=cp.querySelector('.cact');if(a)a.insertAdjacentHTML('beforebegin','<button class="ib lxs" aria-label="Отправить позже" onpointerdown="event.preventDefault()" onclick="lxSched()">'+li('clock',20)+'</button>')}
-const tp=$('#main .top');if(pr()&&tp&&!tp.querySelector('.lxai')){tp.insertAdjacentHTML('beforeend','<button class="ib lxai" aria-label="Logos AI" onclick="lxAIm()" >'+li('spark',20)+'</button>')}
+const cp=$('#main .comp');if(0){const a=cp.querySelector('.cact');if(a)a.insertAdjacentHTML('beforebegin','<button class="ib lxs" aria-label="Отправить позже" onpointerdown="event.preventDefault()" onclick="lxSched()">'+li('clock',20)+'</button>')}
+const tp=$('#main .top');if(0){tp.insertAdjacentHTML('beforeend','<button class="ib lxai" aria-label="Logos AI" onclick="lxAIm()" >'+li('spark',20)+'</button>')}
 document.querySelectorAll('#ms .mr:not([data-lx])').forEach(r=>{r.dataset.lx=1;const m=msgs[+r.dataset.i],b=r.querySelector('.m');if(!m||!b||m.kind!=='text'||!m.body||/^\[gift:/.test(m.body)||!need(m.body)||m.sender_id===me.id)return;const t=b.querySelector('time'),h=`<span class="lxtr" onclick="event.stopPropagation();lxTr(this,'${m.id}')">Перевести</span>`;t?t.insertAdjacentHTML('beforebegin',h):b.insertAdjacentHTML('beforeend',h);if(S.auto)b.querySelector('.lxtr')?.click()});
 rxIc();document.querySelectorAll('.rxe:not(.lxd)').forEach(b=>{b.classList.add('lxd');const q=RI[b.dataset.e];if(q)b.innerHTML=li(q[0],26,q[1])});
 if(pr())document.querySelectorAll('.prm').forEach(c=>{const a=c.closest('.row,.top,.hd,.bn,.ov')?.querySelector('.av');if(a&&!a.classList.contains('lxfr'))a.classList.add('lxfr')});
@@ -5408,4 +5409,166 @@ function mark(n){if(n.nodeType!==1||ok())return;var t=n.matches&&n.matches('.tl[
 new MutationObserver(function(ml){ml.forEach(function(m){m.addedNodes.forEach(mark)})}).observe(document.body,{childList:true,subtree:true});
 })();
 </script>
+<style id="px-css">
+.pxw{padding:2px 0 8px}.pxt{display:flex;gap:6px;overflow-x:auto;margin:0 0 12px;scrollbar-width:none}.pxt::-webkit-scrollbar{display:none}
+.pxt button{flex:none;padding:8px 13px;border-radius:14px;border:0;background:rgba(255,255,255,.06);color:#cfc6e6;font:600 13px system-ui}.pxt button.on{background:#7c4dff;color:#fff}
+.pxc{padding:14px;border-radius:20px;background:linear-gradient(145deg,#211437,#0b0814);border:1px solid rgba(170,120,255,.25);margin-bottom:12px}
+.pxc h3{margin:0;font-size:20px}.pxc small{color:#bda3f0}.pxb{height:8px;border-radius:8px;background:rgba(255,255,255,.08);margin:10px 0 6px;overflow:hidden}.pxb i{display:block;height:100%;border-radius:8px;background:linear-gradient(90deg,#7c4dff,#c39bff);transition:width .6s}
+.pxr{display:flex;align-items:center;gap:10px;padding:11px 12px;border-radius:16px;background:rgba(255,255,255,.05);margin-bottom:8px}.pxr>div{flex:1;min-width:0}.pxr b{display:block;font-size:14px}.pxr small{color:#a89cc4;font-size:12px}
+.pxr.sup{background:linear-gradient(135deg,rgba(124,77,255,.28),rgba(40,20,80,.5));border:1px solid rgba(190,145,255,.4)}.pxr.lk{opacity:.5}
+.pxg{border:0;border-radius:12px;padding:8px 12px;background:#7c4dff;color:#fff;font:700 12px system-ui;white-space:nowrap}.pxg:disabled{background:rgba(255,255,255,.08);color:#9a90b5}
+.pxs{margin:12px 0 6px;font:700 12px system-ui;letter-spacing:1px;color:#bda3f0;text-transform:uppercase}
+.pxlb .pxr.t1{background:linear-gradient(135deg,rgba(245,196,81,.25),rgba(80,50,10,.4))}.pxlb .pxr.t2{background:linear-gradient(135deg,rgba(200,205,225,.2),rgba(50,50,70,.4))}.pxlb .pxr.t3{background:linear-gradient(135deg,rgba(205,127,50,.22),rgba(60,35,15,.4))}
+.pxa{width:34px;height:34px;border-radius:50%;background:#3a2a66;display:grid;place-items:center;overflow:hidden;flex:none;font-weight:700}.pxa img{width:100%;height:100%;object-fit:cover}.pxp{width:26px;text-align:center;font-weight:800;color:#c9b2ff}
+.pxin{width:100%;box-sizing:border-box;padding:11px 13px;border-radius:14px;border:0;background:rgba(255,255,255,.07);color:#fff;margin-bottom:10px}
+.pxn{display:inline-block;margin-left:5px;padding:1px 7px;border-radius:8px;font:700 10px/16px system-ui;color:#e8dcff;background:linear-gradient(135deg,#3b2470,#140c28);border:1px solid #8c62ff88;vertical-align:middle}
+.pxn.fx_shadow{box-shadow:0 0 10px #000,0 0 6px #6b3fd4;text-shadow:0 0 6px #000}.pxn.fx_eclipse{box-shadow:0 0 12px #c9a0ff;border-color:#f0e0ff;animation:pxe 3s ease-in-out infinite}@keyframes pxe{50%{box-shadow:0 0 4px #7c4dff}}
+.pxcf{padding:14px;border-radius:18px;background:rgba(124,77,255,.15);border:1px solid #8c62ff77;margin:10px 0}
+/* level up */
+.pxo{position:fixed;inset:0;z-index:99999;display:grid;place-items:center;background:rgba(4,2,12,.8);backdrop-filter:blur(10px);opacity:0;transition:opacity .5s;font-family:system-ui,sans-serif;color:#fff;overflow:hidden}.pxo.in{opacity:1}
+.pxfl{position:absolute;left:50%;top:42%;width:60vmin;height:60vmin;margin:-30vmin;border-radius:50%;background:radial-gradient(circle,rgba(170,110,255,.55),transparent 65%);opacity:0;animation:pxfl 1.4s ease-out .1s both}
+@keyframes pxfl{0%{opacity:0;transform:scale(.2)}35%{opacity:.9}100%{opacity:.18;transform:scale(1.4)}}
+.pxcard{position:relative;width:min(340px,90vw);text-align:center;padding:10px 12px 22px}
+.pxem{width:min(300px,82vw);margin:0 auto;display:block;filter:drop-shadow(0 0 22px rgba(130,70,255,.55));animation:pxem 1.3s cubic-bezier(.2,.9,.2,1) .25s both,pxfloat 3.4s ease-in-out 1.6s infinite}
+@keyframes pxem{from{opacity:0;transform:scale(.3) rotate(-8deg)}to{opacity:1;transform:none}}@keyframes pxfloat{50%{transform:translateY(-6px) scale(1.03)}}
+.pxrg{position:absolute;left:50%;top:92px;border:1px solid rgba(180,120,255,.35);border-radius:50%;transform:translate(-50%,-50%);animation:pxrot 9s linear infinite;pointer-events:none}@keyframes pxrot{to{rotate:360deg}}
+.pxrg::after{content:'';position:absolute;top:-3px;left:50%;width:6px;height:6px;border-radius:50%;background:#d9b8ff;box-shadow:0 0 10px #a66bff}
+.pxpt{position:absolute;left:50%;top:92px;width:var(--z);height:var(--z);border-radius:50%;background:#d9b8ff;box-shadow:0 0 8px #a66bff;opacity:0;animation:pxpt var(--u) ease-out var(--t) both}
+@keyframes pxpt{0%{opacity:0;transform:translate(0,0) scale(0)}15%{opacity:1}100%{opacity:0;transform:translate(var(--x),var(--y)) scale(1)}}
+.pxh{margin-top:6px;font:800 13px system-ui;letter-spacing:4px;color:#c9a8ff;opacity:0;animation:pxup .7s ease 1s both}.pxlv{font:800 24px system-ui;margin-top:6px;opacity:0;animation:pxup .7s ease 1.2s both}.pxnm{font-size:17px;color:#d6bcff;margin-top:2px;opacity:0;animation:pxup .7s ease 1.3s both}
+.pxrw{margin:16px 0;padding:12px;border-radius:14px;background:rgba(167,112,255,.14);color:#eadfff;opacity:0;animation:pxup .7s ease 1.55s both}
+.pxok{width:100%;padding:14px;border:0;border-radius:14px;background:#8a55ff;color:#fff;font:700 15px system-ui;opacity:0;animation:pxup .6s ease 1.8s both}@keyframes pxup{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
+.pxo.lite .pxfl,.pxo.lite .pxpt,.pxo.lite .pxrg{display:none}.pxo.lite{backdrop-filter:none}
+@media(prefers-reduced-motion:reduce){.pxo *,.pxo{animation:none!important;transition:none!important}.pxo .pxh,.pxo .pxlv,.pxo .pxnm,.pxo .pxrw,.pxo .pxok,.pxo .pxem{opacity:1!important}.pxpt,.pxfl,.pxrg{display:none}}
+</style>
+<script id="px-js">
+(function(){
+if(typeof SB==='undefined')return;
+const R=(n,a)=>SB.rpc(n,a||{}),E=s=>String(s==null?'':s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c])),N=n=>(n||0).toLocaleString('ru'),T=m=>{try{toast(m)}catch(e){}};
+const EM={emb_crown:'♛',emb_star:'✦',emb_gem:'◆',emb_wings:'❖',emb_rose:'❀',emb_butterfly:'✧',emb_planet:'◍'},PL={plate_prime:'Prime',plate_dominion:'Dominion',plate_omega:'Ω Omega',plate_legend:'Legend',plate_archon:'Archon'},FXN={fx_shadow:1,fx_eclipse:1};
+window.pxBadge=p=>{if(!p||!(p.pn||p.pem||p.pfx))return '';return (p.pem&&EM[p.pem]?'<i class="pxn" style="padding:1px 5px">'+EM[p.pem]+'</i>':'')+(p.pn&&PL[p.pn]?'<i class="pxn '+(FXN[p.pfx]?p.pfx:'')+'">'+PL[p.pn]+'</i>':'')};
+const lite=()=>{try{return localStorage.px_fx==='off'}catch(e){return false}},rm=()=>matchMedia('(prefers-reduced-motion: reduce)').matches;
+let ST=null,TAB='lv',SUB='d',LB='a',LQ='',LD=null,CF=null,Q=[],showing=false,lt=0,tm=0;
+/* ---------- анимация повышения ---------- */
+const FAM=l=>l<=4?{k:'a',n:14,r:1,w:1}:l<=8?{k:'e',n:24,r:2,w:2}:l<=12?{k:'s',n:34,r:2,w:3}:{k:'o',n:46,r:3,w:4};
+function emblem(l,f){let w='';for(let k=0;k<f.w;k++){const a=18+k*9,b=60-k*13;w+=`<path d="M64 ${96-k*5} C${48-k*10} ${88-k*6} ${a} ${70-k*6} ${a+4} ${b} C${a+22} ${b+16} 52 ${70-k*3} 70 ${80}Z" fill="url(#pxm)" stroke="#b79cff" stroke-width=".6" opacity="${1-k*.12}"/>`}
+const s=String(l).length>1?44:56;return `<svg class="pxem" viewBox="0 0 200 170"><defs><linearGradient id="pxm" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#e8e4f5"/><stop offset=".45" stop-color="#4b4070"/><stop offset="1" stop-color="#0d0919"/></linearGradient><linearGradient id="pxv" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fff"/><stop offset="1" stop-color="#b98bff"/></linearGradient><radialGradient id="pxg"><stop offset="0" stop-color="#e9d6ff"/><stop offset="1" stop-color="#6a2fe0"/></radialGradient><filter id="pxf"><feGaussianBlur stdDeviation="2.2" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter></defs>
+<g>${w}</g><g transform="translate(200 0) scale(-1 1)">${w}</g>
+<path d="M76 44 L84 14 L94 34 L100 6 L106 34 L116 14 L124 44Z" fill="url(#pxm)" stroke="#b79cff" stroke-width=".8"/><path d="M100 14 L106 26 L100 38 L94 26Z" fill="url(#pxg)"/>
+<circle cx="100" cy="92" r="42" fill="#0b0716" stroke="url(#pxm)" stroke-width="8"/><circle cx="100" cy="92" r="36" fill="none" stroke="#7c4dff" stroke-opacity=".6" stroke-width="1"/>
+<text x="100" y="${92+s*.36}" text-anchor="middle" font-family="Georgia,serif" font-weight="700" font-size="${s}" fill="url(#pxv)" filter="url(#pxf)">${l}</text>
+<path d="M44 130 L62 118 H138 L156 130 L138 150 H62Z" fill="url(#pxm)" stroke="#b79cff" stroke-width=".8"/><path d="M100 148 L106 158 L100 168 L94 158Z" fill="url(#pxg)"/>
+<text x="100" y="140" text-anchor="middle" font-family="Georgia,serif" font-weight="700" font-size="14" letter-spacing="2" fill="#efe4ff">LEVEL UP</text></svg>`}
+function showQ(){if(showing||!Q.length)return;const u=Q.shift();showing=true;const f=FAM(u.level),L=lite(),o=document.createElement('div');o.className='pxo'+(L?' lite':'');
+const n=L||rm()?0:f.n;let pt='';for(let i=0;i<n;i++){const a=Math.PI*2*i/n+Math.random()*.4,d=90+Math.random()*120;pt+=`<i class="pxpt" style="--x:${Math.cos(a)*d}px;--y:${Math.sin(a)*d}px;--z:${2+Math.random()*4}px;--u:${1.4+Math.random()*1.2}s;--t:${.5+Math.random()*.9}s"></i>`}
+let rg='';for(let i=0;i<f.r;i++){const z=190+i*40;rg+=`<i class="pxrg" style="width:${z}px;height:${z}px;animation-duration:${8+i*3}s;${i%2?'animation-direction:reverse':''}"></i>`}
+o.innerHTML=`<div class="pxfl"></div><div class="pxcard">${rg}${emblem(u.level,f)}${pt}<div class="pxh">УРОВЕНЬ ПОВЫШЕН!</div><div class="pxlv">Уровень ${u.level}</div><div class="pxnm">${E(u.name)}</div><div class="pxrw">Награда: ${E(u.reward)}</div><button class="pxok">Продолжить</button></div>`;
+document.body.appendChild(o);requestAnimationFrame(()=>o.classList.add('in'));try{navigator.vibrate&&navigator.vibrate([12,40,18])}catch(e){}
+o.querySelector('.pxok').onclick=()=>{o.classList.remove('in');R('prime_seen',{lv:u.level});setTimeout(()=>{o.remove();showing=false;showQ()},350)}}
+function setSt(d){ST=d;(d.unseen||[]).forEach(u=>{if(!Q.some(x=>x.level===u.level))Q.push(u)});showQ();if(document.getElementById('pxw'))draw()}
+async function load(){const r=await R('prime_state');if(r.error){if(document.getElementById('pxw'))document.getElementById('pxw').innerHTML='<div class="pxc">Запустите logos-prime-v2.sql в Supabase</div>';return}setSt(r.data)}
+/* ---------- события ---------- */
+const seen=()=>{try{return JSON.parse(localStorage.px_seen||'{}')}catch(e){return{}}};
+const day=()=>new Date().toISOString().slice(0,10);
+function pe(ev,key){if(!window.me||!window.prof)return;if(key){let s=seen();if(s.d!==day()){s={d:day(),k:{}}}s.k=s.k||{};if(s.k[ev+key])return;s.k[ev+key]=1;try{localStorage.px_seen=JSON.stringify(s)}catch(e){}}R('prime_ev',{e:ev}).then(()=>{clearTimeout(tm);tm=setTimeout(load,2500)})}
+const seenFix=()=>{try{const s=JSON.parse(localStorage.px_seen||'{}');if(s.d!==day())localStorage.px_seen=JSON.stringify({d:day(),k:{}})}catch(e){}};
+function hook(n,f){try{const o=window[n];if(typeof o!=='function'||o.__px)return;const w=function(){try{f.apply(this,arguments)}catch(e){}return o.apply(this,arguments)};w.__px=1;window[n]=w}catch(e){}}
+function boot(){seenFix();
+hook('openStory',()=>pe('story_view'));hook('openChat',()=>{pe('chat_open');pe('feature','chat')});hook('doSearch',()=>{pe('search');pe('feature','search')});
+hook('startCall',()=>{pe('call');pe('feature','call')});hook('pinSave',()=>pe('pin'));hook('sheetPriv',()=>{pe('privacy');pe('feature','priv')});hook('sheetGifts',()=>pe('feature','gifts'));
+hook('rxSet',(id,e)=>pe('react_kind',e));hook('newGroup',()=>pe('feature','group'));hook('sheetPrime',()=>pe('feature','prime'));
+['openUser','userInfo','sheetUser','openInfo','sheetProfile','showUser','openProfile','sheetContact'].forEach(n=>hook(n,()=>pe('profile_open')));
+const f=SB.from.bind(SB);SB.from=t=>{const q=f(t);if(t==='profiles'&&q.update&&!q.__px){const u=q.update.bind(q);q.update=function(v){const r=u.apply(q,arguments);if(v&&(v.bio!==undefined||v.name!==undefined||v.avatar_url!==undefined||v.banner_url!==undefined)){Promise.resolve(r).then(()=>{pe('profile_edit');if(v.bio!==undefined)pe('bio')}).catch(()=>{})}return r};q.__px=1}return q};
+const rp=SB.rpc.bind(SB);SB.rpc=function(n,a){const r=rp(n,a);if(n==='create_group'||n==='rename_group'||n==='set_chat_avatar'){Promise.resolve(r).then(x=>{if(x&&!x.error){if(n==='create_group')pe(a&&a.k==='channel'?'channel':'group');else{pe('group_cfg');try{if(window.cur&&cur.kind==='channel')pe('channel_cfg')}catch(e){}}}}).catch(()=>{})}return r};
+pe('login');pe('visit');let ltab=null;setInterval(()=>{try{if(typeof tab!=='undefined'&&tab!==ltab){ltab=tab;pe('section',tab)}}catch(e){}},1500);
+document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible'&&Date.now()-lt>36e5){lt=Date.now();pe('visit');load()}});lt=Date.now();
+setTimeout(load,2500);setInterval(()=>{if(document.visibilityState==='visible')load()},45000)}
+/* ---------- интерфейс ---------- */
+const bar=(a,b)=>Math.max(0,Math.min(100,b?Math.round(a/b*100):100));
+function vLv(){const s=ST,nx=s.next,have=s.total-s.cur,need=nx?nx.xp-s.cur:0,cl=nx?nx.xp-s.total:0,lvn=s.levels.find(l=>l.level===s.level);
+return `<div class="pxc"><small>Уровень ${s.level}</small><h3>${E(lvn.name)}</h3><div class="pxb"><i style="width:${nx?bar(have,need):100}%"></i></div><small>${nx?`${N(s.total)} XP · до уровня ${nx.level} осталось <b>${N(cl)}</b> XP`:`${N(s.total)} XP · максимальный уровень`}</small><br><small>Заработано ${N(s.earned)} · куплено ${N(s.bought)}</small></div>
+<div class="pxs">Все уровни</div>`+s.levels.map(l=>`<div class="pxr ${l.level>s.level?'lk':''}"><span class="pxp">${l.level}</span><div><b>${E(l.name)}</b><small>${N(l.xp)} XP · ${E(l.reward)}</small></div>${l.level<=s.level?'✓':''}</div>`).join('')}
+function vTk(){const s=ST,L=s.tasks.filter(t=>t.scope===SUB),tb=[['d','Ежедневные'],['w','Еженедельные'],['a','Достижения']].map(x=>`<button class="${SUB===x[0]?'on':''}" onclick="pxSub('${x[0]}')">${x[1]}</button>`).join('');
+const row=t=>`<div class="pxr ${t.sup?'sup':''}"><div><b>${t.sup?'★ ':''}${E(t.title)}</b><small>${E(t.descr)} · ${t.prog}/${t.target}</small><div class="pxb" style="margin:6px 0 2px"><i style="width:${bar(t.prog,t.target)}%"></i></div></div><button class="pxg" ${t.done||t.prog<t.target?'disabled':''} onclick="pxClaim('${t.id}',this)">${t.done?'Получено':t.prog<t.target?'+'+t.xp+' XP':'Забрать +'+t.xp}</button></div>`;
+let h=`<div class="pxt">${tb}</div>`;if(SUB==='w'){h+='<div class="pxs">Лёгкие</div>'+L.filter(t=>!t.sup).map(row).join('')+'<div class="pxs">Суперзадания</div>'+L.filter(t=>t.sup).map(row).join('')}else h+=L.map(row).join('');
+return h+'<div class="sub" style="text-align:center;opacity:.6;margin-top:8px">'+(SUB==='d'?'Набор обновляется каждый день':SUB==='w'?'Обновляются раз в неделю (понедельник)':'Одноразовые')+'</div>'}
+function vIt(){const s=ST,K={frame:'Рамки',theme:'Оформления',plate:'Таблички и титулы',fx:'Эффекты имени',emblem:'Эмблемы профиля'};if(!s.inv.length)return '<div class="pxc">Предметов пока нет. Их дают уровни и достижения.</div>';
+return Object.keys(K).map(k=>{const L=s.inv.filter(i=>i.kind===k);return L.length?`<div class="pxs">${K[k]}</div>`+L.map(i=>`<div class="pxr"><div><b>${E(i.name)}</b><small>${i.eq?'Используется':'В коллекции'}</small></div><button class="pxg" onclick="pxEq('${i.item}',${!i.eq},this)">${i.eq?'Снять':'Применить'}</button></div>`).join(''):''}).join('')}
+function vLb(){const tb=[['w','За неделю'],['a','За всё время']].map(x=>`<button class="${LB===x[0]?'on':''}" onclick="pxLb('${x[0]}')">${x[1]}</button>`).join('');let h=`<div class="pxt">${tb}</div><input class="pxin" placeholder="Поиск пользователя" value="${E(LQ)}" oninput="pxLq(this.value)"><div id="pxl">`;
+if(!LD)return h+'Загрузка…</div>';const me=LD.me;h+=`<div class="pxc">Ваша позиция: <b>${me?'#'+me.pos+' · '+N(me.xp)+' XP':'—'}</b><br><small>Считается только заработанный XP (без купленного)</small></div>`;
+return h+LD.rows.map(r=>`<div class="pxr ${r.pos<=3?'t'+r.pos:''}"><span class="pxp">${r.pos<=3?['🥇','🥈','🥉'][r.pos-1]:r.pos}</span><span class="pxa">${r.avatar?`<img src="${E(r.avatar)}" alt="">`:E((r.name||'?')[0])}</span><div><b>${E(r.name||'Без имени')}</b><small>${E((ST&&ST.levels.find(l=>l.level===r.lv)||{}).name||'')} · ур. ${r.lv}</small></div><b>${N(r.xp)} XP</b></div>`).join('')+'</div>'}
+const PK=[[100,50],[250,110],[500,200],[1000,350]];
+function vSh(){const s=ST;let h=`<div class="pxc">Баланс: <b>${N(s.coins)}</b> звёзд<br><small>Куплено сегодня: ${N(s.bought_today)} / 2 000 XP · покупной XP не идёт в рейтинг</small></div>`;
+if(CF)return h+`<div class="pxcf"><b>Купить ${N(CF.x)} XP за ${CF.p} звёзд?</b><br><small>Баланс до: ${N(s.coins)} → после: ${N(s.coins-CF.p)}</small><div style="display:flex;gap:8px;margin-top:10px"><button class="pxg" style="flex:1;padding:12px" onclick="pxBuy(this)">Подтвердить</button><button class="pxg" style="flex:1;padding:12px;background:#3a3350" onclick="pxCf(0)">Отмена</button></div></div>`;
+return h+PK.map(p=>`<div class="pxr"><div><b>+${N(p[0])} XP</b><small>${p[1]} звёзд</small></div><button class="pxg" ${s.coins<p[1]?'disabled':''} onclick="pxCf(${p[0]})">Купить</button></div>`).join('')}
+function draw(){const w=document.getElementById('pxw');if(!w)return;if(!ST){w.innerHTML='<div class="pxc">Загрузка…</div>';return}
+const tb=[['lv','Уровень'],['tk','Задания'],['it','Предметы'],['lb','Лидеры'],['sh','Обмен']].map(x=>`<button class="${TAB===x[0]?'on':''}" onclick="pxTab('${x[0]}')">${x[1]}</button>`).join('');
+const fx=`<div class="lxrow" onclick="pxFx()" style="margin-top:10px"><span>Интенсивные эффекты анимации</span><span class="sw ${lite()?'':'on'}"></span></div>`;
+w.innerHTML=`<div class="pxt">${tb}</div>`+({lv:vLv,tk:vTk,it:vIt,lb:vLb,sh:vSh}[TAB])()+(TAB==='lv'?fx:'')}
+async function lb(){LD=null;draw();const r=await R('prime_leaders',{p:LB,q:LQ});if(!r.error){LD=r.data;if(TAB==='lb'){const l=document.getElementById('pxl');if(l&&document.activeElement&&document.activeElement.className==='pxin'){const t=document.createElement('div');t.innerHTML=vLb();const n=t.querySelector('#pxl');l.innerHTML=n?n.innerHTML:''}else draw()}}else T('Запустите logos-prime-v2.sql')}
+window.pxTab=t=>{TAB=t;CF=null;if(t==='lb')lb();else draw()};window.pxSub=s=>{SUB=s;draw()};window.pxLb=p=>{LB=p;lb()};let lqt=0;window.pxLq=v=>{LQ=v;clearTimeout(lqt);lqt=setTimeout(()=>lb(),350)};
+window.pxFx=()=>{try{localStorage.px_fx=lite()?'on':'off'}catch(e){}draw()};
+window.pxClaim=async(id,b)=>{b.disabled=true;const r=await R('prime_claim',{tid:id});if(r.error){T('Не получилось забрать');return load()}const t=ST.tasks.find(x=>x.id===id);setSt(r.data);T('+'+(t?t.xp:'')+' XP');try{vb(8)}catch(e){}};
+window.pxEq=async(it,on,b)=>{b.disabled=true;const r=await R('prime_equip',{it,on_:on});if(r.error){T('Не удалось');return load()}setSt(r.data);try{const p=window.prof;if(p){const k=it.split('_')[0];const v=on?it:null;if(k==='plate')p.pn=v;else if(k==='fx')p.pfx=v;else if(k==='emb')p.pem=v;else if(k==='frame')p.pfr=v}}catch(e){}T(on?'Применено':'Снято')};
+window.pxCf=x=>{CF=x?{x,p:PK.find(p=>p[0]===x)[1],k:(crypto.randomUUID?crypto.randomUUID():Date.now()+''+Math.random())}:null;draw()};
+window.pxBuy=async b=>{if(!CF)return;b.disabled=true;const r=await R('prime_buy_xp',{pack:CF.x,idem:CF.k});if(r.error){const e=r.error.message||'';b.disabled=false;return T(/no_coins/.test(e)?'Недостаточно звёзд':/daily/.test(e)?'Дневной лимит покупки':'Покупка не прошла')}CF=null;setSt(r.data);T('XP начислен')};
+window.lxHub=t=>{if(!(window.prof&&prof.prime_until&&new Date(prof.prime_until)>Date.now()))return window.sheetPrime&&sheetPrime();TAB='lv';CF=null;sheet('Logos Prime','<div class="pxw" id="pxw"></div>');draw();load()};
+window.pxTest=l=>{const v=ST&&ST.levels.find(x=>x.level===l);if(v){Q.push({level:v.level,name:v.name,reward:v.reward});showQ()}};
+if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',boot);else boot();
+})();
+</script>
+
+<style id="ux-final">
+/* чат: поле ввода на всю ширину, без кнопок стикеров/смайлов, значок стикера на фоне поля */
+.comp>button,.comp>.stb,.comp .stb{display:none!important}
+.comp #in{flex:1!important;min-width:0;padding-right:46px!important;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23ffffff' stroke-opacity='.38' stroke-width='1.7' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M20 12.5V7a3 3 0 0 0-3-3H7a3 3 0 0 0-3 3v10a3 3 0 0 0 3 3h5.5z'/%3E%3Cpath d='M20 12.5h-3.5a3 3 0 0 0-3 3V20'/%3E%3Cpath d='M9 9.5h.01M15 9.5h.01M8.5 14c1 1.2 2.2 1.7 3.5 1.7'/%3E%3C/svg%3E")!important;background-repeat:no-repeat!important;background-position:right 14px center!important;background-size:22px!important}
+.cact .ib{top:-1px!important}.cact .snd{top:-2px!important}
+/* шапка чата без прямоугольной плашки */
+.main>.top,.top{background:transparent!important;box-shadow:none!important;border:0!important;-webkit-backdrop-filter:none!important;backdrop-filter:none!important}
+.main>.top::before,.main>.top::after{display:none!important}
+/* свайп-кнопки чуть меньше, чтобы не заходили на соседние строки */
+.list .sr .acts button{width:62px!important;min-width:62px!important;max-width:62px!important;font-size:10px!important;gap:3px!important}
+.list .sr .acts .i{width:38px!important;height:38px!important;padding:10px!important}
+#lc[data-t=contacts] .sr .acts button{width:62px!important;min-width:62px!important;max-width:62px!important;font-size:10px!important}
+#lc[data-t=contacts] .sr .acts .i{width:38px!important;height:38px!important;padding:10px!important}
+.list .sr .acts{padding:0 4px 0 0!important}
+/* звонки: меньше аватарка и кнопка звонка */
+.list .crow>.av{width:46px!important;height:46px!important;font-size:21px!important}
+.list .cbk{width:40px!important;height:40px!important}.list .cbk .i{width:19px!important;height:19px!important}
+.list .crow{gap:12px!important}.list .crow::after{left:74px!important}
+/* контакты: как строки чатов */
+#lc[data-t=contacts] .sc>.sr{margin:0!important;border-radius:0!important}
+#lc[data-t=contacts] .sr .row{background:linear-gradient(var(--ln),var(--ln)) 84px 100%/calc(100% - 100px) .5px no-repeat!important;border:0!important;border-radius:0!important;box-shadow:none!important;padding:8px 16px!important;gap:14px!important;animation:none!important}
+#lc[data-t=contacts] .row .av{width:56px!important;height:56px!important;font-size:24px!important;box-shadow:none!important}
+#lc[data-t=contacts] .row .n{font-size:17px!important;font-weight:600!important}#lc[data-t=contacts] .row .sub{font-size:15px!important}
+/* нижняя панель: анимации иконок */
+#tb .tbp button svg.ux{width:24px;height:24px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;overflow:visible}
+#tb .tbp button svg.ux *{transform-box:fill-box;transform-origin:center}
+#tb .tbp button.on svg.ux .bub{animation:uxBub .5s cubic-bezier(.3,1.6,.5,1)}
+#tb .tbp button.on svg.ux .dt{fill:currentColor;stroke:none;animation:uxDot .7s ease both}.ux .dt:nth-of-type(2){animation-delay:.1s!important}.ux .dt:nth-of-type(3){animation-delay:.2s!important}
+#tb .tbp button.on svg.ux .ph{animation:uxRing .8s ease-in-out}
+#tb .tbp button.on svg.ux .w1,#tb .tbp button.on svg.ux .w2{animation:uxWave .8s ease-out both}#tb .tbp button svg.ux .w2{animation-delay:.12s!important}
+#tb .tbp button svg.ux .w1,#tb .tbp button svg.ux .w2{opacity:0}
+#tb .tbp button.on svg.ux .p1{animation:uxL .55s cubic-bezier(.3,1.6,.5,1)}#tb .tbp button.on svg.ux .p2{animation:uxR .55s cubic-bezier(.3,1.6,.5,1) .08s both}
+#tb .tbp button.on svg.ux .gr{animation:uxGear .85s cubic-bezier(.3,1.3,.5,1)}
+@keyframes uxBub{0%{transform:scale(.8)}100%{transform:scale(1)}}@keyframes uxDot{0%,100%{transform:translateY(0)}40%{transform:translateY(-3px)}}
+@keyframes uxRing{0%,100%{transform:rotate(0)}15%{transform:rotate(-20deg)}35%{transform:rotate(18deg)}55%{transform:rotate(-12deg)}75%{transform:rotate(8deg)}}
+@keyframes uxWave{0%{opacity:0;transform:scale(.6)}40%{opacity:1}100%{opacity:0;transform:scale(1.25)}}
+@keyframes uxL{0%{transform:translateX(-4px) scale(.7);opacity:.3}100%{transform:none;opacity:1}}@keyframes uxR{0%{transform:translateX(4px) scale(.7);opacity:0}100%{transform:none;opacity:1}}
+@keyframes uxGear{0%{transform:rotate(0)}100%{transform:rotate(180deg)}}
+@media(prefers-reduced-motion:reduce){#tb .tbp button svg.ux *{animation:none!important}}
+</style>
+<script id="ux-js">
+(function(){
+var g=(function(){var p='',n=8,R1=9.3,R2=7.2,i,a,b;for(i=0;i<n;i++){a=Math.PI*2*i/n;b=Math.PI*2/n;[[a-b*.2,R2],[a-b*.12,R1],[a+b*.12,R1],[a+b*.2,R2]].forEach(function(q,k){p+=(p?'L':'M')+(12+Math.cos(q[0])*q[1]).toFixed(2)+' '+(12+Math.sin(q[0])*q[1]).toFixed(2)})}return p+'Z'})();
+var I={
+chats:'<path class="bub" d="M4 11.5C4 7.4 7.6 4.5 12 4.5s8 2.9 8 7-3.6 7-8 7c-1.1 0-2.1-.2-3.1-.5L5 20l1-3.4C4.7 15.4 4 13.6 4 11.5z"/><circle class="dt" cx="8.5" cy="11.5" r="1.1"/><circle class="dt" cx="12" cy="11.5" r="1.1"/><circle class="dt" cx="15.5" cy="11.5" r="1.1"/>',
+calls:'<path class="w1" d="M15 4.5a5.5 5.5 0 0 1 4.5 4.5"/><path class="w2" d="M15 1.5a8.5 8.5 0 0 1 7.5 7.5"/><path class="ph" d="M5.3 3.8h3.2l1.6 4-2.1 1.4a11.5 11.5 0 0 0 5.6 5.6l1.4-2.1 4 1.6v3.2a2 2 0 0 1-2.1 2A15.4 15.4 0 0 1 3.3 5.9a2 2 0 0 1 2-2.1z"/>',
+contacts:'<g class="p1"><circle cx="9" cy="8.5" r="3.3"/><path d="M3 19.5c0-3.3 2.7-5.5 6-5.5s6 2.2 6 5.5"/></g><g class="p2"><circle cx="17" cy="9.5" r="2.5"/><path d="M17.5 14.2c2.3.2 3.8 1.9 3.8 4.3"/></g>',
+settings:'<g class="gr"><path d="'+g+'"/><circle cx="12" cy="12" r="2.9"/></g>'};
+function fix(){var b=document.querySelectorAll('#tb .tbp button');b.forEach(function(x){var m=/go\('(\w+)'\)/.exec(x.getAttribute('onclick')||'');if(!m||!I[m[1]])return;var s=x.querySelector('svg');if(s&&s.classList.contains('ux'))return;var t=document.createElement('div');t.innerHTML='<svg class="ux" data-lg="1" viewBox="0 0 24 24" aria-hidden="true">'+I[m[1]]+'</svg>';var n=t.firstChild;if(s)s.replaceWith(n);else x.insertBefore(n,x.firstChild)})}
+var r=0;new MutationObserver(function(){if(r)return;r=requestAnimationFrame(function(){r=0;fix()})}).observe(document.body,{childList:true,subtree:true});fix();setInterval(fix,1500);
+})();
+</script>
+
 </body></html>
