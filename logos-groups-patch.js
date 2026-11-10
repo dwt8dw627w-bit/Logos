@@ -3,7 +3,7 @@
 if(window.__lgPatchGroups)return;window.__lgPatchGroups=1;
 const $=s=>document.querySelector(s);
 const toast=(m)=>{try{window.toast(m)}catch(e){}};
-const esc=window.esc||(t=>String(t||'').replace(/[&<>"']/g,c=>({'&':'&','<':'<','>':'>','"':'"',"'":'&#39;'}[c])));
+const esc=window.esc||(t=>String(t||'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])));
 const ic=window.ic||(()=>'');
 const av=window.av||(()=>'<div></div>');
 const at=window.at||(u=>u?'@'+u:'');
