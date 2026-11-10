@@ -130,5 +130,22 @@ html:root .lgx-nav,html:root .lgx-bar,html:root .lgx-sheet,html:root .lgx-card,h
 }
 `;
 document.head.appendChild(css);
+
+/* Remove leaked JS text nodes under the UI (broken past injection) */
+try{
+  function scrubLeaks(){
+    var walk=document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT, null);
+    var kill=[];
+    while(walk.nextNode()){
+      var t=walk.currentNode, v=(t.nodeValue||'').trim();
+      if(v.length>40 && (/parseFromString|Yt===|let i=P\?|DOMParser|function\s*\(/.test(v))) kill.push(t);
+    }
+    kill.forEach(function(n){ try{ n.parentNode && n.parentNode.removeChild(n); }catch(e){} });
+  }
+  scrubLeaks();
+  setTimeout(scrubLeaks, 300);
+  setTimeout(scrubLeaks, 1200);
+}catch(e){}
+
 console.log('[Logos] UI v3 glass-only (no freeze hooks)');
 })();
