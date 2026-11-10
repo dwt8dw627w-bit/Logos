@@ -1,9 +1,9 @@
-/* Logos runtime patch: groups/channels UX, deleted log, channel edit (2026-11-10) */
+/* Logos runtime patch: groups/channels UX, deleted log, channel edit, ownership (2026-11-10) */
 (function(){
 if(window.__lgPatchGroups)return;window.__lgPatchGroups=1;
 const $=s=>document.querySelector(s);
 const toast=(m)=>{try{window.toast(m)}catch(e){}};
-const esc=window.esc||(t=>String(t||'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])));
+const esc=window.esc||(t=>String(t||'').replace(/[&<>"']/g,c=>({'&':'&','<':'<','>':'>','"':'"',"'":'&#39;'}[c])));
 const ic=window.ic||(()=>'');
 const av=window.av||(()=>'<div></div>');
 const at=window.at||(u=>u?'@'+u:'');
@@ -63,6 +63,7 @@ if(typeof window.delMsg==='function'){
   };
 }
 
+/* --- create group/channel with avatar, desc, username, contact search --- */
 if(typeof window.newGroup==='function'){
   window.gFilterContacts=function(q){
     const box=$('#gch_list');if(!box)return;
@@ -71,11 +72,11 @@ if(typeof window.newGroup==='function'){
     box.innerHTML=L.length?L.map(p=>`<div class="row gp${GS.has(p.id)?' on':''}" onclick="gTog('${p.id}',this)">${av(p,40)}<div class="b"><div class="n">${esc(p.name)}</div><div class="sub">${at(p.username)}</div></div><i class="gck"></i></div>`).join(''):'<div class="sub" style="padding:12px">Никого не найдено</div>';
   };
   window.gPickAv=()=>{$('#gav_in')&&$('#gav_in').click()};
+  let GAV=null;
   window.gAvChange=async function(f){
     if(!f)return;
     try{GAV=await img(f,320,320);const u=URL.createObjectURL(GAV);const el=$('#gav_prev');if(el){el.src=u;el.style.display='block'}const ph=$('#gav_ph');if(ph)ph.style.display='none'}catch(e){toast('Не удалось')}
   };
-  let GAV=null;
   window.newGroup=function(k){
     GK=k||'group';GS=new Set();GAV=null;
     const isCh=k==='channel';
@@ -114,7 +115,7 @@ if(typeof window.newGroup==='function'){
     const b=$('#gok');if(b){b.disabled=true;b.textContent='Создаём…'}
     try{
       let avatar_url=null;
-      if(typeof GAV!=='undefined'&&GAV){try{avatar_url=await up('avatars',GAV)}catch(e){}}
+      if(GAV){try{avatar_url=await up('avatars',GAV)}catch(e){}}
       const payload={k:GK,t,members:[...GS]};
       if(desc)payload.d=desc;
       if(GK==='channel'&&un)payload.u=un;
@@ -125,6 +126,8 @@ if(typeof window.newGroup==='function'){
         const r2=await SB.rpc('create_group',{k:GK,t,members:[...GS]});
         if(r2.error){if(b){b.disabled=false;b.textContent='Создать'}return toast('Запустите logos-update9.sql в Supabase')}
         if(avatar_url&&r2.data){try{await SB.rpc('set_chat_avatar',{chat:String(r2.data),url:avatar_url})}catch(e){}}
+        if(desc&&r2.data){try{await SB.from('chats').update({description:desc}).eq('id',r2.data)}catch(e){}}
+        if(un&&r2.data){try{await SB.from('chats').update({username:un}).eq('id',r2.data)}catch(e){}}
         closeSheet();await loadChats();go('chats');openChat(r2.data);return;
       }
       closeSheet();await loadChats();go('chats');openChat(data);
@@ -132,6 +135,7 @@ if(typeof window.newGroup==='function'){
   };
 }
 
+/* grpInfo: deleted log + avatar change for owner/admin */
 const _gi=window.grpInfo;
 if(typeof _gi==='function'){
   window.grpInfo=async function(){
@@ -146,6 +150,13 @@ if(typeof _gi==='function'){
         b.onclick=()=>grpDelLog();
         box.appendChild(b);
       }
+      if(!box.querySelector('[data-lg-av]') && typeof chAv==='function'){
+        const lab=document.createElement('label');
+        lab.className='xch';lab.setAttribute('data-lg-av','1');
+        lab.style.cursor='pointer';
+        lab.innerHTML=(ic('image')||'')+'Фото '+(cur.kind==='channel'?'канала':'группы')+'<input type="file" accept="image/*" hidden onchange="chAv(this.files[0])">';
+        box.insertBefore(lab, box.firstChild);
+      }
     }catch(e){}
   };
 }
@@ -156,7 +167,7 @@ if(!document.getElementById('lg-edmark')){
   document.head.appendChild(s);
 }
 
-// Extra: edited mark in message HTML + edit action in menu (safe re-apply)
+/* edited mark + edit action in channel msg menu */
 (function(){
   if(window.__lgExtraMsg)return;window.__lgExtraMsg=1;
   const _mh = window.mh || (typeof mh==='function'?mh:null);
@@ -194,6 +205,20 @@ if(!document.getElementById('lg-edmark')){
       }catch(e){}
     };
   }
+})();
+
+/* light perf: throttle list redraw on rapid updates */
+(function(){
+  if(window.__lgPerf)return;window.__lgPerf=1;
+  try{
+    if(typeof drawList==='function'){
+      const _dl=drawList;let t=0;
+      window.drawList=function(){
+        if(t)return;t=1;
+        requestAnimationFrame(function(){t=0;_dl()});
+      };
+    }
+  }catch(e){}
 })();
 
 console.log('[Logos] groups/channels patch loaded');
