@@ -1,151 +1,345 @@
-/* Logos UI v3 — CSS-only liquid glass. No JS hooks (fixes chat freeze). */
+/* Logos UI v4 — glass + unified rec + smooth gestures */
 (function(){
 if(window.__lgUiPatch)return;window.__lgUiPatch=1;
 
 try{
-  if(!document.getElementById('lg-liquid-filter')){
-    var svg=document.createElementNS('http://www.w3.org/2000/svg','svg');
-    svg.setAttribute('id','lg-liquid-filter');
-    svg.setAttribute('aria-hidden','true');
-    svg.style.cssText='position:absolute;width:0;height:0;overflow:hidden';
-    svg.innerHTML='<defs><filter id="lg-refract" x="-20%" y="-20%" width="140%" height="140%" color-interpolation-filters="sRGB">'+
-      '<feTurbulence type="fractalNoise" baseFrequency="0.012" numOctaves="2" seed="2" result="noise"/>'+
-      '<feDisplacementMap in="SourceGraphic" in2="noise" scale="12" xChannelSelector="R" yChannelSelector="G"/>'+
-      '</filter></defs>';
-    document.body.appendChild(svg);
-  }
-}catch(e){}
-
 var css=document.createElement('style');
-css.id='lg-ui-glass-v3';
+css.id='lg-ui-v4';
 css.textContent=`
 :root{
-  --lg-blur: 28px;
-  --lg-sat: 180%;
-  --lg-fill: rgba(255,255,255,.08);
-  --lg-fill-strong: rgba(255,255,255,.12);
-  --lg-stroke: rgba(255,255,255,.22);
-  --lg-stroke-soft: rgba(255,255,255,.12);
-  --lg-inset: inset 0 1px 0 rgba(255,255,255,.28), inset 0 -1px 0 rgba(0,0,0,.15);
-  --lg-shadow: 0 10px 40px rgba(0,0,0,.28);
+  --lg-fill:rgba(255,255,255,.09);
+  --lg-fill2:rgba(255,255,255,.13);
+  --lg-stroke:rgba(255,255,255,.20);
+  --lg-soft:rgba(255,255,255,.12);
+  --lg-inset:inset 0 1px 0 rgba(255,255,255,.28),inset 0 -1px 0 rgba(0,0,0,.12);
+  --lg-shadow:0 10px 36px rgba(0,0,0,.28);
+  --ease-out:cubic-bezier(.22,1,.36,1);
 }
-html::before{display:none!important;content:none!important;background:none!important}
-html:root :is(.lgx,#tb .tbp.lgx)::after,
-html:root .lgx-btn::after,
+html::before{display:none!important;content:none!important}
+html:root :is(.lgx,#tb .tbp.lgx)::after,html:root .lgx-btn::after,
 #tb::before,#tb::after,#tb .tbp::before,#tb .tbp::after,.tbp::before,.tbp::after{
-  display:none!important;content:none!important;background:none!important;
-  width:0!important;height:0!important;box-shadow:none!important;
-}
-html:root .lgx-nav,html:root .lgx-bar,html:root .lgx-sheet,html:root .lgx-card,html:root .lgx-btn,html:root .lgx-field{
-  --lgt: linear-gradient(180deg,rgba(255,255,255,.14),rgba(255,255,255,.05))!important;
-  background: var(--lg-fill)!important;
-  box-shadow: var(--lg-shadow), var(--lg-inset)!important;
+  display:none!important;content:none!important;background:none!important;width:0!important;height:0!important
 }
 #tb,#tb .tbp,.tbp.lgx,#tb .tbp.lgx{
-  background: var(--lg-fill)!important;
-  -webkit-backdrop-filter: saturate(var(--lg-sat)) blur(var(--lg-blur))!important;
-  backdrop-filter: saturate(var(--lg-sat)) blur(var(--lg-blur))!important;
-  border: 1px solid var(--lg-stroke)!important;
-  box-shadow: var(--lg-shadow), var(--lg-inset)!important;
-  overflow: hidden!important;
-  clip-path: none!important;
-  border-radius: 24px!important;
+  background:var(--lg-fill)!important;
+  -webkit-backdrop-filter:saturate(170%) blur(26px)!important;
+  backdrop-filter:saturate(170%) blur(26px)!important;
+  border:1px solid var(--lg-stroke)!important;
+  box-shadow:var(--lg-shadow),var(--lg-inset)!important;
+  border-radius:28px!important;
+  overflow:hidden!important;
+  clip-path:none!important;
 }
-#tb .tbp button,#tb .tbp.lgx button{
-  background: transparent!important;
-  box-shadow: none!important;
+#tb .tbp button{background:transparent!important;box-shadow:none!important;border-radius:20px!important}
+#main .top,.top{
+  background:var(--lg-fill)!important;
+  -webkit-backdrop-filter:saturate(170%) blur(22px)!important;
+  backdrop-filter:saturate(170%) blur(22px)!important;
+  border-bottom:1px solid var(--lg-soft)!important;
 }
-#main .top,.top,#app .top{
-  background: var(--lg-fill)!important;
-  -webkit-backdrop-filter: saturate(var(--lg-sat)) blur(var(--lg-blur))!important;
-  backdrop-filter: saturate(var(--lg-sat)) blur(var(--lg-blur))!important;
-  border-bottom: 1px solid var(--lg-stroke-soft)!important;
-  box-shadow: var(--lg-inset)!important;
+#sh .shc,.shc,.dlg,.dlg>div{
+  background:var(--lg-fill2)!important;
+  -webkit-backdrop-filter:saturate(180%) blur(32px)!important;
+  backdrop-filter:saturate(180%) blur(32px)!important;
+  border:1px solid var(--lg-stroke)!important;
+  border-radius:22px!important;
+  box-shadow:var(--lg-shadow),var(--lg-inset)!important;
 }
-#sh .shc,.shc,.dlg,.dlg > div,.sheet,#sh{
-  background: var(--lg-fill-strong)!important;
-  -webkit-backdrop-filter: saturate(190%) blur(36px)!important;
-  backdrop-filter: saturate(190%) blur(36px)!important;
-  border: 1px solid var(--lg-stroke)!important;
-  box-shadow: var(--lg-shadow), var(--lg-inset)!important;
+#main .cin,.cin,.cbar{
+  background:var(--lg-fill)!important;
+  -webkit-backdrop-filter:saturate(160%) blur(20px)!important;
+  backdrop-filter:saturate(160%) blur(20px)!important;
+  border-top:1px solid var(--lg-soft)!important;
+  padding-bottom:max(6px,env(safe-area-inset-bottom,0px))!important;
 }
-.srch input,.fld input,.fld textarea,input[type="search"]{
-  background: rgba(255,255,255,.07)!important;
-  -webkit-backdrop-filter: blur(16px) saturate(140%)!important;
-  backdrop-filter: blur(16px) saturate(140%)!important;
-  border: 1px solid var(--lg-stroke-soft)!important;
-  box-shadow: inset 0 1px 0 rgba(255,255,255,.12)!important;
+.btn,button.btn{
+  background:rgba(255,255,255,.14)!important;
+  border:1px solid var(--lg-stroke)!important;
+  border-radius:16px!important;
+  box-shadow:var(--lg-inset)!important;
 }
-#main .cin,.cin,.cbar,#cmp,.composer{
-  background: var(--lg-fill)!important;
-  -webkit-backdrop-filter: saturate(var(--lg-sat)) blur(22px)!important;
-  backdrop-filter: saturate(var(--lg-sat)) blur(22px)!important;
-  border-top: 1px solid var(--lg-stroke-soft)!important;
-  box-shadow: var(--lg-inset)!important;
-  padding-bottom: max(8px, env(safe-area-inset-bottom, 0px))!important;
+.cact .ib.cam,.cact .ib.mic,.cact [data-hold="circle"],.cact [data-hold="voice"]{display:none!important}
+.cact .ib.recmode{
+  width:48px;height:48px;min-width:48px;border-radius:50%;
+  display:grid!important;place-items:center;
+  background:rgba(255,255,255,.10)!important;
+  border:1px solid var(--lg-soft)!important;
+  transition:transform .18s var(--ease-out),background .18s,box-shadow .18s;
 }
-.seg{
-  background: rgba(255,255,255,.06)!important;
-  -webkit-backdrop-filter: blur(12px)!important;
-  backdrop-filter: blur(12px)!important;
-  border: 1px solid var(--lg-stroke-soft)!important;
+.cact .ib.recmode.on-circle{
+  background:rgba(255,255,255,.18)!important;
+  box-shadow:0 0 0 2px rgba(255,255,255,.25)!important;
 }
-.seg button.on{
-  background: rgba(255,255,255,.16)!important;
-  box-shadow: inset 0 1px 0 rgba(255,255,255,.2)!important;
+.cact .ib.recmode:active{transform:scale(.92)}
+.hcirc .hcv,.hcirc .hcv video{
+  width:min(78vw,320px)!important;height:min(78vw,320px)!important;
+  border-radius:50%!important;object-fit:cover!important;
 }
-.btn, button.btn{
-  background: rgba(255,255,255,.14)!important;
-  color: var(--tx,#f2f2f2)!important;
-  border: 1px solid var(--lg-stroke)!important;
-  box-shadow: var(--lg-inset), 0 6px 18px rgba(0,0,0,.22)!important;
-  -webkit-backdrop-filter: blur(12px) saturate(140%)!important;
-  backdrop-filter: blur(12px) saturate(140%)!important;
+.hcirc .cring{width:min(84vw,340px)!important;height:min(84vw,340px)!important}
+.hcirc .hctl{
+  position:absolute;left:0;right:0;bottom:max(24px,env(safe-area-inset-bottom));
+  display:flex;justify-content:center;gap:16px;z-index:6;pointer-events:auto;
 }
-#ms .m:not(.me){
-  background: rgba(255,255,255,.09)!important;
-  -webkit-backdrop-filter: blur(14px) saturate(130%)!important;
-  backdrop-filter: blur(14px) saturate(130%)!important;
-  border: 1px solid rgba(255,255,255,.08)!important;
-  box-shadow: inset 0 1px 0 rgba(255,255,255,.1)!important;
+.hcirc .hctl button{
+  width:48px;height:48px;border-radius:50%;border:1px solid rgba(255,255,255,.22);
+  background:rgba(0,0,0,.4);color:#fff;display:grid;place-items:center;
+  -webkit-backdrop-filter:blur(12px);backdrop-filter:blur(12px);
 }
-.xch, .xch-w .xch{
-  background: rgba(255,255,255,.06)!important;
-  border: 1px solid transparent!important;
-  border-radius: 14px!important;
+.hcirc,.recb{transition:transform .28s var(--ease-out),opacity .28s var(--ease-out),filter .28s!important}
+.hcirc.lock .hh,.recb.lock .rhint{color:#a7f3d0!important}
+.hcirc.cx,.recb.cx{filter:saturate(.6) brightness(.85)}
+.hcirc.toss{
+  transition:transform .42s var(--ease-out),opacity .42s var(--ease-out)!important;
+  transform:translate(-40vw,16vh) scale(.15)!important;opacity:0!important;
 }
-.xch:active{
-  background: rgba(255,255,255,.12)!important;
-  border-color: var(--lg-stroke-soft)!important;
+.rec-trash-fly{
+  position:fixed;z-index:9999;pointer-events:none;
+  width:56px;height:56px;border-radius:50%;
+  left:14vw;bottom:24vh;
+  background:rgba(0,0,0,.5);border:1px solid rgba(255,255,255,.2);
+  display:grid;place-items:center;color:#fff;font-size:22px;
+  animation:lgTrash .5s var(--ease-out) forwards;
 }
-.crow:active, #cl .row:active, .row.gp:active{
-  background: rgba(255,255,255,.06)!important;
+@keyframes lgTrash{
+  0%{transform:scale(1);opacity:1}
+  100%{transform:translateY(110px) scale(.35);opacity:0}
 }
-@media (prefers-reduced-transparency: reduce){
-  #tb,#tb .tbp,#main .top,.shc,.dlg,.cin{
-    background: #1c1c1e!important;
-    -webkit-backdrop-filter: none!important;
-    backdrop-filter: none!important;
-  }
-}
+.crow,.row,#cl .row{transition:background .18s var(--ease-out),transform .18s var(--ease-out)!important}
+#sh .shc,.dlg{transition:transform .32s var(--ease-out),opacity .28s var(--ease-out)!important}
 `;
 document.head.appendChild(css);
-
-/* Remove leaked JS text nodes under the UI (broken past injection) */
-try{
-  function scrubLeaks(){
-    var walk=document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT, null);
-    var kill=[];
-    while(walk.nextNode()){
-      var t=walk.currentNode, v=(t.nodeValue||'').trim();
-      if(v.length>40 && (/parseFromString|Yt===|let i=P\?|DOMParser|function\s*\(/.test(v))) kill.push(t);
-    }
-    kill.forEach(function(n){ try{ n.parentNode && n.parentNode.removeChild(n); }catch(e){} });
-  }
-  scrubLeaks();
-  setTimeout(scrubLeaks, 300);
-  setTimeout(scrubLeaks, 1200);
 }catch(e){}
 
-console.log('[Logos] UI v3 glass-only (no freeze hooks)');
+try{
+  function scrub(){
+    var w=document.createTreeWalker(document.body,NodeFilter.SHOW_TEXT,null),k=[];
+    while(w.nextNode()){
+      var v=(w.currentNode.nodeValue||'').trim();
+      if(v.length>40&&/parseFromString|Yt===|let i=P\?|DOMParser/.test(v)) k.push(w.currentNode);
+    }
+    k.forEach(function(n){try{n.parentNode.removeChild(n)}catch(e){}});
+  }
+  scrub();setTimeout(scrub,400);
+}catch(e){}
+
+window.__recMode=window.__recMode||'voice';
+var __busy=0;
+function modeIcon(){
+  try{
+    if(window.__recMode==='circle') return typeof ic==='function'?ic('circle'):'\u25EF';
+    return typeof ic==='function'?ic('mic'):'\uD83C\uDFA4';
+  }catch(e){return '\u25CF'}
+}
+function ensureRecBtn(){
+  if(__busy) return;
+  __busy=1;
+  try{
+    var act=document.querySelector('.cact');
+    if(!act) return;
+    act.querySelectorAll('.ib.cam,.ib.mic,[data-hold="circle"],[data-hold="voice"]').forEach(function(el){
+      if(!el.classList.contains('recmode')) el.style.display='none';
+    });
+    var btn=act.querySelector('.ib.recmode');
+    if(!btn){
+      btn=document.createElement('button');
+      btn.type='button';
+      btn.className='ib recmode';
+      btn.setAttribute('aria-label','\u0417\u0430\u043f\u0438\u0441\u044c');
+      var snd=act.querySelector('.ib.snd');
+      if(snd) act.insertBefore(btn,snd); else act.appendChild(btn);
+      var t0=0,moved=0,holding=0,timer=0;
+      btn.addEventListener('pointerdown',function(e){
+        if(e.button) return;
+        moved=0;holding=0;t0=Date.now();
+        clearTimeout(timer);
+        timer=setTimeout(function(){
+          if(moved) return;
+          holding=1;
+          var kind=window.__recMode==='circle'?'circle':'voice';
+          btn.dataset.hold=kind;
+          try{ if(typeof holdStart==='function') holdStart(kind,btn,e); }catch(err){}
+        },200);
+      },{passive:true});
+      btn.addEventListener('pointermove',function(e){
+        if(Math.abs(e.movementX)+Math.abs(e.movementY)>5) moved=1;
+      },{passive:true});
+      function endTap(){
+        clearTimeout(timer);
+        if(!holding && Date.now()-t0<200 && !moved){
+          window.__recMode=window.__recMode==='circle'?'voice':'circle';
+          btn.dataset.hold=window.__recMode;
+          btn.classList.toggle('on-circle',window.__recMode==='circle');
+          btn.innerHTML=modeIcon();
+          try{toast(window.__recMode==='circle'?'\u041a\u0440\u0443\u0436\u043e\u043a':'\u0413\u043e\u043b\u043e\u0441\u043e\u0432\u043e\u0435')}catch(x){}
+          try{vib&&vib(8)}catch(x){}
+        }
+        holding=0;
+      }
+      btn.addEventListener('pointerup',endTap,{passive:true});
+      btn.addEventListener('pointercancel',function(){clearTimeout(timer);holding=0},{passive:true});
+    }
+    btn.dataset.hold=window.__recMode;
+    btn.classList.toggle('on-circle',window.__recMode==='circle');
+    if(!btn.childNodes.length) btn.innerHTML=modeIcon();
+  }catch(e){}
+  __busy=0;
+}
+try{
+  if(typeof window.drawMain==='function' && !window.drawMain.__lg4){
+    var _dm=window.drawMain;
+    window.drawMain=function(){
+      var r=_dm.apply(this,arguments);
+      requestAnimationFrame(ensureRecBtn);
+      return r;
+    };
+    window.drawMain.__lg4=1;
+  }
+}catch(e){}
+setTimeout(ensureRecBtn,500);
+setTimeout(ensureRecBtn,1600);
+
+try{
+  var _holdUI=window.holdUI;
+  window.holdUI=function(h){
+    if(typeof _holdUI==='function') try{_holdUI(h)}catch(e){}
+    try{
+      if(!h) return;
+      if(h.kind==='voice'){
+        var t=document.getElementById('rhint');
+        if(t) t.textContent='\u2191 \u0444\u0438\u043a\u0441\u0430\u0446\u0438\u044f  \u00b7  \u2190 \u043e\u0442\u043c\u0435\u043d\u0430';
+      } else {
+        var o=document.querySelector('.hcirc');
+        if(o){
+          var hh=o.querySelector('.hh');
+          if(hh) hh.textContent='\u2191 \u0444\u0438\u043a\u0441\u0430\u0446\u0438\u044f  \u00b7  \u2190 \u043e\u0442\u043c\u0435\u043d\u0430';
+          if(!o.querySelector('.hctl')){
+            var ctl=document.createElement('div');
+            ctl.className='hctl';
+            ctl.innerHTML='<button type="button" data-a="flip">'+(typeof ic==='function'?ic('flip'):'\u27F3')+'</button>'+
+              '<button type="button" data-a="flash">'+(typeof ic==='function'?ic('sparkle'):'\u26A1')+'</button>';
+            o.appendChild(ctl);
+            ctl.addEventListener('pointerdown',function(e){e.stopPropagation()},{passive:true});
+            ctl.addEventListener('click',function(e){
+              var a=e.target.closest('button');
+              if(!a) return;
+              if(a.dataset.a==='flip'){ try{flipCam()}catch(x){} }
+              if(a.dataset.a==='flash'){ try{toggleFlash(a)}catch(x){} }
+            });
+          }
+        }
+      }
+    }catch(e){}
+  };
+}catch(e){}
+
+window.toggleFlash=async function(btn){
+  try{
+    if(!R||!R.st) return;
+    var track=R.st.getVideoTracks()[0];
+    if(!track) return;
+    var caps=track.getCapabilities&&track.getCapabilities();
+    if(!caps||!caps.torch){try{toast('\u0412\u0441\u043f\u044b\u0448\u043a\u0430 \u043d\u0435\u0434\u043e\u0441\u0442\u0443\u043f\u043d\u0430')}catch(x){} return}
+    R.torch=!R.torch;
+    await track.applyConstraints({advanced:[{torch:!!R.torch}]});
+    if(btn) btn.style.background=R.torch?'rgba(250,204,21,.35)':'rgba(0,0,0,.4)';
+  }catch(e){try{toast('\u0412\u0441\u043f\u044b\u0448\u043a\u0430 \u043d\u0435\u0434\u043e\u0441\u0442\u0443\u043f\u043d\u0430')}catch(x){}}
+};
+
+var __gRaf=0,__gE=null;
+function applyGesture(){
+  __gRaf=0;
+  var e=__gE; if(!e) return;
+  try{
+    if(typeof H==='undefined'||!H||e.pointerId!==H.id) return;
+    if(H.x0==null){ H.x0=e.clientX; H.y0=e.clientY; }
+    var dy=H.y0-e.clientY;
+    var dx=H.x0-e.clientX;
+    if(dy>52 && !H.locked){
+      H.locked=true; H.cx=false;
+      try{
+        var rb=document.getElementById('recb'); if(rb) rb.classList.add('lock');
+        var hc=document.querySelector('.hcirc'); if(hc) hc.classList.add('lock');
+        var t=document.getElementById('rhint'); if(t) t.textContent='\u0417\u0430\u043f\u0438\u0441\u044c \u0437\u0430\u0444\u0438\u043a\u0441\u0438\u0440\u043e\u0432\u0430\u043d\u0430';
+        var hh=document.querySelector('.hcirc .hh'); if(hh) hh.textContent='\u0417\u0430\u043f\u0438\u0441\u044c \u0437\u0430\u0444\u0438\u043a\u0441\u0438\u0440\u043e\u0432\u0430\u043d\u0430 \u00b7 \u043d\u0430\u0436\u043c\u0438\u0442\u0435 \u2713';
+        if(typeof vib==='function') vib(14);
+      }catch(x){}
+    }
+    var cancel=!H.locked && dx>48;
+    if(cancel!==!!H.cx){
+      H.cx=cancel;
+      try{ if(typeof holdCx==='function') holdCx(H,cancel); }catch(x){}
+      try{
+        var t2=document.getElementById('rhint');
+        if(t2) t2.textContent=cancel?'\u041e\u0442\u043f\u0443\u0441\u0442\u0438\u0442\u0435 \u2014 \u0432 \u043a\u043e\u0440\u0437\u0438\u043d\u0443':'\u2191 \u0444\u0438\u043a\u0441\u0430\u0446\u0438\u044f  \u00b7  \u2190 \u043e\u0442\u043c\u0435\u043d\u0430';
+        var hh2=document.querySelector('.hcirc .hh');
+        if(hh2) hh2.textContent=cancel?'\u041e\u0442\u043f\u0443\u0441\u0442\u0438\u0442\u0435 \u2014 \u0432 \u043a\u043e\u0440\u0437\u0438\u043d\u0443':'\u2191 \u0444\u0438\u043a\u0441\u0430\u0446\u0438\u044f  \u00b7  \u2190 \u043e\u0442\u043c\u0435\u043d\u0430';
+      }catch(x){}
+    }
+  }catch(err){}
+}
+document.addEventListener('pointermove',function(e){
+  if(typeof H==='undefined'||!H||e.pointerId!==H.id) return;
+  __gE=e;
+  if(!__gRaf) __gRaf=requestAnimationFrame(applyGesture);
+},true);
+
+try{
+  var _holdEnd=window.holdEnd;
+  window.holdEnd=function(e,cancelled){
+    try{
+      if(typeof H!=='undefined'&&H&&H.locked&&!H.cx&&!cancelled){
+        try{H.btn&&H.btn.releasePointerCapture(H.id)}catch(x){}
+        window.H=null; H=null;
+        try{
+          var b=document.getElementById('recb');
+          if(b&&!b.querySelector('.sbtn')){
+            var go=document.createElement('button');
+            go.className='sbtn';
+            go.innerHTML=typeof ic==='function'?ic('send'):'\u27A4';
+            go.onclick=function(){try{recStop()}catch(x){}};
+            b.appendChild(go);
+          }
+          var cov=document.querySelector('.hcirc');
+          if(cov&&!cov.querySelector('[data-a="stop"]')){
+            var ctl=cov.querySelector('.hctl')||cov;
+            var stop=document.createElement('button');
+            stop.dataset.a='stop'; stop.textContent='\u2713';
+            stop.onclick=function(){try{recStop()}catch(x){}};
+            ctl.appendChild(stop);
+          }
+        }catch(x){}
+        return;
+      }
+      if(typeof H!=='undefined'&&H&&(H.cx||cancelled)){
+        try{
+          var ball=document.querySelector('.hcirc');
+          if(ball){
+            ball.classList.add('toss');
+            var trash=document.createElement('div');
+            trash.className='rec-trash-fly';
+            trash.textContent='\uD83D\uDDD1';
+            document.body.appendChild(trash);
+            setTimeout(function(){try{trash.remove()}catch(x){}},520);
+          }
+        }catch(x){}
+      }
+    }catch(err){}
+    if(typeof _holdEnd==='function') return _holdEnd(e,cancelled);
+  };
+}catch(e){}
+
+try{
+  var _hs=window.holdStart;
+  if(typeof _hs==='function'){
+    window.holdStart=function(kind,btn,e){
+      var p=_hs(kind,btn,e);
+      Promise.resolve(p).then(function(){
+        try{ if(typeof H!=='undefined'&&H){ H.x0=e.clientX; H.y0=e.clientY; H.locked=false; } }catch(x){}
+      });
+      return p;
+    };
+  }
+}catch(e){}
+
+console.log('[Logos] UI v4 ready');
 })();
