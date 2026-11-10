@@ -1,11 +1,11 @@
-/* Logos UI v4 — glass + unified rec + smooth gestures */
+/* Logos UI v5 — glass, unified rec button (reliable), auto-update */
 (function(){
 if(window.__lgUiPatch)return;window.__lgUiPatch=1;
 
-/* ---------- glass + rounded tab bar ---------- */
+/* ---------- CSS ---------- */
 try{
 var css=document.createElement('style');
-css.id='lg-ui-v4';
+css.id='lg-ui-v5';
 css.textContent=`
 :root{
   --lg-fill:rgba(255,255,255,.09);
@@ -14,8 +14,7 @@ css.textContent=`
   --lg-soft:rgba(255,255,255,.12);
   --lg-inset:inset 0 1px 0 rgba(255,255,255,.28),inset 0 -1px 0 rgba(0,0,0,.12);
   --lg-shadow:0 10px 36px rgba(0,0,0,.28);
-  --ease-out:cubic-bezier(.22,1,.36,1);
-  --ease-spring:cubic-bezier(.34,1.4,.64,1);
+  --ease:cubic-bezier(.22,1,.36,1);
 }
 html::before{display:none!important;content:none!important}
 html:root :is(.lgx,#tb .tbp.lgx)::after,html:root .lgx-btn::after,
@@ -28,9 +27,7 @@ html:root :is(.lgx,#tb .tbp.lgx)::after,html:root .lgx-btn::after,
   backdrop-filter:saturate(170%) blur(26px)!important;
   border:1px solid var(--lg-stroke)!important;
   box-shadow:var(--lg-shadow),var(--lg-inset)!important;
-  border-radius:28px!important;
-  overflow:hidden!important;
-  clip-path:none!important;
+  border-radius:28px!important;overflow:hidden!important;clip-path:none!important;
 }
 #tb .tbp button{background:transparent!important;box-shadow:none!important;border-radius:20px!important}
 #main .top,.top{
@@ -43,8 +40,7 @@ html:root :is(.lgx,#tb .tbp.lgx)::after,html:root .lgx-btn::after,
   background:var(--lg-fill2)!important;
   -webkit-backdrop-filter:saturate(180%) blur(32px)!important;
   backdrop-filter:saturate(180%) blur(32px)!important;
-  border:1px solid var(--lg-stroke)!important;
-  border-radius:22px!important;
+  border:1px solid var(--lg-stroke)!important;border-radius:22px!important;
   box-shadow:var(--lg-shadow),var(--lg-inset)!important;
 }
 #main .cin,.cin,.cbar{
@@ -55,26 +51,28 @@ html:root :is(.lgx,#tb .tbp.lgx)::after,html:root .lgx-btn::after,
   padding-bottom:max(6px,env(safe-area-inset-bottom,0px))!important;
 }
 .btn,button.btn{
-  background:rgba(255,255,255,.14)!important;
-  border:1px solid var(--lg-stroke)!important;
-  border-radius:16px!important;
-  box-shadow:var(--lg-inset)!important;
+  background:rgba(255,255,255,.14)!important;border:1px solid var(--lg-stroke)!important;
+  border-radius:16px!important;box-shadow:var(--lg-inset)!important;
 }
-/* unified rec button */
-.cact .ib.cam,.cact .ib.mic,.cact [data-hold="circle"],.cact [data-hold="voice"]{display:none!important}
+/* hide old separate buttons only when unified exists */
+.cact.has-recmode .ib.cam,
+.cact.has-recmode .ib.mic,
+.cact.has-recmode [data-hold="circle"],
+.cact.has-recmode [data-hold="voice"]{display:none!important}
 .cact .ib.recmode{
   width:48px;height:48px;min-width:48px;border-radius:50%;
-  display:grid!important;place-items:center;
-  background:rgba(255,255,255,.10)!important;
+  display:grid!important;place-items:center;flex:none;
+  background:rgba(255,255,255,.12)!important;
   border:1px solid var(--lg-soft)!important;
-  transition:transform .18s var(--ease-out),background .18s,box-shadow .18s;
+  color:inherit;padding:0;margin:0;
+  transition:transform .18s var(--ease),background .18s;
 }
 .cact .ib.recmode.on-circle{
-  background:rgba(255,255,255,.18)!important;
-  box-shadow:0 0 0 2px rgba(255,255,255,.25)!important;
+  background:rgba(255,255,255,.2)!important;
+  box-shadow:0 0 0 2px rgba(255,255,255,.28)!important;
 }
 .cact .ib.recmode:active{transform:scale(.92)}
-/* bigger circle preview */
+.cact{display:flex;align-items:center;gap:6px}
 .hcirc .hcv,.hcirc .hcv video{
   width:min(78vw,320px)!important;height:min(78vw,320px)!important;
   border-radius:50%!important;object-fit:cover!important;
@@ -87,41 +85,25 @@ html:root :is(.lgx,#tb .tbp.lgx)::after,html:root .lgx-btn::after,
 .hcirc .hctl button{
   width:48px;height:48px;border-radius:50%;border:1px solid rgba(255,255,255,.22);
   background:rgba(0,0,0,.4);color:#fff;display:grid;place-items:center;
-  -webkit-backdrop-filter:blur(12px);backdrop-filter:blur(12px);
 }
-.hcirc,.recb{
-  transition:transform .28s var(--ease-out),opacity .28s var(--ease-out),filter .28s!important;
-}
+.hcirc,.recb{transition:transform .28s var(--ease),opacity .28s var(--ease),filter .28s!important}
 .hcirc.lock .hh,.recb.lock .rhint{color:#a7f3d0!important}
-.hcirc.cx,.recb.cx{filter:saturate(.6) brightness(.85)}
 .hcirc.toss{
-  transition:transform .42s var(--ease-out),opacity .42s var(--ease-out)!important;
+  transition:transform .42s var(--ease),opacity .42s!important;
   transform:translate(-40vw,16vh) scale(.15)!important;opacity:0!important;
 }
 .rec-trash-fly{
-  position:fixed;z-index:9999;pointer-events:none;
-  width:56px;height:56px;border-radius:50%;
-  left:14vw;bottom:24vh;
-  background:rgba(0,0,0,.5);border:1px solid rgba(255,255,255,.2);
+  position:fixed;z-index:9999;pointer-events:none;width:56px;height:56px;border-radius:50%;
+  left:14vw;bottom:24vh;background:rgba(0,0,0,.5);border:1px solid rgba(255,255,255,.2);
   display:grid;place-items:center;color:#fff;font-size:22px;
-  animation:lgTrash .5s var(--ease-out) forwards;
+  animation:lgTrash .5s var(--ease) forwards;
 }
-@keyframes lgTrash{
-  0%{transform:scale(1);opacity:1}
-  100%{transform:translateY(110px) scale(.35);opacity:0}
-}
-/* smoother list / sheet transitions */
-.crow,.row,#cl .row{
-  transition:background .18s var(--ease-out),transform .18s var(--ease-out)!important;
-}
-#sh .shc,.dlg{
-  transition:transform .32s var(--ease-out),opacity .28s var(--ease-out)!important;
-}
+@keyframes lgTrash{0%{transform:scale(1);opacity:1}100%{transform:translateY(110px) scale(.35);opacity:0}}
 `;
 document.head.appendChild(css);
 }catch(e){}
 
-/* scrub leaked text */
+/* scrub leak */
 try{
   function scrub(){
     var w=document.createTreeWalker(document.body,NodeFilter.SHOW_TEXT,null),k=[];
@@ -131,92 +113,124 @@ try{
     }
     k.forEach(function(n){try{n.parentNode.removeChild(n)}catch(e){}});
   }
-  scrub();setTimeout(scrub,400);
+  scrub();setTimeout(scrub,500);
 }catch(e){}
 
-/* ---------- unified mic/circle ---------- */
+/* ---------- unified record button ---------- */
 window.__recMode=window.__recMode||'voice';
-var __busy=0;
 
 function modeIcon(){
   try{
-    if(window.__recMode==='circle') return typeof ic==='function'?ic('circle'):'◯';
-    return typeof ic==='function'?ic('mic'):'🎤';
+    if(window.__recMode==='circle') return (typeof ic==='function'?ic('circle'):'◯');
+    return (typeof ic==='function'?ic('mic'):'🎤');
   }catch(e){return '●'}
 }
 
-function ensureRecBtn(){
-  if(__busy) return;
-  __busy=1;
-  try{
-    var act=document.querySelector('.cact');
-    if(!act) return;
-    act.querySelectorAll('.ib.cam,.ib.mic,[data-hold="circle"],[data-hold="voice"]').forEach(function(el){
-      if(!el.classList.contains('recmode')) el.style.display='none';
-    });
-    var btn=act.querySelector('.ib.recmode');
-    if(!btn){
-      btn=document.createElement('button');
-      btn.type='button';
-      btn.className='ib recmode';
-      btn.setAttribute('aria-label','Запись');
-      var snd=act.querySelector('.ib.snd');
-      if(snd) act.insertBefore(btn,snd); else act.appendChild(btn);
-
-      var t0=0,moved=0,holding=0,timer=0;
-      btn.addEventListener('pointerdown',function(e){
-        if(e.button) return;
-        moved=0;holding=0;t0=Date.now();
-        clearTimeout(timer);
-        timer=setTimeout(function(){
-          if(moved) return;
-          holding=1;
-          var kind=window.__recMode==='circle'?'circle':'voice';
-          btn.dataset.hold=kind;
-          try{ if(typeof holdStart==='function') holdStart(kind,btn,e); }catch(err){}
-        },200);
-      },{passive:true});
-      btn.addEventListener('pointermove',function(e){
-        if(Math.abs(e.movementX)+Math.abs(e.movementY)>5) moved=1;
-      },{passive:true});
-      function endTap(){
-        clearTimeout(timer);
-        if(!holding && Date.now()-t0<200 && !moved){
-          window.__recMode=window.__recMode==='circle'?'voice':'circle';
-          btn.dataset.hold=window.__recMode;
-          btn.classList.toggle('on-circle',window.__recMode==='circle');
-          btn.innerHTML=modeIcon();
-          try{toast(window.__recMode==='circle'?'Кружок':'Голосовое')}catch(x){}
-          try{vib&&vib(8)}catch(x){}
-        }
-        holding=0;
-      }
-      btn.addEventListener('pointerup',endTap,{passive:true});
-      btn.addEventListener('pointercancel',function(){clearTimeout(timer);holding=0},{passive:true});
+function wireRecBtn(btn){
+  if(btn.__wired) return;
+  btn.__wired=1;
+  var t0=0,moved=0,holding=0,timer=0;
+  btn.addEventListener('pointerdown',function(e){
+    if(e.button) return;
+    moved=0;holding=0;t0=Date.now();
+    clearTimeout(timer);
+    timer=setTimeout(function(){
+      if(moved) return;
+      holding=1;
+      var kind=window.__recMode==='circle'?'circle':'voice';
+      btn.dataset.hold=kind;
+      try{ if(typeof holdStart==='function') holdStart(kind,btn,e); }catch(err){}
+    },180);
+  },{passive:true});
+  btn.addEventListener('pointermove',function(e){
+    if(Math.abs(e.movementX)+Math.abs(e.movementY)>5) moved=1;
+  },{passive:true});
+  function endTap(){
+    clearTimeout(timer);
+    if(!holding && Date.now()-t0<180 && !moved){
+      window.__recMode=window.__recMode==='circle'?'voice':'circle';
+      btn.dataset.hold=window.__recMode;
+      btn.classList.toggle('on-circle',window.__recMode==='circle');
+      btn.innerHTML=modeIcon();
+      try{toast(window.__recMode==='circle'?'Кружок':'Голосовое')}catch(x){}
+      try{typeof vib==='function'&&vib(8)}catch(x){}
     }
-    btn.dataset.hold=window.__recMode;
-    btn.classList.toggle('on-circle',window.__recMode==='circle');
-    if(!btn.childNodes.length) btn.innerHTML=modeIcon();
-  }catch(e){}
-  __busy=0;
+    holding=0;
+  }
+  btn.addEventListener('pointerup',endTap,{passive:true});
+  btn.addEventListener('pointercancel',function(){clearTimeout(timer);holding=0},{passive:true});
 }
 
-/* only hook drawMain once, rAF once */
+function ensureRecBtn(){
+  try{
+    var acts=document.querySelectorAll('.cact');
+    if(!acts.length) return false;
+    var ok=false;
+    acts.forEach(function(act){
+      var btn=act.querySelector('.ib.recmode');
+      if(!btn){
+        btn=document.createElement('button');
+        btn.type='button';
+        btn.className='ib recmode';
+        btn.setAttribute('aria-label','Запись');
+        var snd=act.querySelector('.ib.snd');
+        if(snd) act.insertBefore(btn,snd);
+        else act.appendChild(btn);
+      }
+      act.classList.add('has-recmode');
+      btn.dataset.hold=window.__recMode;
+      btn.classList.toggle('on-circle',window.__recMode==='circle');
+      btn.innerHTML=modeIcon();
+      btn.style.display='grid';
+      wireRecBtn(btn);
+      ok=true;
+    });
+    return ok;
+  }catch(e){return false}
+}
+
+/* retry until composer exists, then light interval while in chat */
+var tries=0;
+function bootRec(){
+  if(ensureRecBtn()) return;
+  if(++tries<40) setTimeout(bootRec,250);
+}
+bootRec();
+setInterval(function(){
+  try{
+    if(document.querySelector('.cact') && !document.querySelector('.cact .ib.recmode'))
+      ensureRecBtn();
+  }catch(e){}
+},2000);
+
 try{
-  if(typeof window.drawMain==='function' && !window.drawMain.__lg4){
+  if(typeof window.drawMain==='function' && !window.drawMain.__lg5){
     var _dm=window.drawMain;
     window.drawMain=function(){
       var r=_dm.apply(this,arguments);
-      requestAnimationFrame(ensureRecBtn);
+      setTimeout(ensureRecBtn,0);
+      setTimeout(ensureRecBtn,80);
       return r;
     };
-    window.drawMain.__lg4=1;
+    window.drawMain.__lg5=1;
   }
 }catch(e){}
-setTimeout(ensureRecBtn,500);
-setTimeout(ensureRecBtn,1600);
 
-/* ---------- gestures: up=lock, left=cancel+trash (smooth) ---------- */
+/* openChat hook */
+try{
+  if(typeof window.openChat==='function' && !window.openChat.__lg5){
+    var _oc=window.openChat;
+    window.openChat=function(){
+      var r=_oc.apply(this,arguments);
+      setTimeout(ensureRecBtn,50);
+      setTimeout(ensureRecBtn,200);
+      return r;
+    };
+    window.openChat.__lg5=1;
+  }
+}catch(e){}
+
+/* ---------- gestures ---------- */
 try{
   var _holdUI=window.holdUI;
   window.holdUI=function(h){
@@ -239,10 +253,9 @@ try{
             o.appendChild(ctl);
             ctl.addEventListener('pointerdown',function(e){e.stopPropagation()},{passive:true});
             ctl.addEventListener('click',function(e){
-              var a=e.target.closest('button');
-              if(!a) return;
-              if(a.dataset.a==='flip'){ try{flipCam()}catch(x){} }
-              if(a.dataset.a==='flash'){ try{toggleFlash(a)}catch(x){} }
+              var a=e.target.closest('button'); if(!a) return;
+              if(a.dataset.a==='flip') try{flipCam()}catch(x){}
+              if(a.dataset.a==='flash') try{toggleFlash(a)}catch(x){}
             });
           }
         }
@@ -254,8 +267,7 @@ try{
 window.toggleFlash=async function(btn){
   try{
     if(!R||!R.st) return;
-    var track=R.st.getVideoTracks()[0];
-    if(!track) return;
+    var track=R.st.getVideoTracks()[0]; if(!track) return;
     var caps=track.getCapabilities&&track.getCapabilities();
     if(!caps||!caps.torch){try{toast('Вспышка недоступна')}catch(x){} return}
     R.torch=!R.torch;
@@ -264,45 +276,32 @@ window.toggleFlash=async function(btn){
   }catch(e){try{toast('Вспышка недоступна')}catch(x){}}
 };
 
-/* smooth gesture tracking — rAF throttled */
 var __gRaf=0,__gE=null;
 function applyGesture(){
-  __gRaf=0;
-  var e=__gE; if(!e) return;
+  __gRaf=0; var e=__gE; if(!e) return;
   try{
     if(typeof H==='undefined'||!H||e.pointerId!==H.id) return;
-    if(H.x0==null){ H.x0=e.clientX; H.y0=e.clientY; }
-    var dy=H.y0-e.clientY;
-    var dx=H.x0-e.clientX;
-    /* lock up */
-    if(dy>52 && !H.locked){
-      H.locked=true; H.cx=false;
+    if(H.x0==null){H.x0=e.clientX;H.y0=e.clientY}
+    var dy=H.y0-e.clientY, dx=H.x0-e.clientX;
+    if(dy>52&&!H.locked){
+      H.locked=true;H.cx=false;
       try{
         var rb=document.getElementById('recb'); if(rb) rb.classList.add('lock');
         var hc=document.querySelector('.hcirc'); if(hc) hc.classList.add('lock');
         var t=document.getElementById('rhint'); if(t) t.textContent='Запись зафиксирована';
         var hh=document.querySelector('.hcirc .hh'); if(hh) hh.textContent='Запись зафиксирована · нажмите ✓';
-        if(typeof vib==='function') vib(14);
       }catch(x){}
     }
-    /* cancel left */
-    var cancel=!H.locked && dx>48;
+    var cancel=!H.locked&&dx>48;
     if(cancel!==!!H.cx){
       H.cx=cancel;
-      try{ if(typeof holdCx==='function') holdCx(H,cancel); }catch(x){}
-      try{
-        var t2=document.getElementById('rhint');
-        if(t2) t2.textContent=cancel?'Отпустите — в корзину':'↑ фиксация  ·  ← отмена';
-        var hh2=document.querySelector('.hcirc .hh');
-        if(hh2) hh2.textContent=cancel?'Отпустите — в корзину':'↑ фиксация  ·  ← отмена';
-      }catch(x){}
+      try{if(typeof holdCx==='function') holdCx(H,cancel)}catch(x){}
     }
   }catch(err){}
 }
 document.addEventListener('pointermove',function(e){
   if(typeof H==='undefined'||!H||e.pointerId!==H.id) return;
-  __gE=e;
-  if(!__gRaf) __gRaf=requestAnimationFrame(applyGesture);
+  __gE=e; if(!__gRaf) __gRaf=requestAnimationFrame(applyGesture);
 },true);
 
 try{
@@ -311,24 +310,14 @@ try{
     try{
       if(typeof H!=='undefined'&&H&&H.locked&&!H.cx&&!cancelled){
         try{H.btn&&H.btn.releasePointerCapture(H.id)}catch(x){}
-        var lockedKind=H.kind;
-        window.H=null; H=null;
+        window.H=null;H=null;
         try{
           var b=document.getElementById('recb');
           if(b&&!b.querySelector('.sbtn')){
-            var go=document.createElement('button');
-            go.className='sbtn';
+            var go=document.createElement('button'); go.className='sbtn';
             go.innerHTML=typeof ic==='function'?ic('send'):'➤';
             go.onclick=function(){try{recStop()}catch(x){}};
             b.appendChild(go);
-          }
-          var cov=document.querySelector('.hcirc');
-          if(cov&&!cov.querySelector('[data-a="stop"]')){
-            var ctl=cov.querySelector('.hctl')||cov;
-            var stop=document.createElement('button');
-            stop.dataset.a='stop'; stop.textContent='✓';
-            stop.onclick=function(){try{recStop()}catch(x){}};
-            ctl.appendChild(stop);
           }
         }catch(x){}
         return;
@@ -339,8 +328,7 @@ try{
           if(ball){
             ball.classList.add('toss');
             var trash=document.createElement('div');
-            trash.className='rec-trash-fly';
-            trash.textContent='🗑';
+            trash.className='rec-trash-fly'; trash.textContent='🗑';
             document.body.appendChild(trash);
             setTimeout(function(){try{trash.remove()}catch(x){}},520);
           }
@@ -357,12 +345,28 @@ try{
     window.holdStart=function(kind,btn,e){
       var p=_hs(kind,btn,e);
       Promise.resolve(p).then(function(){
-        try{ if(typeof H!=='undefined'&&H){ H.x0=e.clientX; H.y0=e.clientY; H.locked=false; } }catch(x){}
+        try{if(typeof H!=='undefined'&&H){H.x0=e.clientX;H.y0=e.clientY;H.locked=false}}catch(x){}
       });
       return p;
     };
   }
 }catch(e){}
 
-console.log('[Logos] UI v4 ready');
+/* ---------- auto-update: SW bump + reload when new version ---------- */
+try{
+  if('serviceWorker' in navigator){
+    navigator.serviceWorker.getRegistrations().then(function(regs){
+      regs.forEach(function(r){
+        try{ r.update(); }catch(e){}
+      });
+    });
+    navigator.serviceWorker.addEventListener('controllerchange',function(){
+      if(window.__lgReloaded) return;
+      window.__lgReloaded=1;
+      location.reload();
+    });
+  }
+}catch(e){}
+
+console.log('[Logos] UI v5 ready');
 })();
