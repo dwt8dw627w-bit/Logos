@@ -92,6 +92,14 @@ html:root :is(.lgx,#tb .tbp.lgx)::after,html:root .lgx-btn::after,
   transition:transform .42s var(--ease),opacity .42s!important;
   transform:translate(-40vw,16vh) scale(.15)!important;opacity:0!important;
 }
+/* v6: материал нижней панели для кнопок, поиска, композера и карточек */
+html:root :is(.lgx-btn,.lgx-field,.lgx-card,.lgx-bar):not(#_)::before,html:root :is(.lgx-btn,.lgx-field,.lgx-card,.lgx-bar):not(#_)::after{display:none!important;content:none!important;background:none!important}
+html:root :is(.lgx-btn,.lgx-field,.lgx-card,.top .ib,.hd .ib,.comp .ib:not(.snd),.hdp,.srch,.comp input#in,.grp,.pc):not(#_){
+  background:var(--lg-fill2)!important;
+  -webkit-backdrop-filter:saturate(170%) blur(26px)!important;backdrop-filter:saturate(170%) blur(26px)!important;
+  border:1px solid var(--lg-stroke)!important;box-shadow:var(--lg-shadow),var(--lg-inset)!important}
+html:root :is(.lgx-card,.grp,.pc,.srch,.lgx-field):not(#_){background:var(--lg-fill)!important}
+html:root .comp:not(#_){background:var(--lg-fill)!important;-webkit-backdrop-filter:saturate(170%) blur(22px)!important;backdrop-filter:saturate(170%) blur(22px)!important;border:0!important;border-top:1px solid var(--lg-soft)!important;box-shadow:none!important}
 .rec-trash-fly{
   position:fixed;z-index:9999;pointer-events:none;width:56px;height:56px;border-radius:50%;
   left:14vw;bottom:24vh;background:rgba(0,0,0,.5);border:1px solid rgba(255,255,255,.2);
@@ -126,7 +134,7 @@ function modeIcon(){
   }catch(e){return '●'}
 }
 
-function wireRecBtn(btn){
+function wireRecBtn(btn){return;
   if(btn.__wired) return;
   btn.__wired=1;
   var t0=0,moved=0,holding=0,timer=0;
@@ -161,7 +169,7 @@ function wireRecBtn(btn){
   btn.addEventListener('pointercancel',function(){clearTimeout(timer);holding=0},{passive:true});
 }
 
-function ensureRecBtn(){
+function ensureRecBtn(){return false;
   try{
     var acts=document.querySelectorAll('.cact');
     if(!acts.length) return false;
