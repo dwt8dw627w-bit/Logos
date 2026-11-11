@@ -5283,91 +5283,6 @@ function bg(){var i0=document.querySelector('#fbg i');if(!i0){h.classList.add('f
 if(chk())ready();else{var mo=new MutationObserver(function(){if(chk()){mo.disconnect();ready()}});mo.observe(r,{childList:true});setTimeout(function(){if(!h.classList.contains('lg-ready'))ready()},4000)}
 })();
 </script>
-<style id="lg-liquid">
-/* ===== LOGOS · Liquid Glass =====
-   Схема из liquid-glass (MIT, dpawlikowski): живое преломление через backdrop-filter:url()
-   там, где браузер умеет (Chromium), иначе — копия фона со смещением; плюс карта линзы (выпуклая кромка). */
-:root{--lgs-ov:none;--lgs-img:none;--lgb:#05030c;--lgx-out:0 12px 32px #0000008c,0 0 30px #6a3dff33}
-html:root .lgx,html:root #tb .tbp.lgx{position:relative;isolation:isolate;background:transparent!important;border:0!important}
-html:root :is(.lgx,#tb .tbp.lgx)::before{content:"";position:absolute!important;inset:0!important;left:0!important;top:0!important;right:0!important;bottom:0!important;width:auto!important;height:auto!important;z-index:-2!important;border-radius:inherit!important;pointer-events:none;opacity:1!important;animation:none!important;transform:translateZ(0)!important;box-shadow:none!important;
- background:var(--lgt) 0 0/100% 100% no-repeat,var(--lgs-ov) var(--sx,0) var(--sy,0)/var(--sw,100vw) var(--sh,100vh) no-repeat,var(--lgs-img) var(--ix,0) var(--iy,0)/var(--iw,100vw) var(--ih,100vh) no-repeat,var(--lgb)!important}
-html:root .lgx:not(.lgx-ref)::before,html:root #tb .tbp.lgx:not(.lgx-ref)::before{background:var(--lgt) 0 0/100% 100% no-repeat!important}
-html.lg-sprite:root .lgx-ref::before,html.lg-sprite:root #tb .tbp.lgx-ref::before{filter:var(--lgf,none) brightness(.95) saturate(1.5)!important}
-html.lg-live:root .lgx-ref::before,html.lg-live:root #tb .tbp.lgx-ref::before{background:var(--lgt) 0 0/100% 100% no-repeat!important;filter:none!important}
-html.lg-live:root .lgx-ref{-webkit-backdrop-filter:var(--lgf) blur(1.5px) saturate(1.6)!important;backdrop-filter:var(--lgf) blur(1.5px) saturate(1.6)!important}
-html.lg-flat:root .lgx::before{background:var(--lgt) 0 0/100% 100% no-repeat!important;filter:none!important}
-html.lg-flat:root .lgx{-webkit-backdrop-filter:blur(16px) saturate(1.6)!important;backdrop-filter:blur(16px) saturate(1.6)!important}
-html:not(.nobl):not(.lg-flat):root :is(.lgx-bar,.lgx-sheet,.lgx-field){-webkit-backdrop-filter:blur(16px) saturate(1.6)!important;backdrop-filter:blur(16px) saturate(1.6)!important}
-/* грани, блики, глубина (как на фото: двойная кромка, вспышка в углу, свет по нижней грани, диагональный блик) */
-html:root :is(.lgx,#tb .tbp.lgx)::after{content:"";position:absolute!important;inset:0!important;left:0!important;top:0!important;right:0!important;bottom:0!important;width:auto!important;height:auto!important;z-index:3!important;border-radius:inherit!important;pointer-events:none;opacity:1!important;animation:none!important;transform:none!important;mix-blend-mode:screen;
- background:radial-gradient(40% 75% at 9% -8%,#ffffffd9 0,#ffffff00 70%),radial-gradient(62% 42% at 50% 114%,#b89cffa0 0,#b89cff00 72%),linear-gradient(115deg,transparent 30%,#ffffff1f 44%,#c6b0ff2e 51%,transparent 64%)!important;
- box-shadow:inset 0 1.5px 0 #fffffff2,inset 0 0 0 1px #cdbcff5c,inset 0 0 0 5px #7c5cff12,inset 3px 0 4px -2px #dcd0ff85,inset -3px 0 4px -2px #bfa9ff70,inset 0 -12px 20px -9px #a47cffb3!important}
-html:root .lgx-btn::after{background:radial-gradient(55% 60% at 22% -4%,#fffffff2 0,#ffffff00 68%),radial-gradient(70% 44% at 50% 116%,#c4a8ffcc 0,#c4a8ff00 72%),linear-gradient(125deg,transparent 28%,#ffffff33 44%,#d2c0ff40 52%,transparent 66%)!important;box-shadow:inset 0 1.5px 0 #fffffffa,inset 0 0 0 1px #d9ccff75,inset 0 0 0 3px #8a66ff1f,inset 2px 0 3px -1px #e6dcff99,inset -2px 0 3px -1px #cdbcff80,inset 0 -8px 12px -5px #ad8cffcc!important}
-html:root :is(.lgx-card,.lgx-sheet,.lgx-field,.lgx-bar)::after{opacity:.8!important}
-/* прозрачность по размеру: большие панели плотнее, мелкие кнопки прозрачнее */
-html:root .lgx-nav{--lgt:linear-gradient(135deg,#0d0830eb,#07041cd1 48%,#3a2290a6);box-shadow:var(--lgx-out)!important}
-html:root .lgx-btn{--lgt:linear-gradient(135deg,#1a0f4a73,#0b072a40 50%,#6c48f04d);box-shadow:0 8px 20px #0000007a,0 0 20px #7d52ff40!important}
-html:root .lgx-card{--lgt:linear-gradient(135deg,#0c0728f2,#07041ee8 55%,#2e1a7ad9);box-shadow:0 10px 28px #00000070,0 0 28px #6a3dff26!important}
-html:root .lgx-bar{--lgt:linear-gradient(180deg,#0a0620d9,#07041bcc);box-shadow:none!important}
-html:root .lgx-sheet{--lgt:linear-gradient(160deg,#100a36f7,#08051ff5 60%,#2a1870f0);box-shadow:0 -10px 40px #0009,0 0 40px #6a3dff30!important}
-html:root .lgx-field{--lgt:linear-gradient(135deg,#1a1048b3,#0d0830b3);box-shadow:none!important}
-html.lgl:root .lgx{--lgt:linear-gradient(135deg,#ffffffd9,#ffffffa6)}
-html:root .lgx-field::after,html:root .lgx-bar::after{box-shadow:inset 0 1px 0 #ffffff55,inset 0 0 0 1px #cdbcff33!important;background:none!important}
-@media(prefers-reduced-transparency:reduce){html:root .lgx::before{filter:none!important}}
-</style>
-<script id="lg-liquid-js">
-(function(){
-var H=document.documentElement,NS='http://www.w3.org/2000/svg',Q=location.search;
-var okF=!!(window.CSS&&CSS.supports&&CSS.supports('filter','url(#a)'));
-var okB=!!(window.CSS&&CSS.supports&&(CSS.supports('backdrop-filter','url(#a) blur(1px)')||CSS.supports('-webkit-backdrop-filter','url(#a) blur(1px)')));
-var q=/[?&]glass=(flat|sprite|live)/.exec(Q),pref=q?q[1]:(function(){try{return localStorage.lg_glass||''}catch(e){return ''}})();
-var mode=pref==='flat'||!okF?'flat':(pref==='sprite'?'sprite':(pref==='live'?'live':(okB?'live':'sprite')));
-H.classList.add('lg-'+mode);
-var defs=document.createElementNS(NS,'svg');defs.setAttribute('width','0');defs.setAttribute('height','0');defs.style.cssText='position:absolute';defs.setAttribute('aria-hidden','true');
-var D=document.createElementNS(NS,'defs');defs.appendChild(D);document.body.appendChild(defs);
-var cache={},uid=0,IMG=null;
-function makeMap(w,h,r,bz){var c=document.createElement('canvas');c.width=w;c.height=h;var g=c.getContext('2d'),im=g.createImageData(w,h),d=im.data,hw=w/2,hh=h/2,ix=hw-r,iy=hh-r;
- for(var y=0;y<h;y++)for(var x=0;x<w;x++){var px=x+.5-hw,py=y+.5-hh,qx=Math.abs(px)-ix,qy=Math.abs(py)-iy,nx=0,ny=0,dist,ox=Math.max(qx,0),oy=Math.max(qy,0),out=Math.sqrt(ox*ox+oy*oy);
-  if(out>0){nx=Math.sign(px)*ox/out;ny=Math.sign(py)*oy/out;dist=r-out}else if(qx>qy){nx=Math.sign(px);dist=-qx}else{ny=Math.sign(py);dist=-qy}
-  var t=1-dist/bz,m=t>0?Math.pow(Math.min(t,1),2.2):0,i=(y*w+x)*4;d[i]=Math.round(128-nx*m*127);d[i+1]=Math.round(128-ny*m*127);d[i+2]=128;d[i+3]=255}
- g.putImageData(im,0,0);return c.toDataURL()}
-function filterFor(w,h,r,bz,sc){var k=[w,h,r,bz,sc].join('_');if(cache[k])return cache[k];var id='lgl'+(++uid),f=document.createElementNS(NS,'filter');
- f.setAttribute('id',id);f.setAttribute('x','0');f.setAttribute('y','0');f.setAttribute('width','100%');f.setAttribute('height','100%');f.setAttribute('color-interpolation-filters','sRGB');
- f.innerHTML='<feImage href="'+makeMap(w,h,r,bz)+'" x="0" y="0" width="'+w+'" height="'+h+'" preserveAspectRatio="none" result="m0"/><feGaussianBlur in="m0" stdDeviation="1.4" result="m"/><feDisplacementMap in="SourceGraphic" in2="m" scale="'+sc+'" xChannelSelector="R" yChannelSelector="G"/>';
- D.appendChild(f);return cache[k]=id}
-var PS=[['nav','#tb .tbp',1,.55,24],['btn','.ib:not(.snd),.xpen',1,.85,16],['bar','.top,.comp',0],['card','.pc,.grp,.xact,.xgift',0],['field','.srch,.seg',0],['sheet','.sh .shb,.dlg>div',0]];
-var reg=new Set();
-function radius(el,w,h){var v=getComputedStyle(el).borderTopLeftRadius||'0px',n=parseFloat(v)||0;if(/%$/.test(v))n=Math.min(w,h)*n/100;return Math.max(0,Math.min(n,w/2,h/2))}
-function upd(el){var c=el._lg;if(!c||!el.isConnected)return;var b=el.getBoundingClientRect(),w=Math.round(b.width),h=Math.round(b.height);if(!w||!h)return;
- if(!c.ref||mode==='flat')return;var st=el.style,r=radius(el,w,h);
- st.setProperty('--lgf','url(#'+filterFor(w,h,r,Math.min(w,h)*c.bz*.5+4,c.sc)+')');
- if(mode==='sprite'){var W=innerWidth,Hh=innerHeight;st.setProperty('--sx',-b.left+'px');st.setProperty('--sy',-b.top+'px');st.setProperty('--sw',W+'px');st.setProperty('--sh',Hh+'px');
-  if(IMG){var s=Math.max(W/IMG.w,Hh/IMG.h),iw=IMG.w*s,ih=IMG.h*s;st.setProperty('--iw',iw+'px');st.setProperty('--ih',ih+'px');st.setProperty('--ix',((W-iw)/2-b.left)+'px');st.setProperty('--iy',((Hh-ih)/2-b.top)+'px')}}}
-var ro=window.ResizeObserver?new ResizeObserver(function(es){es.forEach(function(e){upd(e.target)})}):null;
-function attach(el,p){if(el.classList.contains('lgx'))return;
- var bc=getComputedStyle(el,'::before').content,ac=getComputedStyle(el,'::after').content,own=el.matches('#tb .tbp');
- if(!own&&((bc&&bc!=='none'&&bc!=='normal')||(ac&&ac!=='none'&&ac!=='normal')))return;
- el._lg={ref:!!p[2],bz:p[3]||.6,sc:p[4]||16};el.classList.add('lgx','lgx-'+p[0]);if(p[2])el.classList.add('lgx-ref');
- if(getComputedStyle(el).position==='static')el.style.position='relative';
- reg.add(el);if(ro&&p[2])ro.observe(el);upd(el)}
-function scan(root){if(!root||root.nodeType!==1)return;PS.forEach(function(p){if(root.matches&&root.matches(p[1]))attach(root,p);root.querySelectorAll&&root.querySelectorAll(p[1]).forEach(function(e){attach(e,p)})})}
-function updAll(){reg.forEach(function(el){if(!el.isConnected){reg.delete(el);return}if(el._lg.ref)upd(el)})}
-var raf=0;function later(){if(raf)return;raf=requestAnimationFrame(function(){raf=0;updAll()})}
-var tmr=0;function debounced(){clearTimeout(tmr);tmr=setTimeout(later,120)}
-/* сцена для режима «копия фона»: тот же фон, что рисует приложение (#fbg) */
-function scene(){var fan=H.dataset.theme==='fantasy'||!H.dataset.theme,i0=document.querySelector('#fbg i');
- if(!fan||!i0){H.style.setProperty('--lgs-img','none');H.style.setProperty('--lgs-ov','none');H.style.setProperty('--lgb',getComputedStyle(H).getPropertyValue('--bg').trim()||'#05030c');IMG=null;later();return}
- var m=/url\(["']?([^"')]+)["']?\)/.exec(i0.getAttribute('style')||'');H.style.setProperty('--lgs-ov','linear-gradient(#05030cd9,#05030cc2 40%,#05030cf0)');H.style.setProperty('--lgb','#05030c');
- if(!m)return;var im=new Image();im.onload=function(){IMG={w:im.naturalWidth,h:im.naturalHeight};H.style.setProperty('--lgs-img','url('+m[1]+')');later()};im.src=m[1]}
-new MutationObserver(function(ml){ml.forEach(function(m){m.addedNodes.forEach(scan)})}).observe(document.body,{childList:true,subtree:true});
-new MutationObserver(function(){scene()}).observe(H,{attributes:true,attributeFilter:['data-theme']});
-addEventListener('resize',later);addEventListener('orientationchange',function(){setTimeout(later,350)});
-document.addEventListener('transitionend',debounced,true);document.addEventListener('animationend',debounced,true);
-if(mode==='sprite')document.addEventListener('scroll',debounced,true);
-scan(document.body);if(mode==='sprite')setTimeout(scene,400);
-window.__lg={mode:mode,reg:reg,scan:function(){scan(document.body)}};
-})();
-</script>
 <style id="lg-dark">
 /* ===== LOGOS · премиальное тёмное стекло (тоньше блики, почти чёрная основа, серебристо-фиолетовые отражения) ===== */
 html:root{--lgx-out:0 12px 30px #000000b3,0 0 16px #5a3fd01a;--press:cubic-bezier(.3,.7,.2,1)}
@@ -5840,206 +5755,89 @@ var r=0;new MutationObserver(function(){if(r)return;r=requestAnimationFrame(func
 })();
 </script>
 
-<style id="lg-webgl">
-/* ===== LOGOS · Liquid Glass WebGL =====
-   Шейдер и параметры из liquid-glass-js (dashersw, MIT): преломление по кромке, блюр, тинт.
-   Один общий WebGL-контекст рисует все панели; результат кладётся в canvas каждой панели. */
-.lgw-c{position:absolute;left:0;top:0;width:100%;height:100%;border-radius:inherit;pointer-events:none;z-index:-1;opacity:0;transition:opacity .3s ease}
-.lgw-c.on{opacity:1}
-.lgw-el{isolation:isolate}
-html.lgw-on .lgw-el.lgw-done{background:transparent!important;-webkit-backdrop-filter:none!important;backdrop-filter:none!important}
-html.lgw-on .lgx.lgw-done::before{opacity:0!important}
-@media(prefers-reduced-transparency:reduce){.lgw-c{display:none}}
+<!-- ===== LOGOS · Liquid Glass: библиотека liquid-glass-js (dashersw, MIT) без изменений, лежит в liquid-glass/ ===== -->
+<link rel="stylesheet" href="liquid-glass/glass.css">
+<script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+<script src="liquid-glass/container.js"></script>
+<script src="liquid-glass/button.js"></script>
+<style id="zg-css">
+/* слой стекла (Container из зипа) лежит под содержимым панели */
+.zg{isolation:isolate}
+.zg>.zg-layer{position:absolute!important;left:0;top:0;right:0;bottom:0;width:auto;height:auto;margin:0;padding:0!important;gap:0;pointer-events:none;z-index:-1;opacity:0;transition:opacity .3s ease}
+.zg.zg-live>.zg-layer{opacity:1}
+.zg>.zg-layer>canvas{box-shadow:0 6px 20px rgba(0,0,0,.28)!important}
+/* когда стекло из зипа реально отрисовано — прежняя подложка панели не нужна */
+html.zg-on .zg.zg-live,html.zg-on #tb .tbp.zg-live{background:transparent!important;background-image:none!important;-webkit-backdrop-filter:none!important;backdrop-filter:none!important;box-shadow:none!important}
+@media(prefers-reduced-transparency:reduce){.zg>.zg-layer{display:none}}
 </style>
-<script id="lg-webgl-js">
+<script id="zg-js">
 (function(){
 'use strict';
-var H=document.documentElement,Q=location.search;
-if(/[?&]glass=(flat|css)/.test(Q)||(function(){try{return localStorage.lg_glass==='flat'||localStorage.lg_webgl==='0'}catch(e){return false}})())return;
-
-/* ---------- параметры стекла (значения по умолчанию из controls.js пакета) ---------- */
-var G={edge:.01,rim:.05,base:.01,edgeD:.15,rimD:.8,baseD:.1,corner:.02,ripple:.1,blur:5};
-/* селектор → {tint: непрозрачность белого тинта, blur, rim}  */
-var SPEC=[
- ['#tb .tbp',      {tint:.13,blur:5,rim:.06,edge:.012}],
- ['.srch',         {tint:.12,blur:5,rim:.05}],
- ['.seg',          {tint:.11,blur:5,rim:.05}],
- ['.pc',           {tint:.10,blur:6,rim:.04}],
- ['.grp',          {tint:.10,blur:6,rim:.04}],
- ['.ib:not(.snd)', {tint:.14,blur:4,rim:.07,edge:.014}],
- ['.sh .shb,.dlg>div',{tint:.12,blur:7,rim:.04}]
-];
-var MAXEL=14;               /* максимум одновременно отрисовываемых панелей */
-var SNAP_MIN=900;           /* не чаще одного снимка за столько мс */
-
-/* ---------- WebGL (один контекст на всех) ---------- */
-var glc=document.createElement('canvas'),gl=glc.getContext('webgl',{alpha:true,premultipliedAlpha:true,preserveDrawingBuffer:true,antialias:false});
-if(!gl){console.warn('[lgw] WebGL недоступен — остаётся CSS-стекло');return}
-var VS='attribute vec2 a_position;attribute vec2 a_texcoord;varying vec2 v_texcoord;void main(){gl_Position=vec4(a_position,0.,1.);v_texcoord=a_texcoord;}';
-var FS=[
-'#ifdef GL_FRAGMENT_PRECISION_HIGH','precision highp float;','#else','precision mediump float;','#endif',
-'uniform sampler2D u_image;uniform vec2 u_resolution;uniform vec2 u_textureSize;uniform float u_blurRadius;uniform float u_borderRadius;uniform vec2 u_containerPosition;',
-'uniform float u_edgeIntensity;uniform float u_rimIntensity;uniform float u_baseIntensity;uniform float u_edgeDistance;uniform float u_rimDistance;uniform float u_baseDistance;',
-'uniform float u_cornerBoost;uniform float u_rippleEffect;uniform float u_tintOpacity;uniform vec3 u_tintTop;uniform vec3 u_tintBottom;uniform float u_sat;',
-'varying vec2 v_texcoord;',
-'float roundedRectDistance(vec2 coord,vec2 size,float radius){vec2 center=size*.5;vec2 p=coord*size;vec2 q=abs(p-center)-(center-radius);return length(max(q,0.))+min(max(q.x,q.y),0.)-radius;}',
-'float circleDistance(vec2 coord,vec2 size,float radius){return length(coord*size-size*.5)-radius;}',
-'bool isPill(vec2 size,float radius){return abs(radius-size.y*.5)<2.&&size.x>size.y+4.;}',
-'bool isCircle(vec2 size,float radius){float m=min(size.x,size.y);return abs(radius-m*.5)<1.&&abs(size.x-size.y)<4.;}',
-'float pillDistance(vec2 coord,vec2 size,float radius){vec2 c=size*.5;vec2 p=coord*size;vec2 a=vec2(radius,c.y);vec2 b=vec2(size.x-radius,c.y);vec2 ab=b-a;if(length(ab)>0.){float t=clamp(dot(p-a,ab)/dot(ab,ab),0.,1.);return length(p-(a+t*ab))-radius;}return length(p-c)-radius;}',
-'void main(){',
-' vec2 coord=v_texcoord;vec2 size=u_resolution;',
-' vec2 pagePixel=u_containerPosition+(coord-.5)*size;vec2 tc=pagePixel/u_textureSize;',
-' float dEdge;vec2 nrm;vec2 ctr=vec2(.5);',
-' if(isPill(size,u_borderRadius)){dEdge=-pillDistance(coord,size,u_borderRadius);vec2 p=coord*size;vec2 a=vec2(u_borderRadius,ctr.y*size.y);vec2 b=vec2(size.x-u_borderRadius,ctr.y*size.y);vec2 ab=b-a;float t=clamp(dot(p-a,ab)/dot(ab,ab),0.,1.);vec2 nd=p-(a+t*ab);nrm=length(nd)>0.?normalize(nd):vec2(0.,1.);}',
-' else if(isCircle(size,u_borderRadius)){dEdge=-circleDistance(coord,size,u_borderRadius);nrm=normalize(coord-ctr+1e-5);}',
-' else{dEdge=-roundedRectDistance(coord,size,u_borderRadius);vec2 q=abs(coord*size-size*.5)-(size*.5-u_borderRadius);vec2 sg=sign(coord-ctr);nrm=(q.x>0.&&q.y>0.)?normalize(q*sg):(q.x>q.y?vec2(sg.x,0.):vec2(0.,sg.y));}',
-' dEdge=max(dEdge,0.);',
-' float minS=min(size.x,size.y);',
-' float baseI=1.-exp(-dEdge*u_baseDistance);float edgeI=exp(-dEdge*u_edgeDistance);float rimI=exp(-dEdge*u_rimDistance);',
-' float total=edgeI*u_edgeIntensity+rimI*u_rimIntensity+baseI*u_baseIntensity*0.;',
-' vec2 refr=nrm*total;',
-' float cx=min(coord.x,1.-coord.x),cy=min(coord.y,1.-coord.y);float cd=max(cx,cy)*minS;',
-' refr+=nrm*exp(-cd*.3)*u_cornerBoost;',
-' vec2 perp=vec2(-nrm.y,nrm.x);refr+=perp*sin(dEdge/minS*25.)*u_rippleEffect*rimI;',
-' tc+=refr;',
-/* блюр: 9x9 вместо 13x13 (мобильные GPU) */
-' vec4 col=vec4(0.);vec2 texel=1./u_textureSize;float sigma=max(u_blurRadius*.5,.5);vec2 bstep=texel*sigma*1.5;float tw=0.;',
-' for(float i=-4.;i<=4.;i+=1.){for(float j=-4.;j<=4.;j+=1.){float d=length(vec2(i,j));if(d>4.2)continue;float w=exp(-(d*d)/(2.*2.2*2.2));col+=texture2D(u_image,tc+vec2(i,j)*bstep)*w;tw+=w;}}',
-' col/=tw;',
-/* насыщенность как у Apple (backdrop saturate) */
-' float lum=dot(col.rgb,vec3(.299,.587,.114));col.rgb=mix(vec3(lum),col.rgb,u_sat);',
-/* вертикальный тинт, как в пакете */
-' vec3 gt=mix(u_tintTop,u_tintBottom,coord.y);col.rgb=mix(col.rgb,gt,u_tintOpacity);',
-' float md;if(isPill(size,u_borderRadius))md=pillDistance(coord,size,u_borderRadius);else if(isCircle(size,u_borderRadius))md=circleDistance(coord,size,u_borderRadius);else md=roundedRectDistance(coord,size,u_borderRadius);',
-' float mask=1.-smoothstep(-1.,.6,md);',
-' gl_FragColor=vec4(col.rgb*mask,mask);',
-'}'].join('\n');
-function sh(t,s){var o=gl.createShader(t);gl.shaderSource(o,s);gl.compileShader(o);if(!gl.getShaderParameter(o,gl.COMPILE_STATUS)){console.warn('[lgw] shader:',gl.getShaderInfoLog(o));return null}return o}
-var P=null,L={},TEX=null,texW=1,texH=1;
-function initGL(){
- var v=sh(gl.VERTEX_SHADER,VS),f=sh(gl.FRAGMENT_SHADER,FS);if(!v||!f)return false;
- P=gl.createProgram();gl.attachShader(P,v);gl.attachShader(P,f);gl.linkProgram(P);
- if(!gl.getProgramParameter(P,gl.LINK_STATUS)){console.warn('[lgw] link:',gl.getProgramInfoLog(P));return false}
- gl.useProgram(P);
- var pb=gl.createBuffer();gl.bindBuffer(gl.ARRAY_BUFFER,pb);gl.bufferData(gl.ARRAY_BUFFER,new Float32Array([-1,-1,1,-1,-1,1,-1,1,1,-1,1,1]),gl.STATIC_DRAW);
- var pl=gl.getAttribLocation(P,'a_position');gl.enableVertexAttribArray(pl);gl.vertexAttribPointer(pl,2,gl.FLOAT,false,0,0);
- var tb=gl.createBuffer();gl.bindBuffer(gl.ARRAY_BUFFER,tb);gl.bufferData(gl.ARRAY_BUFFER,new Float32Array([0,1,1,1,0,0,0,0,1,1,1,0]),gl.STATIC_DRAW);
- var tl=gl.getAttribLocation(P,'a_texcoord');gl.enableVertexAttribArray(tl);gl.vertexAttribPointer(tl,2,gl.FLOAT,false,0,0);
- ['u_image','u_resolution','u_textureSize','u_blurRadius','u_borderRadius','u_containerPosition','u_edgeIntensity','u_rimIntensity','u_baseIntensity','u_edgeDistance','u_rimDistance','u_baseDistance','u_cornerBoost','u_rippleEffect','u_tintOpacity','u_tintTop','u_tintBottom','u_sat'].forEach(function(n){L[n]=gl.getUniformLocation(P,n)});
- TEX=gl.createTexture();gl.bindTexture(gl.TEXTURE_2D,TEX);
- gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_MIN_FILTER,gl.LINEAR);gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_MAG_FILTER,gl.LINEAR);
- gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_WRAP_S,gl.CLAMP_TO_EDGE);gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_WRAP_T,gl.CLAMP_TO_EDGE);
- gl.clearColor(0,0,0,0);gl.disable(gl.BLEND);
- gl.activeTexture(gl.TEXTURE0);gl.uniform1i(L.u_image,0);
- return true}
-if(!initGL())return;
-
-/* ---------- панели ---------- */
-var els=new Set(),snapVer=0,haveSnap=false,lastR=new WeakMap();
-function light(){return H.classList.contains('lt')||H.classList.contains('lgl')}
-function radiusOf(el,w,h){var v=getComputedStyle(el).borderTopLeftRadius||'0px',n=parseFloat(v)||0;if(/%$/.test(v))n=Math.min(w,h)*n/100;return Math.max(0,Math.min(n,w/2,h/2))}
-function attach(el,spec){
- if(el._lgw||els.size>=MAXEL*3)return;
- var c=document.createElement('canvas');c.className='lgw-c';c.setAttribute('aria-hidden','true');
- el.insertBefore(c,el.firstChild);
- if(getComputedStyle(el).position==='static')el.style.position='relative';
- el.classList.add('lgw-el');
- el._lgw={c:c,ctx:c.getContext('2d'),spec:spec};els.add(el);ro&&ro.observe(el);
- if(haveSnap)drawOne(el,true)}
-function scan(root){
- if(!root||root.nodeType!==1)return;
- SPEC.forEach(function(s){
-  if(root.matches&&root.matches(s[0]))attach(root,s[1]);
-  root.querySelectorAll&&root.querySelectorAll(s[0]).forEach(function(e){attach(e,s[1])})})}
-var ro=window.ResizeObserver?new ResizeObserver(function(es){es.forEach(function(e){lastR.delete(e.target)});sched(60)}):null;
-
-function drawOne(el,force){
- var o=el._lgw;if(!o||!el.isConnected||!haveSnap)return;
- var b=el.getBoundingClientRect(),w=Math.round(b.width),h=Math.round(b.height);
- if(w<8||h<8)return;
- /* вне экрана — не рисуем */
- if(b.bottom<-40||b.top>innerHeight+40||b.right<-40||b.left>innerWidth+40)return;
- var key=Math.round(b.left)+'|'+Math.round(b.top)+'|'+w+'|'+h+'|'+snapVer+'|'+(light()?1:0);
- if(!force&&lastR.get(el)===key)return;lastR.set(el,key);
- var r=radiusOf(el,w,h),area=w*h,dpr=Math.min(devicePixelRatio||1,area>100000?1:2),pw=Math.max(1,Math.round(w*dpr)),ph=Math.max(1,Math.round(h*dpr));
- if(glc.width!==pw||glc.height!==ph){glc.width=pw;glc.height=ph}
- if(o.c.width!==pw||o.c.height!==ph){o.c.width=pw;o.c.height=ph}
- var s=o.spec,lt=light();
- gl.viewport(0,0,pw,ph);gl.clear(gl.COLOR_BUFFER_BIT);
- gl.uniform2f(L.u_resolution,w,h);gl.uniform2f(L.u_textureSize,texW,texH);
- gl.uniform1f(L.u_borderRadius,r);
- gl.uniform2f(L.u_containerPosition,b.left+w/2,b.top+h/2);
- gl.uniform1f(L.u_blurRadius,s.blur||G.blur);
- gl.uniform1f(L.u_edgeIntensity,s.edge||G.edge);gl.uniform1f(L.u_rimIntensity,s.rim||G.rim);gl.uniform1f(L.u_baseIntensity,G.base);
- gl.uniform1f(L.u_edgeDistance,G.edgeD);gl.uniform1f(L.u_rimDistance,G.rimD);gl.uniform1f(L.u_baseDistance,G.baseD);
- gl.uniform1f(L.u_cornerBoost,G.corner);gl.uniform1f(L.u_rippleEffect,G.ripple);
- /* тёмная тема: белёсый тинт слабее и мягче; светлая: плотнее */
- gl.uniform1f(L.u_tintOpacity,lt?Math.min(.55,(s.tint||.12)*3.2):(s.tint||.12));
- if(lt){gl.uniform3f(L.u_tintTop,1,1,1);gl.uniform3f(L.u_tintBottom,.93,.94,.97)}
- else{gl.uniform3f(L.u_tintTop,1,1,1);gl.uniform3f(L.u_tintBottom,.62,.62,.7)}
- gl.uniform1f(L.u_sat,lt?1.25:1.45);
- gl.drawArrays(gl.TRIANGLES,0,6);
- o.ctx.clearRect(0,0,pw,ph);o.ctx.drawImage(glc,0,0);
- if(!o.c.classList.contains('on')){o.c.classList.add('on');el.classList.add('lgw-done')}}
-function drawAll(force){els.forEach(function(el){if(!el.isConnected){els.delete(el);return}drawOne(el,force)})}
-
-/* ---------- снимок страницы (html2canvas, как в пакете) ---------- */
-var h2c=null,h2cLoading=false,capturing=false,pending=false,lastSnap=0,tmr=0,minGap=SNAP_MIN;
-function loadH2C(cb){
- if(window.html2canvas){h2c=window.html2canvas;return cb()}
- if(h2cLoading)return;h2cLoading=true;
- var s=document.createElement('script');s.src='https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js';s.crossOrigin='anonymous';
- s.onload=function(){h2c=window.html2canvas;cb()};
- s.onerror=function(){console.warn('[lgw] html2canvas не загрузился — CSS-стекло остаётся')};
- document.head.appendChild(s)}
-function ignore(n){
- var c=n.classList;if(!c)return false;
- return c.contains('lgw-c')||(n.tagName==='CANVAS'&&n.classList.contains('lgw-c'))||c.contains('lgw-el')}
-function snap(){
- if(capturing||document.hidden){pending=true;return}
- var now=Date.now();if(now-lastSnap<minGap){clearTimeout(tmr);tmr=setTimeout(snap,minGap-(now-lastSnap)+30);return}
- if(!h2c)return loadH2C(snap);
- capturing=true;pending=false;lastSnap=now;var t0=performance.now();
- var bg=getComputedStyle(H).backgroundColor;
- h2c(document.body,{scale:1,useCORS:true,allowTaint:false,imageTimeout:4000,logging:false,backgroundColor:null,width:innerWidth,height:innerHeight,windowWidth:innerWidth,windowHeight:innerHeight,x:0,y:0,scrollX:0,scrollY:0,ignoreElements:ignore,
-  onclone:function(doc){try{doc.documentElement.style.background='#05030c';doc.querySelectorAll('.lgw-c').forEach(function(x){x.remove()})}catch(e){}}})
- .then(function(cv){
-  /* подложка: тот же тёмный фон, чтобы дыры (прозрачные места) не давали чёрные пятна */
-  var out=document.createElement('canvas');out.width=cv.width;out.height=cv.height;var g=out.getContext('2d');
-  g.fillStyle=(light()?'#eef0f6':'#07050f');g.fillRect(0,0,out.width,out.height);g.drawImage(cv,0,0);
-  texW=out.width;texH=out.height;
-  gl.bindTexture(gl.TEXTURE_2D,TEX);gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL,false);gl.texImage2D(gl.TEXTURE_2D,0,gl.RGBA,gl.RGBA,gl.UNSIGNED_BYTE,out);
-  minGap=Math.max(SNAP_MIN,Math.round((performance.now()-t0)*3));snapVer++;haveSnap=true;capturing=false;if(!H.classList.contains('lgw-on'))H.classList.add('lgw-on');drawAll(true);
-  if(pending)snapLater(minGap)})
- .catch(function(e){capturing=false;console.warn('[lgw] snapshot:',e&&e.message||e)})}
-
-/* ---------- когда перерисовывать ---------- */
-var rt=0;function sched(ms){clearTimeout(rt);rt=setTimeout(function(){drawAll(false)},ms||0)}
-var st=0;function snapLater(ms){clearTimeout(st);st=setTimeout(snap,ms||500)}
-var thr=0;function scrollTick(){if(thr)return;thr=setTimeout(function(){thr=0;drawAll(false)},90)}
-document.addEventListener('scroll',function(e){scrollTick();snapLater(420)},true);
-document.addEventListener('transitionend',function(e){if(e.target&&e.target.classList&&e.target.classList.contains('lgw-c'))return;sched(80);snapLater(450)},true);
-document.addEventListener('animationend',function(){sched(80);snapLater(500)},true);
-addEventListener('resize',function(){lastR=new WeakMap();sched(120);snapLater(400)});
-addEventListener('orientationchange',function(){setTimeout(function(){lastR=new WeakMap();snapLater(100)},350)});
-document.addEventListener('visibilitychange',function(){if(!document.hidden&&pending)snapLater(200)});
-new MutationObserver(function(ml){
- var real=false;
- ml.forEach(function(m){
-  m.addedNodes.forEach(function(n){if(n.nodeType===1&&!(n.classList&&n.classList.contains('lgw-c'))){scan(n);real=true}});
-  });
- if(real){sched(60);snapLater(650)}
-}).observe(document.body,{childList:true,subtree:true});
-new MutationObserver(function(){lastR=new WeakMap();snapLater(250)}).observe(H,{attributes:true,attributeFilter:['data-theme','class']});
-
-/* потеря контекста (iOS в фоне) */
-glc.addEventListener('webglcontextlost',function(e){e.preventDefault();haveSnap=false;H.classList.remove('lgw-on');els.forEach(function(el){el._lgw&&el._lgw.c.classList.remove('on');el.classList.remove('lgw-done')})});
-glc.addEventListener('webglcontextrestored',function(){L={};if(initGL()){lastR=new WeakMap();snapLater(100)}});
-
-function start(){scan(document.body);snapLater(900)}
-if(document.readyState==='complete')setTimeout(start,300);else addEventListener('load',function(){setTimeout(start,300)});
-window.__lgw={els:els,snap:snap,G:G,redraw:function(){lastR=new WeakMap();drawAll(true)}};
+var H=document.documentElement,Q=location.search,DBG=/[?&]lgdebug/.test(Q);
+if(/[?&]glass=(flat|css)/.test(Q))return;
+var dbgEl=null;
+function dbg(t){if(!DBG)return;try{if(!dbgEl){dbgEl=document.createElement('div');dbgEl.style.cssText='position:fixed;left:8px;right:8px;top:calc(env(safe-area-inset-top) + 4px);z-index:2147483647;font:11px/1.3 -apple-system,monospace;color:#0f0;background:#000c;padding:4px 8px;border-radius:8px;pointer-events:none;white-space:pre-wrap';document.body.appendChild(dbgEl)}dbgEl.textContent='LG: '+t}catch(e){}}
+function boot(){
+ if(typeof Container==='undefined'||typeof html2canvas==='undefined'){dbg('не загрузились Container/html2canvas');console.warn('[lg] библиотека не загрузилась');return}
+ /* что делаем стеклом: селектор, форма, прозрачность тинта (tintOpacity из API зипа) */
+ var SPEC=[['#tb .tbp','pill',.12],['.srch','pill',.10],['.pc','rounded',.08],['.grp','rounded',.08],['.ib:not(.snd)','circle',.14]];
+ var HIDE=SPEC.map(function(s){return s[0]}).join(',');
+ var MAX=10,live=new Map(),ready=false,snapping=false,lastSnap=0,pend=0,key0='';
+ function light(){return H.classList.contains('lt')||H.classList.contains('lgl')}
+ function radiusOf(el,w,h){var v=getComputedStyle(el).borderTopLeftRadius||'0px',n=parseFloat(v)||0;if(/%$/.test(v))n=Math.min(w,h)*n/100;return Math.max(0,Math.min(n,w/2,h/2))}
+ function vis(el){var b=el.getBoundingClientRect();if(b.width<24||b.height<24)return false;if(b.bottom<0||b.top>innerHeight||b.right<0||b.left>innerWidth)return false;var cs=getComputedStyle(el);return cs.visibility!=='hidden'&&cs.display!=='none'&&parseFloat(cs.opacity)>.05}
+ var ro=window.ResizeObserver?new ResizeObserver(function(es){es.forEach(function(e){var o=live.get(e.target);if(o){o.c.updateSizeFromDOM();setTimeout(function(){o.c.render&&o.c.render()},90)}})}):null;
+ function make(el,s){
+  var b=el.getBoundingClientRect(),w=Math.round(b.width),h=Math.round(b.height),r=radiusOf(el,w,h);
+  var type=s[1]==='circle'?(Math.abs(w-h)<=3?'circle':'rounded'):s[1];
+  var c;try{c=new Container({borderRadius:r||24,type:type,tintOpacity:light()?.25:s[2]})}catch(e){return}
+  if(!c.gl){try{c.element.remove()}catch(e){}var i=Container.instances.indexOf(c);if(i>-1)Container.instances.splice(i,1);MAX=Math.max(1,live.size);return}
+  c.element.classList.add('zg-layer');
+  if(getComputedStyle(el).position==='static')el.style.position='relative';
+  el.classList.add('zg');el.insertBefore(c.element,el.firstChild);
+  live.set(el,{c:c,miss:0,on:false});ro&&ro.observe(el);
+  setTimeout(function(){c.render&&c.render()},300);setTimeout(function(){c.render&&c.render()},800)}
+ function destroy(el){
+  var o=live.get(el);if(!o)return;live.delete(el);ro&&ro.unobserve(el);
+  try{var gl=o.c.gl;var x=gl&&gl.getExtension('WEBGL_lose_context');x&&x.loseContext()}catch(e){}
+  o.c.gl_refs={};try{o.c.element.remove()}catch(e){}
+  var i=Container.instances.indexOf(o.c);if(i>-1)Container.instances.splice(i,1);
+  el.classList.remove('zg','zg-live')}
+ function sweep(){
+  if(!ready)return;
+  live.forEach(function(o,el){
+   if(!el.isConnected){destroy(el);return}
+   if(!vis(el)){if(++o.miss>3)destroy(el);return}o.miss=0;
+   if(!o.on&&o.c.webglInitialized&&o.c.render){o.on=true;o.c.render();requestAnimationFrame(function(){el.classList.add('zg-live');if(!H.classList.contains('zg-on'))H.classList.add('zg-on')})}});
+  var room=MAX-live.size;if(room<=0)return;
+  SPEC.forEach(function(s){document.querySelectorAll(s[0]).forEach(function(el){if(room<=0||live.has(el)||!vis(el))return;make(el,s);room--})})}
+ function renderAll(){live.forEach(function(o){if(o.on&&o.c.render)o.c.render()})}
+ var rt=0;function renderLater(ms){clearTimeout(rt);rt=setTimeout(renderAll,ms||100)}
+ var thr=0;document.addEventListener('scroll',function(){if(thr)return;thr=setTimeout(function(){thr=0;renderAll()},110)},true);
+ document.addEventListener('transitionend',function(){renderLater(90)},true);
+ document.addEventListener('animationend',function(){renderLater(90)},true);
+ addEventListener('resize',function(){renderLater(150);schedSnap()});
+ /* снимок страницы: тот же html2canvas, что в зипе, но панели скрываем, чтобы стекло не преломляло само себя */
+ function rebuild(){live.forEach(function(o,el){destroy(el)});ready=true;sweep()}
+ function snapshot(){
+  if(snapping||document.hidden)return;snapping=true;lastSnap=Date.now();var t0=performance.now();
+  html2canvas(document.body,{scale:1,useCORS:true,allowTaint:false,imageTimeout:4000,logging:false,backgroundColor:null,width:innerWidth,height:innerHeight,windowWidth:innerWidth,windowHeight:innerHeight,x:0,y:0,scrollX:0,scrollY:0,
+   ignoreElements:function(n){var c=n.classList;return !!c&&(c.contains('glass-container')||c.contains('glass-button')||c.contains('glass-button-text'))},
+   onclone:function(doc){try{var st=doc.createElement('style');st.textContent='.zg-hide,.zg-hide *{visibility:hidden!important}';doc.head.appendChild(st);doc.querySelectorAll(HIDE).forEach(function(e){e.classList.add('zg-hide')})}catch(e){}}})
+  .then(function(cv){
+   var o=document.createElement('canvas');o.width=cv.width;o.height=cv.height;var g=o.getContext('2d');
+   g.fillStyle=light()?'#eef0f6':'#07050f';g.fillRect(0,0,o.width,o.height);g.drawImage(cv,0,0);
+   var url=o.toDataURL('image/jpeg',.88);
+   Container.pageSnapshot={toDataURL:function(){return url},width:o.width,height:o.height};
+   snapping=false;rebuild();dbg('OK · снимок '+Math.round(performance.now()-t0)+'мс · '+o.width+'x'+o.height)})
+  .catch(function(e){snapping=false;console.warn('[lg] снимок:',e&&e.message||e);dbg('ошибка снимка: '+(e&&e.message||e))})}
+ function schedSnap(){clearTimeout(pend);pend=setTimeout(snapshot,Math.max(800,2500-(Date.now()-lastSnap)))}
+ function navKey(){var lc=document.getElementById('lc'),a=document.getElementById('app');return [H.dataset.theme||'',light()?1:0,a?a.className:'',lc?(lc.dataset.t||''):'',document.querySelectorAll('.sh,.ov,.dlg,.imgov').length,innerWidth+'x'+innerHeight].join('|')}
+ setInterval(function(){var k=navKey();if(k!==key0){key0=k;schedSnap()}},500);
+ setInterval(sweep,300);
+ key0=navKey();setTimeout(schedSnap,1200);
+ window.__lg2={live:live,snapshot:snapshot}}
+if(document.readyState==='complete')boot();else addEventListener('load',boot);
 })();
 </script>
 
