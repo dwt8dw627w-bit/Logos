@@ -5532,7 +5532,7 @@ function cancelAnim(g){
   else{const b=Q('#recb');if(b){r=b.getBoundingClientRect();html=b.innerHTML.replace(/ id="[^"]*"/g,'')}}}catch(e){}
  G=null;clean();HV(10);
  if(R)recCancel();else holdClear();
- if(r&&r.width&&!(window.matchMedia&&matchMedia('(prefers-reduced-motion: reduce)').matches))crumple(r,circle,cv,html)}
+ if(r&&r.width&&!(window.matchMedia&&matchMedia('(prefers-reduced-motion: reduce)').matches))(window.__lgCrumple&&window.__lgCrumple(r,circle,cv,html)!==false||crumple(r,circle,cv,html))}
 function crumple(r,circle,cv,html){
  const B=document.body,cx=r.left+r.width/2,cy=r.top+r.height/2,bx=34,by=Math.min(innerHeight-60,Math.max(70,cy)),sx=96;
  const pp=document.createElement('div');pp.className='p3pp'+(circle?' c':'');Object.assign(pp.style,{left:r.left+'px',top:r.top+'px',width:r.width+'px',height:r.height+'px',borderRadius:circle?'50%':'24px'});
@@ -5842,4 +5842,5 @@ var r=0;new MutationObserver(function(){if(r)return;r=requestAnimationFrame(func
 
 <script src="logos-groups-patch.js?v=6" defer></script>
 <script src="logos-ui-patch.js?v=6" defer></script>
+<script src="logos-cancel-anim.js?v=1" defer></script>
 </body></html>
