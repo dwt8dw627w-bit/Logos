@@ -5840,6 +5840,209 @@ var r=0;new MutationObserver(function(){if(r)return;r=requestAnimationFrame(func
 })();
 </script>
 
+<style id="lg-webgl">
+/* ===== LOGOS · Liquid Glass WebGL =====
+   Шейдер и параметры из liquid-glass-js (dashersw, MIT): преломление по кромке, блюр, тинт.
+   Один общий WebGL-контекст рисует все панели; результат кладётся в canvas каждой панели. */
+.lgw-c{position:absolute;left:0;top:0;width:100%;height:100%;border-radius:inherit;pointer-events:none;z-index:-1;opacity:0;transition:opacity .3s ease}
+.lgw-c.on{opacity:1}
+.lgw-el{isolation:isolate}
+html.lgw-on .lgw-el.lgw-done{background:transparent!important;-webkit-backdrop-filter:none!important;backdrop-filter:none!important}
+html.lgw-on .lgx.lgw-done::before{opacity:0!important}
+@media(prefers-reduced-transparency:reduce){.lgw-c{display:none}}
+</style>
+<script id="lg-webgl-js">
+(function(){
+'use strict';
+var H=document.documentElement,Q=location.search;
+if(/[?&]glass=(flat|css)/.test(Q)||(function(){try{return localStorage.lg_glass==='flat'||localStorage.lg_webgl==='0'}catch(e){return false}})())return;
+
+/* ---------- параметры стекла (значения по умолчанию из controls.js пакета) ---------- */
+var G={edge:.01,rim:.05,base:.01,edgeD:.15,rimD:.8,baseD:.1,corner:.02,ripple:.1,blur:5};
+/* селектор → {tint: непрозрачность белого тинта, blur, rim}  */
+var SPEC=[
+ ['#tb .tbp',      {tint:.13,blur:5,rim:.06,edge:.012}],
+ ['.srch',         {tint:.12,blur:5,rim:.05}],
+ ['.seg',          {tint:.11,blur:5,rim:.05}],
+ ['.pc',           {tint:.10,blur:6,rim:.04}],
+ ['.grp',          {tint:.10,blur:6,rim:.04}],
+ ['.ib:not(.snd)', {tint:.14,blur:4,rim:.07,edge:.014}],
+ ['.sh .shb,.dlg>div',{tint:.12,blur:7,rim:.04}]
+];
+var MAXEL=14;               /* максимум одновременно отрисовываемых панелей */
+var SNAP_MIN=900;           /* не чаще одного снимка за столько мс */
+
+/* ---------- WebGL (один контекст на всех) ---------- */
+var glc=document.createElement('canvas'),gl=glc.getContext('webgl',{alpha:true,premultipliedAlpha:true,preserveDrawingBuffer:true,antialias:false});
+if(!gl){console.warn('[lgw] WebGL недоступен — остаётся CSS-стекло');return}
+var VS='attribute vec2 a_position;attribute vec2 a_texcoord;varying vec2 v_texcoord;void main(){gl_Position=vec4(a_position,0.,1.);v_texcoord=a_texcoord;}';
+var FS=[
+'#ifdef GL_FRAGMENT_PRECISION_HIGH','precision highp float;','#else','precision mediump float;','#endif',
+'uniform sampler2D u_image;uniform vec2 u_resolution;uniform vec2 u_textureSize;uniform float u_blurRadius;uniform float u_borderRadius;uniform vec2 u_containerPosition;',
+'uniform float u_edgeIntensity;uniform float u_rimIntensity;uniform float u_baseIntensity;uniform float u_edgeDistance;uniform float u_rimDistance;uniform float u_baseDistance;',
+'uniform float u_cornerBoost;uniform float u_rippleEffect;uniform float u_tintOpacity;uniform vec3 u_tintTop;uniform vec3 u_tintBottom;uniform float u_sat;',
+'varying vec2 v_texcoord;',
+'float roundedRectDistance(vec2 coord,vec2 size,float radius){vec2 center=size*.5;vec2 p=coord*size;vec2 q=abs(p-center)-(center-radius);return length(max(q,0.))+min(max(q.x,q.y),0.)-radius;}',
+'float circleDistance(vec2 coord,vec2 size,float radius){return length(coord*size-size*.5)-radius;}',
+'bool isPill(vec2 size,float radius){return abs(radius-size.y*.5)<2.&&size.x>size.y+4.;}',
+'bool isCircle(vec2 size,float radius){float m=min(size.x,size.y);return abs(radius-m*.5)<1.&&abs(size.x-size.y)<4.;}',
+'float pillDistance(vec2 coord,vec2 size,float radius){vec2 c=size*.5;vec2 p=coord*size;vec2 a=vec2(radius,c.y);vec2 b=vec2(size.x-radius,c.y);vec2 ab=b-a;if(length(ab)>0.){float t=clamp(dot(p-a,ab)/dot(ab,ab),0.,1.);return length(p-(a+t*ab))-radius;}return length(p-c)-radius;}',
+'void main(){',
+' vec2 coord=v_texcoord;vec2 size=u_resolution;',
+' vec2 pagePixel=u_containerPosition+(coord-.5)*size;vec2 tc=pagePixel/u_textureSize;',
+' float dEdge;vec2 nrm;vec2 ctr=vec2(.5);',
+' if(isPill(size,u_borderRadius)){dEdge=-pillDistance(coord,size,u_borderRadius);vec2 p=coord*size;vec2 a=vec2(u_borderRadius,ctr.y*size.y);vec2 b=vec2(size.x-u_borderRadius,ctr.y*size.y);vec2 ab=b-a;float t=clamp(dot(p-a,ab)/dot(ab,ab),0.,1.);vec2 nd=p-(a+t*ab);nrm=length(nd)>0.?normalize(nd):vec2(0.,1.);}',
+' else if(isCircle(size,u_borderRadius)){dEdge=-circleDistance(coord,size,u_borderRadius);nrm=normalize(coord-ctr+1e-5);}',
+' else{dEdge=-roundedRectDistance(coord,size,u_borderRadius);vec2 q=abs(coord*size-size*.5)-(size*.5-u_borderRadius);vec2 sg=sign(coord-ctr);nrm=(q.x>0.&&q.y>0.)?normalize(q*sg):(q.x>q.y?vec2(sg.x,0.):vec2(0.,sg.y));}',
+' dEdge=max(dEdge,0.);',
+' float minS=min(size.x,size.y);',
+' float baseI=1.-exp(-dEdge*u_baseDistance);float edgeI=exp(-dEdge*u_edgeDistance);float rimI=exp(-dEdge*u_rimDistance);',
+' float total=edgeI*u_edgeIntensity+rimI*u_rimIntensity+baseI*u_baseIntensity*0.;',
+' vec2 refr=nrm*total;',
+' float cx=min(coord.x,1.-coord.x),cy=min(coord.y,1.-coord.y);float cd=max(cx,cy)*minS;',
+' refr+=nrm*exp(-cd*.3)*u_cornerBoost;',
+' vec2 perp=vec2(-nrm.y,nrm.x);refr+=perp*sin(dEdge/minS*25.)*u_rippleEffect*rimI;',
+' tc+=refr;',
+/* блюр: 9x9 вместо 13x13 (мобильные GPU) */
+' vec4 col=vec4(0.);vec2 texel=1./u_textureSize;float sigma=max(u_blurRadius*.5,.5);vec2 bstep=texel*sigma*1.5;float tw=0.;',
+' for(float i=-4.;i<=4.;i+=1.){for(float j=-4.;j<=4.;j+=1.){float d=length(vec2(i,j));if(d>4.2)continue;float w=exp(-(d*d)/(2.*2.2*2.2));col+=texture2D(u_image,tc+vec2(i,j)*bstep)*w;tw+=w;}}',
+' col/=tw;',
+/* насыщенность как у Apple (backdrop saturate) */
+' float lum=dot(col.rgb,vec3(.299,.587,.114));col.rgb=mix(vec3(lum),col.rgb,u_sat);',
+/* вертикальный тинт, как в пакете */
+' vec3 gt=mix(u_tintTop,u_tintBottom,coord.y);col.rgb=mix(col.rgb,gt,u_tintOpacity);',
+' float md;if(isPill(size,u_borderRadius))md=pillDistance(coord,size,u_borderRadius);else if(isCircle(size,u_borderRadius))md=circleDistance(coord,size,u_borderRadius);else md=roundedRectDistance(coord,size,u_borderRadius);',
+' float mask=1.-smoothstep(-1.,.6,md);',
+' gl_FragColor=vec4(col.rgb*mask,mask);',
+'}'].join('\n');
+function sh(t,s){var o=gl.createShader(t);gl.shaderSource(o,s);gl.compileShader(o);if(!gl.getShaderParameter(o,gl.COMPILE_STATUS)){console.warn('[lgw] shader:',gl.getShaderInfoLog(o));return null}return o}
+var P=null,L={},TEX=null,texW=1,texH=1;
+function initGL(){
+ var v=sh(gl.VERTEX_SHADER,VS),f=sh(gl.FRAGMENT_SHADER,FS);if(!v||!f)return false;
+ P=gl.createProgram();gl.attachShader(P,v);gl.attachShader(P,f);gl.linkProgram(P);
+ if(!gl.getProgramParameter(P,gl.LINK_STATUS)){console.warn('[lgw] link:',gl.getProgramInfoLog(P));return false}
+ gl.useProgram(P);
+ var pb=gl.createBuffer();gl.bindBuffer(gl.ARRAY_BUFFER,pb);gl.bufferData(gl.ARRAY_BUFFER,new Float32Array([-1,-1,1,-1,-1,1,-1,1,1,-1,1,1]),gl.STATIC_DRAW);
+ var pl=gl.getAttribLocation(P,'a_position');gl.enableVertexAttribArray(pl);gl.vertexAttribPointer(pl,2,gl.FLOAT,false,0,0);
+ var tb=gl.createBuffer();gl.bindBuffer(gl.ARRAY_BUFFER,tb);gl.bufferData(gl.ARRAY_BUFFER,new Float32Array([0,1,1,1,0,0,0,0,1,1,1,0]),gl.STATIC_DRAW);
+ var tl=gl.getAttribLocation(P,'a_texcoord');gl.enableVertexAttribArray(tl);gl.vertexAttribPointer(tl,2,gl.FLOAT,false,0,0);
+ ['u_image','u_resolution','u_textureSize','u_blurRadius','u_borderRadius','u_containerPosition','u_edgeIntensity','u_rimIntensity','u_baseIntensity','u_edgeDistance','u_rimDistance','u_baseDistance','u_cornerBoost','u_rippleEffect','u_tintOpacity','u_tintTop','u_tintBottom','u_sat'].forEach(function(n){L[n]=gl.getUniformLocation(P,n)});
+ TEX=gl.createTexture();gl.bindTexture(gl.TEXTURE_2D,TEX);
+ gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_MIN_FILTER,gl.LINEAR);gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_MAG_FILTER,gl.LINEAR);
+ gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_WRAP_S,gl.CLAMP_TO_EDGE);gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_WRAP_T,gl.CLAMP_TO_EDGE);
+ gl.clearColor(0,0,0,0);gl.disable(gl.BLEND);
+ gl.activeTexture(gl.TEXTURE0);gl.uniform1i(L.u_image,0);
+ return true}
+if(!initGL())return;
+
+/* ---------- панели ---------- */
+var els=new Set(),snapVer=0,haveSnap=false,lastR=new WeakMap();
+function light(){return H.classList.contains('lt')||H.classList.contains('lgl')}
+function radiusOf(el,w,h){var v=getComputedStyle(el).borderTopLeftRadius||'0px',n=parseFloat(v)||0;if(/%$/.test(v))n=Math.min(w,h)*n/100;return Math.max(0,Math.min(n,w/2,h/2))}
+function attach(el,spec){
+ if(el._lgw||els.size>=MAXEL*3)return;
+ var c=document.createElement('canvas');c.className='lgw-c';c.setAttribute('aria-hidden','true');
+ el.insertBefore(c,el.firstChild);
+ if(getComputedStyle(el).position==='static')el.style.position='relative';
+ el.classList.add('lgw-el');
+ el._lgw={c:c,ctx:c.getContext('2d'),spec:spec};els.add(el);ro&&ro.observe(el);
+ if(haveSnap)drawOne(el,true)}
+function scan(root){
+ if(!root||root.nodeType!==1)return;
+ SPEC.forEach(function(s){
+  if(root.matches&&root.matches(s[0]))attach(root,s[1]);
+  root.querySelectorAll&&root.querySelectorAll(s[0]).forEach(function(e){attach(e,s[1])})})}
+var ro=window.ResizeObserver?new ResizeObserver(function(es){es.forEach(function(e){lastR.delete(e.target)});sched(60)}):null;
+
+function drawOne(el,force){
+ var o=el._lgw;if(!o||!el.isConnected||!haveSnap)return;
+ var b=el.getBoundingClientRect(),w=Math.round(b.width),h=Math.round(b.height);
+ if(w<8||h<8)return;
+ /* вне экрана — не рисуем */
+ if(b.bottom<-40||b.top>innerHeight+40||b.right<-40||b.left>innerWidth+40)return;
+ var key=Math.round(b.left)+'|'+Math.round(b.top)+'|'+w+'|'+h+'|'+snapVer+'|'+(light()?1:0);
+ if(!force&&lastR.get(el)===key)return;lastR.set(el,key);
+ var r=radiusOf(el,w,h),area=w*h,dpr=Math.min(devicePixelRatio||1,area>100000?1:2),pw=Math.max(1,Math.round(w*dpr)),ph=Math.max(1,Math.round(h*dpr));
+ if(glc.width!==pw||glc.height!==ph){glc.width=pw;glc.height=ph}
+ if(o.c.width!==pw||o.c.height!==ph){o.c.width=pw;o.c.height=ph}
+ var s=o.spec,lt=light();
+ gl.viewport(0,0,pw,ph);gl.clear(gl.COLOR_BUFFER_BIT);
+ gl.uniform2f(L.u_resolution,w,h);gl.uniform2f(L.u_textureSize,texW,texH);
+ gl.uniform1f(L.u_borderRadius,r);
+ gl.uniform2f(L.u_containerPosition,b.left+w/2,b.top+h/2);
+ gl.uniform1f(L.u_blurRadius,s.blur||G.blur);
+ gl.uniform1f(L.u_edgeIntensity,s.edge||G.edge);gl.uniform1f(L.u_rimIntensity,s.rim||G.rim);gl.uniform1f(L.u_baseIntensity,G.base);
+ gl.uniform1f(L.u_edgeDistance,G.edgeD);gl.uniform1f(L.u_rimDistance,G.rimD);gl.uniform1f(L.u_baseDistance,G.baseD);
+ gl.uniform1f(L.u_cornerBoost,G.corner);gl.uniform1f(L.u_rippleEffect,G.ripple);
+ /* тёмная тема: белёсый тинт слабее и мягче; светлая: плотнее */
+ gl.uniform1f(L.u_tintOpacity,lt?Math.min(.55,(s.tint||.12)*3.2):(s.tint||.12));
+ if(lt){gl.uniform3f(L.u_tintTop,1,1,1);gl.uniform3f(L.u_tintBottom,.93,.94,.97)}
+ else{gl.uniform3f(L.u_tintTop,1,1,1);gl.uniform3f(L.u_tintBottom,.62,.62,.7)}
+ gl.uniform1f(L.u_sat,lt?1.25:1.45);
+ gl.drawArrays(gl.TRIANGLES,0,6);
+ o.ctx.clearRect(0,0,pw,ph);o.ctx.drawImage(glc,0,0);
+ if(!o.c.classList.contains('on')){o.c.classList.add('on');el.classList.add('lgw-done')}}
+function drawAll(force){els.forEach(function(el){if(!el.isConnected){els.delete(el);return}drawOne(el,force)})}
+
+/* ---------- снимок страницы (html2canvas, как в пакете) ---------- */
+var h2c=null,h2cLoading=false,capturing=false,pending=false,lastSnap=0,tmr=0,minGap=SNAP_MIN;
+function loadH2C(cb){
+ if(window.html2canvas){h2c=window.html2canvas;return cb()}
+ if(h2cLoading)return;h2cLoading=true;
+ var s=document.createElement('script');s.src='https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js';s.crossOrigin='anonymous';
+ s.onload=function(){h2c=window.html2canvas;cb()};
+ s.onerror=function(){console.warn('[lgw] html2canvas не загрузился — CSS-стекло остаётся')};
+ document.head.appendChild(s)}
+function ignore(n){
+ var c=n.classList;if(!c)return false;
+ return c.contains('lgw-c')||(n.tagName==='CANVAS'&&n.classList.contains('lgw-c'))||c.contains('lgw-el')}
+function snap(){
+ if(capturing||document.hidden){pending=true;return}
+ var now=Date.now();if(now-lastSnap<minGap){clearTimeout(tmr);tmr=setTimeout(snap,minGap-(now-lastSnap)+30);return}
+ if(!h2c)return loadH2C(snap);
+ capturing=true;pending=false;lastSnap=now;var t0=performance.now();
+ var bg=getComputedStyle(H).backgroundColor;
+ h2c(document.body,{scale:1,useCORS:true,allowTaint:false,imageTimeout:4000,logging:false,backgroundColor:null,width:innerWidth,height:innerHeight,windowWidth:innerWidth,windowHeight:innerHeight,x:0,y:0,scrollX:0,scrollY:0,ignoreElements:ignore,
+  onclone:function(doc){try{doc.documentElement.style.background='#05030c';doc.querySelectorAll('.lgw-c').forEach(function(x){x.remove()})}catch(e){}}})
+ .then(function(cv){
+  /* подложка: тот же тёмный фон, чтобы дыры (прозрачные места) не давали чёрные пятна */
+  var out=document.createElement('canvas');out.width=cv.width;out.height=cv.height;var g=out.getContext('2d');
+  g.fillStyle=(light()?'#eef0f6':'#07050f');g.fillRect(0,0,out.width,out.height);g.drawImage(cv,0,0);
+  texW=out.width;texH=out.height;
+  gl.bindTexture(gl.TEXTURE_2D,TEX);gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL,false);gl.texImage2D(gl.TEXTURE_2D,0,gl.RGBA,gl.RGBA,gl.UNSIGNED_BYTE,out);
+  minGap=Math.max(SNAP_MIN,Math.round((performance.now()-t0)*3));snapVer++;haveSnap=true;capturing=false;if(!H.classList.contains('lgw-on'))H.classList.add('lgw-on');drawAll(true);
+  if(pending)snapLater(minGap)})
+ .catch(function(e){capturing=false;console.warn('[lgw] snapshot:',e&&e.message||e)})}
+
+/* ---------- когда перерисовывать ---------- */
+var rt=0;function sched(ms){clearTimeout(rt);rt=setTimeout(function(){drawAll(false)},ms||0)}
+var st=0;function snapLater(ms){clearTimeout(st);st=setTimeout(snap,ms||500)}
+var thr=0;function scrollTick(){if(thr)return;thr=setTimeout(function(){thr=0;drawAll(false)},90)}
+document.addEventListener('scroll',function(e){scrollTick();snapLater(420)},true);
+document.addEventListener('transitionend',function(e){if(e.target&&e.target.classList&&e.target.classList.contains('lgw-c'))return;sched(80);snapLater(450)},true);
+document.addEventListener('animationend',function(){sched(80);snapLater(500)},true);
+addEventListener('resize',function(){lastR=new WeakMap();sched(120);snapLater(400)});
+addEventListener('orientationchange',function(){setTimeout(function(){lastR=new WeakMap();snapLater(100)},350)});
+document.addEventListener('visibilitychange',function(){if(!document.hidden&&pending)snapLater(200)});
+new MutationObserver(function(ml){
+ var real=false;
+ ml.forEach(function(m){
+  m.addedNodes.forEach(function(n){if(n.nodeType===1&&!(n.classList&&n.classList.contains('lgw-c'))){scan(n);real=true}});
+  });
+ if(real){sched(60);snapLater(650)}
+}).observe(document.body,{childList:true,subtree:true});
+new MutationObserver(function(){lastR=new WeakMap();snapLater(250)}).observe(H,{attributes:true,attributeFilter:['data-theme','class']});
+
+/* потеря контекста (iOS в фоне) */
+glc.addEventListener('webglcontextlost',function(e){e.preventDefault();haveSnap=false;H.classList.remove('lgw-on');els.forEach(function(el){el._lgw&&el._lgw.c.classList.remove('on');el.classList.remove('lgw-done')})});
+glc.addEventListener('webglcontextrestored',function(){L={};if(initGL()){lastR=new WeakMap();snapLater(100)}});
+
+function start(){scan(document.body);snapLater(900)}
+if(document.readyState==='complete')setTimeout(start,300);else addEventListener('load',function(){setTimeout(start,300)});
+window.__lgw={els:els,snap:snap,G:G,redraw:function(){lastR=new WeakMap();drawAll(true)}};
+})();
+</script>
+
 <script src="logos-groups-patch.js?v=6" defer></script>
 <script src="logos-ui-patch.js?v=6" defer></script>
 <script src="logos-cancel-anim.js?v=1" defer></script>
