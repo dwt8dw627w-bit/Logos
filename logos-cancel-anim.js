@@ -1,314 +1,581 @@
-/* Logos: отмена записи — реальный элемент сминается в комок и летит в урну.
-   Подключается ПОСЛЕ основного скрипта: window.__lgCrumple(r,circle,cv,html) вызывается из cancelAnim.
-   Возвращает false, если WebGL недоступен (тогда сработает прежняя анимация). */
-(function(){
-'use strict';
-var DPR=Math.min(window.devicePixelRatio||1,2);
+/**
+ * Logos — улучшенная анимация отмены голосовых / видеокружков
+ * v2 · быстрее сминание · меньше комки · уникальные формы · 3D-урна · надёжный flipCam
+ * Подключается после rec2-js (defer) и переопределяет window.__p3 + flipCam.
+ */
+(function () {
+  'use strict';
 
-/* ---------- 1. исправления позиционирования и блюра ---------- */
-try{
-var st=document.createElement('style');
-st.textContent=
-'.hcirc{width:min(78vw,320px)!important;height:min(78vw,320px)!important;right:16px;left:auto;top:auto;'+
-'bottom:calc(env(safe-area-inset-bottom,0px) + 82px);transform-origin:50% 50%;contain:layout style;'+
-'-webkit-backdrop-filter:none!important;backdrop-filter:none!important;filter:none!important}'+
-'.hcirc .hcv{position:absolute!important;inset:0!important;width:100%!important;height:100%!important;'+
-'-webkit-backdrop-filter:none!important;backdrop-filter:none!important}'+
-'.hcirc .hcv video{width:100%!important;height:100%!important;display:block}'+
-'.hcirc .cring{inset:-4px!important;width:calc(100% + 8px)!important;height:calc(100% + 8px)!important}'+
-'.hcirc.toss{transition:none!important;transform:none!important;opacity:1!important}'+
-'.recb,.p3lk,.p3lc{-webkit-backdrop-filter:none!important;backdrop-filter:none!important;filter:none!important}'+
-'.lgc-cv,.lgb{position:fixed;pointer-events:none;contain:strict}'+
-'.lgc-cv{left:0;top:0;z-index:9997}'+
-'.lgb{z-index:9996;width:76px;height:89px;contain:layout style;will-change:transform,opacity}'+
-'.lgb svg{position:absolute;left:0;top:0;width:100%;height:100%;overflow:visible}'+
-'.lgb .lgf{z-index:9998}';
-document.head.appendChild(st);
-}catch(e){}
+  const Q = s => document.querySelector(s);
+  const HV = n => { try { navigator.vibrate && navigator.vibrate(n); } catch (e) {} };
+  const reduced = () => window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches;
 
-/* ---------- утилиты ---------- */
-function clamp(x,a,b){return x<a?a:x>b?b:x}
-function sstep(x){x=clamp(x,0,1);return x*x*(3-2*x)}
-function lerp(a,b,t){return a+(b-a)*t}
-function easeOutBack(x){x=clamp(x,0,1);var c=1.9;return 1+(c+1)*Math.pow(x-1,3)+c*Math.pow(x-1,2)}
-function easeIO(x){x=clamp(x,0,1);return x<.5?4*x*x*x:1-Math.pow(-2*x+2,3)/2}
-function hash3(x,y,z){var h=Math.sin(x*127.1+y*311.7+z*74.7)*43758.5453;return h-Math.floor(h)}
-function vnoise(x,y,z){
- var xi=Math.floor(x),yi=Math.floor(y),zi=Math.floor(z),xf=sstep(x-xi),yf=sstep(y-yi),zf=sstep(z-zi);
- function h(a,b,c){return hash3(xi+a,yi+b,zi+c)}
- var x00=lerp(h(0,0,0),h(1,0,0),xf),x10=lerp(h(0,1,0),h(1,1,0),xf),x01=lerp(h(0,0,1),h(1,0,1),xf),x11=lerp(h(0,1,1),h(1,1,1),xf);
- return lerp(lerp(x00,x10,yf),lerp(x01,x11,yf),zf)*2-1;
-}
-var probe=null,pc=null,px=null;
-function rgbOf(css,fallback){
- try{
-  if(!probe){probe=document.createElement('i');probe.style.cssText='position:fixed;left:-9px;top:-9px;width:1px;height:1px;pointer-events:none';
-   pc=document.createElement('canvas');pc.width=pc.height=1;px=pc.getContext('2d',{willReadFrequently:true})}
-  document.body.appendChild(probe);probe.style.color=css;
-  var v=getComputedStyle(probe).color;probe.remove();
-  px.clearRect(0,0,1,1);px.fillStyle='#000';px.fillStyle=v;px.fillRect(0,0,1,1);
-  var d=px.getImageData(0,0,1,1).data;return [d[0],d[1],d[2]];
- }catch(e){return fallback||[124,92,230]}
-}
-function mixc(a,b,t){return [Math.round(lerp(a[0],b[0],t)),Math.round(lerp(a[1],b[1],t)),Math.round(lerp(a[2],b[2],t))]}
-function css(c,a){return 'rgba('+c[0]+','+c[1]+','+c[2]+','+(a==null?1:a)+')'}
-function lum(c){return (0.2126*c[0]+0.7152*c[1]+0.0722*c[2])/255}
+  // ---------- helpers ----------
+  const rnd = (a, b) => a + Math.random() * (b - a);
+  const ri = (a, b) => Math.floor(rnd(a, b + 1));
+  const F = n => n.toFixed(1);
+  const A = (el, k, o) => {
+    try { return el.animate(k, Object.assign({ fill: 'forwards' }, o)); }
+    catch (e) { return null; }
+  };
+  const tw = (d, f) => {
+    const t0 = performance.now();
+    const s = n => {
+      const k = Math.min(1, (n - t0) / d);
+      f(k);
+      if (k < 1) requestAnimationFrame(s);
+    };
+    requestAnimationFrame(s);
+  };
+  const mk = (css, inner) => {
+    const e = document.createElement('div');
+    if (css) e.style.cssText = css;
+    if (inner) e.innerHTML = inner;
+    return e;
+  };
 
-/* ---------- 2. текстуры из РЕАЛЬНЫХ элементов ---------- */
-function texVoice(r,html,ac){
- var W=Math.max(8,Math.round(r.width*DPR)),H=Math.max(8,Math.round(r.height*DPR));
- var c=document.createElement('canvas');c.width=W;c.height=H;var x=c.getContext('2d');
- /* клон реальной разметки .recb — меряем фактические бары, точку и таймер */
- var host=document.createElement('div');host.className='recb on';
- host.style.cssText='position:fixed;left:-9999px;top:0;width:'+r.width+'px;height:'+r.height+'px;transition:none!important;opacity:1;transform:none;inset:auto';
- host.style.left='-9999px';host.style.top='0';host.innerHTML=html;document.body.appendChild(host);
- var hb=host.getBoundingClientRect(),bars=[],dot=null,tm='';
- try{
-  host.querySelectorAll('.rwv i').forEach(function(i){var b=i.getBoundingClientRect(),cs=getComputedStyle(i);
-   bars.push({x:b.left-hb.left,y:b.top-hb.top,w:b.width,h:b.height,c:cs.backgroundColor})});
-  var d=host.querySelector('.rdot');if(d){var b=d.getBoundingClientRect();dot={x:b.left-hb.left,y:b.top-hb.top,w:b.width,h:b.height,c:getComputedStyle(d).backgroundColor}}
-  var t=host.querySelector('.rtm');if(t){tm=t.textContent||'';var tb=t.getBoundingClientRect(),tcs=getComputedStyle(t);
-   dot=dot||{};dot.tx=tb.left-hb.left;dot.ty=tb.top-hb.top+tb.height/2;dot.tf=tcs.fontWeight+' '+(parseFloat(tcs.fontSize)*DPR)+'px '+tcs.fontFamily}
- }catch(e){}
- host.remove();
- var light=lum(ac)>.62,fg=light?[20,20,28]:[255,255,255];
- var g=x.createLinearGradient(0,0,W,H);g.addColorStop(0,css(mixc(ac,[255,255,255],.16)));g.addColorStop(.55,css(ac));g.addColorStop(1,css(mixc(ac,[0,0,0],.45)));
- x.fillStyle=g;x.beginPath();
- if(x.roundRect)x.roundRect(0,0,W,H,H*.5);else{var rr=H/2;x.moveTo(rr,0);x.arcTo(W,0,W,H,rr);x.arcTo(W,H,0,H,rr);x.arcTo(0,H,0,0,rr);x.arcTo(0,0,W,0,rr)}
- x.fill();
- x.lineWidth=2*DPR;x.strokeStyle=css(mixc(ac,[255,255,255],.5),.55);x.stroke();
- x.fillStyle=css(fg,.92);
- bars.forEach(function(b){var bw=Math.max(2*DPR,b.w*DPR),bh=Math.max(3*DPR,b.h*DPR),bx=b.x*DPR,by=(b.y*DPR)+(b.h*DPR-bh)/2;
-  x.beginPath();if(x.roundRect)x.roundRect(bx,by,bw,bh,bw/2);else x.rect(bx,by,bw,bh);x.fill()});
- if(dot&&dot.w){x.fillStyle=css(mixc(fg,ac,.15),.95);x.beginPath();x.arc((dot.x+dot.w/2)*DPR,(dot.y+dot.h/2)*DPR,dot.w*DPR/2,0,6.283);x.fill()}
- if(dot&&dot.tf&&tm){x.font=dot.tf;x.textBaseline='middle';x.fillStyle=css(fg,.95);x.fillText(tm,dot.tx*DPR,dot.ty*DPR)}
- return c;
-}
-function texCircle(r,cv,ac){
- var S=Math.max(16,Math.round(Math.min(r.width,r.height)*DPR));
- var c=document.createElement('canvas');c.width=c.height=S;var x=c.getContext('2d');
- var ring=Math.round(S*.035),R=S/2;
- /* реальный кадр камеры */
- x.save();x.beginPath();x.arc(R,R,R-ring,0,6.283);x.clip();
- try{if(cv)x.drawImage(cv,0,0,cv.width,cv.height,ring,ring,S-ring*2,S-ring*2);else{x.fillStyle='#111';x.fillRect(0,0,S,S)}}catch(e){x.fillStyle='#111';x.fillRect(0,0,S,S)}
- x.restore();
- /* оболочка / градиент кольца */
- var g=x.createLinearGradient(0,0,S,S);g.addColorStop(0,css(mixc(ac,[255,255,255],.45)));g.addColorStop(.5,css(ac));g.addColorStop(1,css(mixc(ac,[0,0,0],.4)));
- x.lineWidth=ring*1.6;x.strokeStyle=g;x.beginPath();x.arc(R,R,R-ring*.8,0,6.283);x.stroke();
- var v=x.createRadialGradient(R,R,R*.55,R,R,R-ring);v.addColorStop(0,'rgba(0,0,0,0)');v.addColorStop(1,css(mixc(ac,[0,0,0],.5),.35));
- x.fillStyle=v;x.beginPath();x.arc(R,R,R-ring,0,6.283);x.fill();
- return c;
-}
-
-/* ---------- 3. WebGL-меш: сминание ---------- */
-var VS='attribute vec3 p;attribute vec2 uv;attribute vec2 sh;uniform vec2 res;varying vec2 vuv;varying vec2 vsh;'+
-'void main(){vuv=uv;vsh=sh;gl_Position=vec4(p.x/res.x*2.-1.,1.-p.y/res.y*2.,clamp(-p.z/2000.,-.99,.99),1.);}';
-var FS='precision mediump float;uniform sampler2D tx;uniform vec3 tint;uniform vec3 dk;uniform vec3 hi;uniform float fade;varying vec2 vuv;varying vec2 vsh;'+
-'void main(){vec4 t=texture2D(tx,vuv);float l=clamp(vsh.x,0.,1.);float s=vsh.y;'+
-'vec3 mat=mix(dk,tint,l);vec3 lit=mix(t.rgb*(.5+.7*l),mat,fade);vec3 col=lit+hi*s*(.3+.7*fade);'+
-'float a=mix(t.a,1.,fade);gl_FragColor=vec4(col*a,a);}';
-
-function makeGL(w,h){
- var cv=document.createElement('canvas');cv.className='lgc-cv';cv.width=Math.round(w*DPR);cv.height=Math.round(h*DPR);
- cv.style.width=w+'px';cv.style.height=h+'px';
- var gl=cv.getContext('webgl',{alpha:true,premultipliedAlpha:true,antialias:true,depth:true,powerPreference:'low-power'});
- if(!gl)return null;
- function sh(t,s){var o=gl.createShader(t);gl.shaderSource(o,s);gl.compileShader(o);if(!gl.getShaderParameter(o,gl.COMPILE_STATUS))throw 1;return o}
- var pr=gl.createProgram();gl.attachShader(pr,sh(gl.VERTEX_SHADER,VS));gl.attachShader(pr,sh(gl.FRAGMENT_SHADER,FS));gl.linkProgram(pr);
- if(!gl.getProgramParameter(pr,gl.LINK_STATUS))throw 2;
- gl.useProgram(pr);
- return {cv:cv,gl:gl,pr:pr};
-}
-
-function Mesh(W,H,circle){
- var cols=circle?22:(W/H>2?34:24),rows=circle?22:(W/H>2?10:20);
- this.cols=cols;this.rows=rows;this.W=W;this.H=H;
- var n=(cols+1)*(rows+1);this.n=n;
- this.p0=new Float32Array(n*2);this.tg=new Float32Array(n*3);this.wr=new Float32Array(n*3);this.stg=new Float32Array(n);this.uv=new Float32Array(n*2);
- var Rf=.37*Math.sqrt(W*H);this.Rf=Rf;var seed=Math.random()*50;
- for(var j=0;j<=rows;j++)for(var i=0;i<=cols;i++){
-  var k=j*(cols+1)+i,u=i/cols,v=j/rows;
-  this.uv[k*2]=u;this.uv[k*2+1]=v;
-  this.p0[k*2]=(u-.5)*W;this.p0[k*2+1]=(v-.5)*H;
-  var lon=(u-.5)*2*Math.PI*.92,lat=(v-.5)*Math.PI*.9;
-  var dx=Math.cos(lat)*Math.sin(lon),dy=Math.sin(lat),dz=Math.cos(lat)*Math.cos(lon);
-  var q=vnoise(dx*2.2+seed,dy*2.2,dz*2.2),q2=vnoise(dx*4.6,dy*4.6+seed,dz*4.6);
-  q=(q>=0?1:-1)*Math.pow(Math.abs(q),.72);
-  var rr=Rf*(1+.3*q+.12*q2);
-  this.tg[k*3]=dx*rr;this.tg[k*3+1]=dy*rr;this.tg[k*3+2]=dz*rr;
-  this.wr[k*3]=vnoise(u*5.5+seed,v*5.5,1.3);this.wr[k*3+1]=vnoise(u*7+3,v*7+seed,4.1);this.wr[k*3+2]=vnoise(u*3.1,v*3.1,seed);
-  this.stg[k]=(vnoise(u*3+seed,v*3,9)+1)/2;
- }
- this.P=new Float32Array(n*3);
- this.buf=new Float32Array(cols*rows*6*7);
-}
-/* t — сминание 0..1; extra — доп. вращение комка в полёте; (cx,cy) — центр; sc — масштаб */
-Mesh.prototype.pose=function(t,extra,cx,cy,sc){
- var W=this.W,H=this.H,m=Math.min(W,H),bell=Math.sin(Math.PI*clamp(t,0,1)),n=this.n,P=this.P;
- var ry=t*1.5+extra*1.3,rx=t*.9+extra*.8,rz=(t*.7)+extra*.5;
- var cyy=Math.cos(ry),syy=Math.sin(ry),cxx=Math.cos(rx),sxx=Math.sin(rx),czz=Math.cos(rz),szz=Math.sin(rz);
- for(var k=0;k<n;k++){
-  var g=sstep(clamp(t*1.3-this.stg[k]*.3,0,1));
-  var x=lerp(this.p0[k*2],this.tg[k*3],g),y=lerp(this.p0[k*2+1],this.tg[k*3+1],g),z=this.tg[k*3+2]*g;
-  var wb=bell*(1-g*.35);
-  z+=this.wr[k*3]*wb*m*.55;x+=this.wr[k*3+1]*wb*W*.06;y+=this.wr[k*3+2]*wb*H*.22;
-  /* вращение */
-  var x1=x*czz-y*szz,y1=x*szz+y*czz,z1=z;
-  var y2=y1*cxx-z1*sxx,z2=y1*sxx+z1*cxx;
-  var x3=x1*cyy+z2*syy,z3=-x1*syy+z2*cyy;
-  var f=700,pp=f/(f-z3*sc);
-  P[k*3]=cx+x3*sc*pp;P[k*3+1]=cy+y2*sc*pp;P[k*3+2]=z3*sc;
- }
-};
-var LX=-.38,LY=-.55,LZ=.74,LL=Math.sqrt(LX*LX+LY*LY+LZ*LZ);LX/=LL;LY/=LL;LZ/=LL;
-var HXv=LX,HYv=LY,HZv=LZ+1,HL=Math.sqrt(HXv*HXv+HYv*HYv+HZv*HZv);HXv/=HL;HYv/=HL;HZv/=HL;
-Mesh.prototype.fill=function(){
- var c=this.cols,r=this.rows,P=this.P,uv=this.uv,b=this.buf,o=0,self=this;
- function tri(a,bb,cc){
-  var ax=P[a*3],ay=P[a*3+1],az=P[a*3+2],bx=P[bb*3]-ax,by=P[bb*3+1]-ay,bz=P[bb*3+2]-az,cx=P[cc*3]-ax,cy=P[cc*3+1]-ay,cz=P[cc*3+2]-az;
-  var nx=by*cz-bz*cy,ny=bz*cx-bx*cz,nz=bx*cy-by*cx,nl=Math.sqrt(nx*nx+ny*ny+nz*nz)||1;nx/=nl;ny/=nl;nz/=nl;
-  if(nz<0){nx=-nx;ny=-ny;nz=-nz}
-  var d=Math.max(0,nx*LX+ny*LY+nz*LZ),h=Math.max(0,nx*HXv+ny*HYv+nz*HZv);
-  var l=.22+.78*d+.18*(1-nz),s=Math.pow(h,22);
-  var ids=[a,bb,cc];
-  for(var q=0;q<3;q++){var id=ids[q];b[o++]=P[id*3];b[o++]=P[id*3+1];b[o++]=P[id*3+2];b[o++]=uv[id*2];b[o++]=uv[id*2+1];b[o++]=l;b[o++]=s}
- }
- for(var j=0;j<r;j++)for(var i=0;i<c;i++){
-  var a=j*(c+1)+i,bb=a+1,cc=a+c+1,dd=cc+1;
-  if(((i+j)&1)===0){tri(a,bb,cc);tri(bb,dd,cc)}else{tri(a,bb,dd);tri(a,dd,cc)}
- }
- return b;
-};
-
-/* ---------- 4. урна: корпус статичен, двигается только крышка ---------- */
-var NS='http://www.w3.org/2000/svg';
-function bin(L,T){
- var el=document.createElement('div');el.className='lgb';el.style.left=L+'px';el.style.top=T+'px';
- var ribs='';[[32,37],[46,48.5],[60,60],[74,71.5],[88,83]].forEach(function(r){ribs+='<path d="M'+r[0]+' 70L'+r[1]+' 126" stroke="#fff" stroke-opacity=".07" stroke-width="6" stroke-linecap="round"/><path d="M'+(r[0]-1.5)+' 70L'+(r[1]-1.5)+' 126" stroke="#fff" stroke-opacity=".16" stroke-width="1.4" stroke-linecap="round"/>'});
- var defs='<defs><linearGradient id="lgbB" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#2b2733"/><stop offset=".3" stop-color="#17141d"/><stop offset=".75" stop-color="#0b0a10"/><stop offset="1" stop-color="#1d1a25"/></linearGradient>'+
- '<radialGradient id="lgbI" cx=".5" cy=".4" r=".7"><stop offset="0" stop-color="#6b32d6"/><stop offset=".6" stop-color="#2a0f58"/><stop offset="1" stop-color="#07030f"/></radialGradient>'+
- '<linearGradient id="lgbT" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#4a4456"/><stop offset=".5" stop-color="#1c1824"/><stop offset="1" stop-color="#0d0b13"/></linearGradient>'+
- '<linearGradient id="lgbU" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#7a3df0"/><stop offset=".6" stop-color="#34136e"/><stop offset="1" stop-color="#14062e"/></linearGradient></defs>';
- var back=document.createElementNS(NS,'svg');back.setAttribute('viewBox','0 0 120 140');
- back.innerHTML=defs+'<ellipse cx="60" cy="58" rx="42" ry="9.5" fill="url(#lgbI)"/><path d="M18 58Q60 40 102 58" fill="none" stroke="#b58cff" stroke-opacity=".45" stroke-width="2"/>'+
-  '<g class="lidB" style="display:none"><path class="lp" fill="url(#lgbT)" stroke="#d7c2ff" stroke-opacity=".7" stroke-width="1.6" stroke-linejoin="round"/><line class="lh" stroke="#8a7fa0" stroke-width="3.2" stroke-linecap="round"/></g>';
- var front=document.createElementNS(NS,'svg');front.setAttribute('viewBox','0 0 120 140');front.setAttribute('class','lgf');
- front.innerHTML='<path d="M18 58Q60 76 102 58L92 126Q60 142 28 126Z" fill="url(#lgbB)" stroke="#fff" stroke-opacity=".16" stroke-width="1.2"/>'+ribs+
-  '<path d="M18 58Q60 76 102 58" fill="none" stroke="#c9a8ff" stroke-opacity=".28" stroke-width="5" stroke-linecap="round"/><path d="M18 58Q60 76 102 58" fill="none" stroke="#e6d6ff" stroke-opacity=".85" stroke-width="1.6" stroke-linecap="round"/>'+
-  '<path d="M30 130Q60 143 90 130" fill="none" stroke="#9b6bff" stroke-opacity=".35" stroke-width="1.4"/>'+
-  '<g class="lidF"><path class="lp" fill="url(#lgbT)" stroke="#d7c2ff" stroke-opacity=".7" stroke-width="1.6" stroke-linejoin="round"/><line class="lh" stroke="#8a7fa0" stroke-width="3.2" stroke-linecap="round"/></g>';
- el.appendChild(back);el.appendChild(front);
- var o={el:el,back:back,front:front,lB:back.querySelector('.lidB'),lF:front.querySelector('.lidF')};
- var R=45,s=Math.sin(12*Math.PI/180),c=Math.cos(12*Math.PI/180),hy=58-R*s*1.0;
- o.setLid=function(deg){
-  var th=deg*Math.PI/180,ct=Math.cos(th),sn=Math.sin(th),pts=[];
-  for(var a=0;a<48;a++){var al=a/48*6.2832,px=R*Math.cos(al),d=R+R*Math.sin(al);
-   pts.push((60+px).toFixed(1)+' '+(hy+d*ct*s-d*sn*c).toFixed(1))}
-  var dd='M'+pts.join('L')+'Z',back=deg>8,act=back?o.lB:o.lF,off=back?o.lF:o.lB;
-  off.style.display='none';act.style.display='';
-  var lp=act.querySelector('.lp');lp.setAttribute('d',dd);
-  var topVis=th<12*Math.PI/180;lp.setAttribute('fill',topVis?'url(#lgbT)':'url(#lgbU)');
-  var h=act.querySelector('.lh');
-  if(topVis){var d0=R,hx0=60,hy0=hy+d0*ct*s-d0*sn*c-5*(Math.cos(th)*c+Math.sin(th)*s*0);h.setAttribute('x1',hx0-9);h.setAttribute('x2',hx0+9);h.setAttribute('y1',hy0-3);h.setAttribute('y2',hy0-3);h.style.display=''}else h.style.display='none';
- };
- o.setLid(0);
- return o;
-}
-
-/* ---------- 5. основная анимация ---------- */
-var busy=null;
-function run(r,circle,cvFrame,html){
- if(busy)busy.kill();
- var vw=window.innerWidth,vh=window.innerHeight,GLo;
- var ac=rgbOf('var(--ac)',[139,92,246]);
- var tex;
- try{tex=circle?texCircle(r,cvFrame,ac):texVoice(r,html||'',ac)}catch(e){return false}
- try{GLo=makeGL(vw,vh)}catch(e){GLo=null}
- if(!GLo)return false;
- var gl=GLo.gl,pr=GLo.pr,cv=GLo.cv;
- var k=76/120,bw=76,bh=140*k,by=clamp(r.top+r.height/2,70+bh*.4,vh-bh*.55-12);
- var L=Math.max(6,Math.min(18,vw*.04)),T=by-58*k;
- var B=bin(L,T);B.el.style.opacity='0';
- var W=r.width,H=r.height,M=new Mesh(W,H,circle);
- /* GL state */
- var tx=gl.createTexture();gl.bindTexture(gl.TEXTURE_2D,tx);
- gl.texImage2D(gl.TEXTURE_2D,0,gl.RGBA,gl.RGBA,gl.UNSIGNED_BYTE,tex);
- gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_MIN_FILTER,gl.LINEAR);gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_MAG_FILTER,gl.LINEAR);
- gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_WRAP_S,gl.CLAMP_TO_EDGE);gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_WRAP_T,gl.CLAMP_TO_EDGE);
- var vb=gl.createBuffer(),A=function(n){return gl.getAttribLocation(pr,n)},U=function(n){return gl.getUniformLocation(pr,n)};
- var aP=A('p'),aUV=A('uv'),aSH=A('sh');
- gl.enable(gl.DEPTH_TEST);gl.enable(gl.BLEND);gl.blendFunc(gl.ONE,gl.ONE_MINUS_SRC_ALPHA);
- gl.viewport(0,0,cv.width,cv.height);gl.uniform2f(U('res'),vw,vh);
- var tint=mixc(ac,[255,255,255],.08),dk=mixc(ac,[0,0,0],.72),hi=mixc(ac,[255,255,255],.78);
- gl.uniform3f(U('tint'),tint[0]/255,tint[1]/255,tint[2]/255);gl.uniform3f(U('dk'),dk[0]/255,dk[1]/255,dk[2]/255);gl.uniform3f(U('hi'),hi[0]/255,hi[1]/255,hi[2]/255);
- var uFade=U('fade');
- /* вставка: урна (back) → canvas → урна (front) */
- document.body.appendChild(B.el);
- B.el.insertBefore(B.back,B.front);
- /* canvas между слоями: переносим слои урны на уровень body */
- var back=B.el;back.style.zIndex=9996;
- var frontBox=document.createElement('div');frontBox.className='lgb';frontBox.style.cssText='left:'+L+'px;top:'+T+'px;z-index:9998;will-change:transform,opacity';
- frontBox.appendChild(B.front);document.body.appendChild(frontBox);
- document.body.appendChild(cv);
- var Bs=[back,frontBox];function bset(f){Bs.forEach(f)}
-
- var D1=circle?820:720,DF=400,DD=190,tOpen=D1*.32,DO=380,tClose=D1+DF+DD+60,DC=300,tOut=tClose+DC+220,DOUT=240,TOTAL=tOut+DOUT;
- var x0=r.left+r.width/2,y0=r.top+r.height/2;
- var mx=L+60*k,my=T+20*k,inY=T+88*k,ctrlX=(x0+mx)/2,ctrlY=Math.max(24,Math.min(y0,my)-90);
- var ballSc0=1,ballSc1=Math.min(.36,(42*k)/(2*M.Rf));
- var t0=performance.now(),raf=0,dead=false;
- function ball(ms){ /* → [t, extra, cx, cy, sc, visible] */
-  if(ms<D1){var q=ms/D1,e=easeIO(q);return [e,0,lerp(x0,x0+(mx-x0)*.12,e),lerp(y0,y0-(circle?8:0),Math.sin(q*Math.PI)),lerp(1,.92,e)]}
-  var f=ms-D1;
-  if(f<DF){var u=f/DF,e2=u*u*(3-2*u),a=1-e2,cx=a*a*x0+2*a*e2*ctrlX+e2*e2*mx,cy=a*a*y0+2*a*e2*ctrlY+e2*e2*my;
-   return [1,e2*2.6,cx,cy,lerp(.92,ballSc1*1.1,e2)]}
-  var d=f-DF,u2=clamp(d/DD,0,1),e3=u2*u2;
-  return [1,2.6+u2*.6,mx,lerp(my,inY,e3),lerp(ballSc1*1.1,ballSc1*.85,u2)];
- }
- function lidAngle(ms){
-  if(ms<tOpen)return 0;
-  if(ms<tClose){return 108*easeOutBack((ms-tOpen)/DO)}
-  var q=(ms-tClose)/DC;
-  if(q<1)return 108*(1-easeIO(q));
-  var s=ms-tClose-DC;return Math.max(0,5*Math.exp(-s/70)*Math.sin(s/22)) ; /* дрожь при закрытии */
- }
- function frame(now){
-  if(dead)return;
-  var ms=now-t0;if(ms>=TOTAL){kill();return}
-  /* урна */
-  var inA=sstep(ms/260),outA=1-sstep((ms-tOut)/DOUT),op=Math.min(inA,outA),
-      sx=lerp(-60,0,easeOutBack(clamp(ms/320,0,1)))+lerp(0,-70,sstep((ms-tOut)/DOUT)),
-      hop=ms>tClose+DC*.9&&ms<tOut?-3*Math.sin(clamp((ms-tClose-DC*.9)/160,0,1)*Math.PI):0;
-  bset(function(e){e.style.opacity=op;e.style.transform='translate('+sx+'px,'+hop+'px)'});
-  B.setLid(lidAngle(ms));
-  /* комок */
-  var b=ball(ms);
-  gl.clearColor(0,0,0,0);gl.clear(gl.COLOR_BUFFER_BIT|gl.DEPTH_BUFFER_BIT);
-  if(ms<tClose+DC*.1||true){
-   M.pose(b[0],b[1],b[2],b[3],b[4]);var data=M.fill();
-   gl.bindBuffer(gl.ARRAY_BUFFER,vb);gl.bufferData(gl.ARRAY_BUFFER,data,gl.DYNAMIC_DRAW);
-   gl.enableVertexAttribArray(aP);gl.vertexAttribPointer(aP,3,gl.FLOAT,false,28,0);
-   gl.enableVertexAttribArray(aUV);gl.vertexAttribPointer(aUV,2,gl.FLOAT,false,28,12);
-   gl.enableVertexAttribArray(aSH);gl.vertexAttribPointer(aSH,2,gl.FLOAT,false,28,20);
-   gl.uniform1f(uFade,sstep((b[0]-.4)/.5));
-   gl.drawArrays(gl.TRIANGLES,0,data.length/7);
+  // ---------- 3D-урна (чёрный металл + фиолетовые акценты, фиксированные пропорции) ----------
+  function makeBinSVG() {
+    // viewBox 0 0 48 58 · корпус никогда не масштабируется по Y отдельно
+    return `<svg viewBox="0 0 48 58" width="48" height="58" style="display:block;overflow:visible">
+      <defs>
+        <linearGradient id="p3m" x1="0" y1="0" x2="1" y2="1">
+          <stop offset="0" stop-color="#2a2a32"/>
+          <stop offset=".35" stop-color="#1a1a22"/>
+          <stop offset=".7" stop-color="#0e0e14"/>
+          <stop offset="1" stop-color="#18181f"/>
+        </linearGradient>
+        <linearGradient id="p3s" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0" stop-color="#ffffff55"/>
+          <stop offset=".15" stop-color="#ffffff18"/>
+          <stop offset="1" stop-color="#00000040"/>
+        </linearGradient>
+        <linearGradient id="p3p" x1="0" y1="0" x2="1" y2="0">
+          <stop offset="0" stop-color="#7c4dff00"/>
+          <stop offset=".5" stop-color="#a78bfa88"/>
+          <stop offset="1" stop-color="#7c4dff00"/>
+        </linearGradient>
+        <filter id="p3sh" x="-20%" y="-10%" width="140%" height="130%">
+          <feDropShadow dx="0" dy="3" stdDeviation="2.5" flood-color="#000" flood-opacity=".55"/>
+        </filter>
+        <linearGradient id="p3lid" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0" stop-color="#4a4a58"/>
+          <stop offset=".4" stop-color="#32323c"/>
+          <stop offset="1" stop-color="#1e1e28"/>
+        </linearGradient>
+      </defs>
+      <!-- корпус -->
+      <g filter="url(#p3sh)">
+        <path d="M8 16h32l-2.6 36.2a3.6 3.6 0 0 1-3.6 3.3H14.2a3.6 3.6 0 0 1-3.6-3.3z" fill="url(#p3m)" stroke="#ffffff22" stroke-width=".8"/>
+        <path d="M8 16h32l-2.6 36.2a3.6 3.6 0 0 1-3.6 3.3H14.2a3.6 3.6 0 0 1-3.6-3.3z" fill="url(#p3s)"/>
+        <!-- рёбра -->
+        <path d="M16.5 22v28M24 22v28M31.5 22v28" stroke="#ffffff18" stroke-width="1.2" stroke-linecap="round"/>
+        <!-- фиолетовый блик по ободку -->
+        <path d="M9.2 17.5h29.6" stroke="url(#p3p)" stroke-width="2.2" stroke-linecap="round"/>
+      </g>
+      <!-- крышка (отдельная группа с transform-origin у шарнира) -->
+      <g class="lid" style="transform-origin:10px 14px">
+        <rect x="5.5" y="11" width="37" height="6.5" rx="3.2" fill="url(#p3lid)" stroke="#ffffff30" stroke-width=".7"/>
+        <rect x="5.5" y="11" width="37" height="2.8" rx="2" fill="#ffffff12"/>
+        <!-- ручка крышки -->
+        <path d="M18.5 11V9.2a2.2 2.2 0 0 1 2.2-2.2h6.6a2.2 2.2 0 0 1 2.2 2.2V11" fill="none" stroke="#b79cff" stroke-width="1.5" stroke-linecap="round"/>
+        <circle cx="24" cy="8.5" r="1.1" fill="#c4a8ff"/>
+      </g>
+    </svg>`;
   }
-  raf=requestAnimationFrame(frame);
- }
- function kill(){
-  if(dead)return;dead=true;cancelAnimationFrame(raf);
-  try{gl.deleteTexture(tx);gl.deleteBuffer(vb);var ext=gl.getExtension('WEBGL_lose_context');ext&&ext.loseContext()}catch(e){}
-  try{cv.remove();back.remove();frontBox.remove()}catch(e){}
-  document.removeEventListener('visibilitychange',vis);
-  if(busy&&busy.kill===kill)busy=null;
- }
- function vis(){if(document.hidden)kill()}
- document.addEventListener('visibilitychange',vis);
- busy={kill:kill};
- raf=requestAnimationFrame(function(n){t0=n;frame(n)});
- return true;
-}
-window.__lgCrumple=function(r,circle,cv,html){
- try{return run(r,circle,cv,html)}catch(e){try{busy&&busy.kill()}catch(x){}return false}
-};
+
+  // ---------- уникальная форма комка ----------
+  function makeCrumplePoints(circle) {
+    const N = 14;
+    const ang = [...Array(N)].map((_, i) => i / N * Math.PI * 2 - Math.PI / 2 + rnd(-0.08, 0.08));
+    const rectP = a => {
+      const c = Math.cos(a), s = Math.sin(a);
+      const k = 0.5 / Math.max(Math.abs(c), Math.abs(s));
+      return [0.5 + c * k, 0.5 + s * k];
+    };
+    const circP = a => [0.5 + Math.cos(a) * 0.5, 0.5 + Math.sin(a) * 0.5];
+    const blob = (lo, hi) => ang.map(a => {
+      const q = rnd(lo, hi) * 0.5;
+      // лёгкая эллиптичность + шум
+      const ex = 1 + rnd(-0.12, 0.18);
+      const ey = 1 + rnd(-0.15, 0.12);
+      return [0.5 + Math.cos(a) * q * ex, 0.5 + Math.sin(a) * q * ey];
+    });
+    const mix = (p, q, m) => p.map((v, i) => [
+      v[0] + (q[i][0] - v[0]) * m,
+      v[1] + (q[i][1] - v[1]) * m
+    ]);
+    const P0 = ang.map(circle ? circP : rectP);
+    const PB = blob(0.48, 0.92);
+    const P1 = mix(P0, PB, 0.42 + rnd(0, 0.2));
+    return { P0, P1, PB, ang };
+  }
+
+  function creases(n) {
+    return [...Array(n)].map(() => {
+      const a = ri(8, 72);
+      const w = ri(3, 7);
+      return `linear-gradient(${ri(0, 180)}deg,transparent ${a}%,rgba(0,0,0,.38) ${a + 2}%,rgba(255,255,255,.28) ${a + w}%,transparent ${a + w + 5}%)`;
+    }).join(',');
+  }
+
+  function poly(p) {
+    return 'polygon(' + p.map(v => F(v[0] * 100) + '% ' + F(v[1] * 100) + '%').join(',') + ')';
+  }
+
+  // ---------- основной crumple ----------
+  function crumple(r, circle, cv, html) {
+    if (reduced()) return;
+
+    const B = document.body;
+    const cx = r.left + r.width / 2;
+    const cy = r.top + r.height / 2;
+    const vw = innerWidth;
+    const vh = innerHeight;
+    const Z = 2147483000;
+
+    // режим: bin / plane / boat / miss / sling
+    let mode = 'bin';
+    try {
+      const f = localStorage.lg_anim;
+      if (/^(plane|boat|miss|sling|bin)$/.test(f)) mode = f;
+      else {
+        const x = Math.random();
+        // 1/10000 sling, иначе 1/1000 на одну из трёх, иначе bin
+        mode = x < 1e-4 ? 'sling' : x < 1.001e-3 ? ['plane', 'boat', 'miss'][ri(0, 2)] : 'bin';
+      }
+    } catch (e) {}
+
+    const { P0, P1, PB } = makeCrumplePoints(circle);
+    const pp = document.createElement('div');
+    pp.className = 'p3pp cr' + (circle ? ' c' : '');
+    Object.assign(pp.style, {
+      left: r.left + 'px',
+      top: r.top + 'px',
+      width: r.width + 'px',
+      height: r.height + 'px',
+      borderRadius: circle ? '50%' : '24px',
+      position: 'fixed',
+      zIndex: Z,
+      overflow: 'hidden',
+      pointerEvents: 'none',
+      willChange: 'transform, clip-path, opacity'
+    });
+    if (cv) {
+      cv.style.width = '100%';
+      cv.style.height = '100%';
+      cv.style.objectFit = 'cover';
+      pp.appendChild(cv);
+    } else {
+      pp.innerHTML = html;
+    }
+    const cl = mk('position:absolute;inset:0;pointer-events:none;opacity:0;background:' + creases(5));
+    pp.appendChild(cl);
+    B.appendChild(pp);
+
+    // ускоренное сминание (было ~250ms → ~155ms)
+    const CRUMPLE_MS = 155;
+    const BALL_SZ = 14; // было 22
+    const scW = BALL_SZ / Math.max(r.width, r.height);
+
+    const toPoint = (tx, ty, sc, dur, lift) => {
+      const m = Math.max(sc * 1.85, 0.42);
+      A(cl, [{ opacity: 0 }, { opacity: 1 }], { duration: dur * 0.65, delay: dur * 0.12 });
+      // уникальные оси масштаба + вращение каждый раз
+      const sx = m * rnd(0.75, 1.25);
+      const sy = m * rnd(0.72, 1.22);
+      const rot1 = ri(-32, 32);
+      const rot2 = ri(-95, 95);
+      return A(pp, [
+        { transform: 'none', clipPath: poly(P0), offset: 0 },
+        {
+          transform: `translate(${F((tx - cx) * 0.42)}px,${F((ty - cy) * 0.42 - lift)}px) scale(${F(sx)},${F(sy)}) rotate(${rot1}deg)`,
+          clipPath: poly(P1),
+          offset: 0.48
+        },
+        {
+          transform: `translate(${F(tx - cx)}px,${F(ty - cy)}px) scale(${sc}) rotate(${rot2}deg)`,
+          clipPath: poly(PB),
+          offset: 1
+        }
+      ], { duration: dur, easing: 'cubic-bezier(.42,.02,.32,1)' });
+    };
+
+    const mkBall = (sz, css) => {
+      const b = document.createElement('i');
+      const { PB: shape } = makeCrumplePoints(false);
+      b.style.cssText = `position:absolute;display:block;width:${sz}px;height:${sz}px;border-radius:50%;${css || ''};
+        background:${creases(4)},radial-gradient(circle at ${ri(22, 48)}% ${ri(18, 42)}%,#f5f5f8,#c8c8d4 52%,#7a7a8a);
+        clip-path:${poly(shape)};box-shadow:0 1px 4px #0006;will-change:transform`;
+      return b;
+    };
+
+    // ---------- самолётик ----------
+    if (mode === 'plane') {
+      toPoint(cx, cy, Math.min(1, 48 / Math.max(r.width, r.height)), 180, 0);
+      setTimeout(() => {
+        A(pp, [{ opacity: 1 }, { opacity: 0 }], { duration: 70 });
+        setTimeout(() => pp.remove(), 80);
+        const d = mk(`position:fixed;left:${cx - 32}px;top:${cy - 18}px;width:64px;height:36px;z-index:${Z};pointer-events:none;will-change:transform`,
+          `<svg viewBox="0 0 70 40" width="64" height="36"><path d="M2 20L66 3L36 24Z" fill="#fafafc"/><path d="M2 20L36 24L30 37Z" fill="#c4c4d0"/><path d="M36 24L66 3L30 37Z" fill="#e0e0e8"/><path d="M2 20L66 3" stroke="#fff" stroke-opacity=".7" fill="none"/></svg>`);
+        B.appendChild(d);
+        const tx = rnd(0.55, 0.92) * vw;
+        const ty = rnd(0.08, 0.32) * vh;
+        A(d, [
+          { transform: 'translate(0,0) rotate(0) scale(1)', offset: 0 },
+          { transform: `translate(${F((tx - cx) * 0.35)}px,${F((ty - cy) * 0.25)}px) rotate(${ri(-18, 25)}deg) scale(.92)`, offset: 0.35 },
+          { transform: `translate(${F(tx - cx)}px,${F(ty - cy)}px) rotate(${ri(40, 120)}deg) scale(.18)`, offset: 1 }
+        ], { duration: 1100, easing: 'cubic-bezier(.2,.5,.4,1)' });
+        setTimeout(() => { A(d, [{ opacity: 1 }, { opacity: 0 }], { duration: 220 }); setTimeout(() => d.remove(), 240); }, 980);
+      }, 180);
+      return;
+    }
+
+    // ---------- кораблик ----------
+    if (mode === 'boat') {
+      toPoint(cx, cy + 20, Math.min(1, 44 / Math.max(r.width, r.height)), 170, 8);
+      setTimeout(() => {
+        A(pp, [{ opacity: 1 }, { opacity: 0 }], { duration: 60 });
+        setTimeout(() => pp.remove(), 70);
+        const waterY = Math.min(vh - 80, cy + 40);
+        const boat = mk(`position:fixed;left:${cx - 28}px;top:${waterY - 18}px;width:56px;height:36px;z-index:${Z};pointer-events:none;will-change:transform`,
+          `<svg viewBox="0 0 56 36" width="56" height="36">
+            <ellipse cx="28" cy="30" rx="26" ry="5" fill="#3b82f633"/>
+            <path d="M4 22 L14 30 H42 L52 22 Z" fill="#e8e8f0" stroke="#bbb" stroke-width=".6"/>
+            <path d="M18 22 V10 L28 4 L38 10 V22" fill="#f4f4fa" stroke="#ccc" stroke-width=".5"/>
+            <path d="M28 4 V22" stroke="#aaa" stroke-width=".7"/>
+          </svg>`);
+        B.appendChild(boat);
+        // вода + покачивание
+        const dir = Math.random() < 0.5 ? -1 : 1;
+        A(boat, [
+          { transform: 'translateX(0) rotate(0deg)', offset: 0 },
+          { transform: `translateX(${dir * 40}px) rotate(${dir * 6}deg)`, offset: 0.25 },
+          { transform: `translateX(${dir * 110}px) rotate(${dir * -5}deg)`, offset: 0.55 },
+          { transform: `translateX(${dir * 220}px) rotate(${dir * 4}deg)`, offset: 1 }
+        ], { duration: 1400, easing: 'cubic-bezier(.25,.4,.4,1)' });
+        setTimeout(() => { A(boat, [{ opacity: 1 }, { opacity: 0 }], { duration: 280 }); setTimeout(() => boat.remove(), 300); }, 1180);
+      }, 170);
+      return;
+    }
+
+    // ---------- рогатка + стекло (1/10000) ----------
+    if (mode === 'sling') {
+      const ov = mk(`position:fixed;inset:0;z-index:${Z};pointer-events:none;overflow:hidden`);
+      B.appendChild(ov);
+      const fx = vw * 0.5, tipY = vh * 0.62, rest = tipY - 48, pull = 52, NS = 'http://www.w3.org/2000/svg';
+      const sv = document.createElementNS(NS, 'svg');
+      sv.setAttribute('width', vw); sv.setAttribute('height', vh);
+      sv.style.cssText = 'position:absolute;left:0;top:0';
+      sv.innerHTML = `<defs><linearGradient id="sg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#6b5b8c"/><stop offset="1" stop-color="#2a2038"/></linearGradient></defs>
+        <path class="bd" d="M${fx - 27} ${tipY}L${fx} ${rest}L${fx + 27} ${tipY}" fill="none" stroke="#c4a8ff" stroke-width="3.2" stroke-linecap="round"/>
+        <circle class="pc" cx="${fx}" cy="${rest}" r="9" fill="url(#sg)" stroke="#e9d6ff" stroke-width="1.5"/>
+        <path d="M${fx - 34} ${tipY + 2} L${fx - 22} ${tipY + 28} M${fx + 34} ${tipY + 2} L${fx + 22} ${tipY + 28}" stroke="#8b7aa8" stroke-width="4" stroke-linecap="round"/>`;
+      const bd = sv.querySelector('.bd'), pc = sv.querySelector('.pc');
+      const band = py => {
+        bd.setAttribute('d', `M${fx - 27} ${tipY}L${fx} ${F(py)}L${fx + 27} ${tipY}`);
+        pc.setAttribute('cx', fx); pc.setAttribute('cy', F(py));
+      };
+      band(rest);
+      ov.append(sv);
+      A(sv, [{ transform: 'translateY(140px)' }, { transform: 'none' }], { duration: 200, easing: 'cubic-bezier(.3,1.4,.5,1)' });
+      toPoint(fx, rest, scW, 200, 22);
+      setTimeout(() => {
+        pp.remove();
+        const b = mkBall(BALL_SZ, `left:${fx - BALL_SZ / 2}px;top:${rest - BALL_SZ / 2}px`);
+        ov.append(b);
+        tw(200, k => {
+          const e = 1 - (1 - k) * (1 - k);
+          band(rest + pull * e);
+          b.style.transform = `translateY(${pull * e}px) rotate(${e * 70}deg)`;
+        });
+        setTimeout(() => {
+          const tx = rnd(0.28, 0.72) * vw, ty = rnd(0.14, 0.38) * vh;
+          A(b, [
+            { transform: `translateY(${pull}px) rotate(70deg) scale(1)` },
+            { transform: `translate(${F(tx - fx)}px,${F(ty - rest)}px) rotate(480deg) scale(1.7)` }
+          ], { duration: 260, easing: 'cubic-bezier(.2,.5,.5,1)' });
+          tw(260, k => band(rest + pull * Math.cos(k * Math.PI * 3.2) * (1 - k)));
+          setTimeout(() => {
+            b.remove();
+            // трещины
+            HV(36);
+            const s = document.createElementNS(NS, 'svg');
+            s.setAttribute('width', vw); s.setAttribute('height', vh);
+            s.style.cssText = 'position:absolute;left:0;top:0';
+            const n = ri(8, 12), a0 = rnd(0, 6.28);
+            let h = '';
+            const R = [];
+            for (let i = 0; i < n; i++) {
+              let a = a0 + i / n * 6.283 + rnd(-0.14, 0.14), px = tx, py = ty;
+              const len = rnd(0.32, 0.88) * Math.max(vw, vh) * 0.55, sg = ri(3, 5), pr = [[tx, ty]];
+              for (let j = 0; j < sg; j++) {
+                a += rnd(-0.2, 0.2);
+                const dl = len / sg * rnd(0.7, 1.25);
+                px += Math.cos(a) * dl; py += Math.sin(a) * dl;
+                pr.push([px, py]);
+                if (Math.random() < 0.32) {
+                  const ba = a + rnd(0.5, 1) * (Math.random() < 0.5 ? -1 : 1);
+                  const bl = dl * rnd(0.6, 1.6);
+                  h += `M${F(px)} ${F(py)}L${F(px + Math.cos(ba) * bl)} ${F(py + Math.sin(ba) * bl)}`;
+                }
+              }
+              R.push(pr);
+              h += 'M' + pr.map(p => F(p[0]) + ' ' + F(p[1])).join('L');
+            }
+            s.innerHTML = `<path d="${h}" fill="none" stroke="rgba(0,0,0,.4)" stroke-width="3.2" stroke-linejoin="round"/>
+              <path d="${h}" fill="none" stroke="rgba(255,255,255,.9)" stroke-width="1.3" stroke-linejoin="round"/>
+              <circle cx="${F(tx)}" cy="${F(ty)}" r="6" fill="rgba(0,0,0,.5)" stroke="#fff" stroke-width="1.3"/>`;
+            ov.append(s);
+            A(s, [
+              { clipPath: `circle(0px at ${F(tx)}px ${F(ty)}px)` },
+              { clipPath: `circle(${Math.round(Math.hypot(vw, vh))}px at ${F(tx)}px ${F(ty)}px)` }
+            ], { duration: 280, easing: 'cubic-bezier(.1,.8,.3,1)' });
+            // исчезновение
+            setTimeout(() => {
+              A(s, [{ opacity: 1 }, { opacity: 0 }], { duration: 900, delay: 400 });
+              A(sv, [{ transform: 'none' }, { transform: 'translateY(160px)' }], { duration: 240, delay: 200, easing: 'ease-in' });
+              setTimeout(() => ov.remove(), 1400);
+            }, 320);
+          }, 260);
+        }, 220);
+      }, 200);
+      return;
+    }
+
+    // ---------- урна / промах ----------
+    const BX = vw - 78;
+    const bt = vh - 130;
+    const o = mk(`position:fixed;left:${BX}px;top:${bt}px;width:48px;height:58px;z-index:${Z};pointer-events:none;transform-origin:50% 100%;will-change:transform`);
+    o.innerHTML = makeBinSVG();
+    B.appendChild(o);
+    const L = o.querySelector('.lid');
+    const i = o; // корпус = корневой svg-контейнер
+
+    const lid = (open, dur, delay) => {
+      if (!L) return;
+      A(L, [
+        { transform: open ? 'rotate(0deg)' : 'rotate(-108deg)' },
+        { transform: open ? 'rotate(-108deg)' : 'rotate(0deg)' }
+      ], { duration: dur || 160, delay: delay || 0, easing: 'cubic-bezier(.3,1.2,.5,1)' });
+    };
+
+    // появление урны
+    A(o, [
+      { transform: 'translateY(40px) scale(.7)', opacity: 0 },
+      { transform: 'translateY(0) scale(1)', opacity: 1 }
+    ], { duration: 180, easing: 'cubic-bezier(.3,1.4,.5,1)' });
+    lid(1, 140, 40);
+
+    const P1x = BX + 24;
+    const P1y = bt - 10;
+    const T0 = 165; // ускорено
+    const exit = () => {
+      lid(0, 140, 0);
+      A(o, [
+        { transform: 'none', opacity: 1 },
+        { transform: 'translateY(36px) scale(.75)', opacity: 0 }
+      ], { duration: 200, delay: 80, easing: 'ease-in' });
+      setTimeout(() => o.remove(), 300);
+    };
+
+    toPoint(P1x, P1y, scW, T0, 28);
+
+    setTimeout(() => {
+      pp.remove();
+      if (mode === 'bin') {
+        const b = mkBall(BALL_SZ, `left:17px;top:-20px;z-index:2`);
+        i.insertBefore(b, i.lastElementChild);
+        A(b, [
+          { transform: 'translateY(0) rotate(0deg)' },
+          { transform: 'translateY(22px) rotate(130deg)', offset: 0.42 },
+          { transform: 'translateY(40px) rotate(250deg) scale(.85)' }
+        ], { duration: 150, easing: 'cubic-bezier(.5,0,.9,.7)' });
+        setTimeout(() => {
+          b.remove();
+          HV(7);
+          // реакция урны — только сдвиг/поворот, без сжатия пропорций корпуса
+          A(i, [
+            { transform: 'translateY(0) rotate(0deg)' },
+            { transform: 'translateY(5px) rotate(-2.5deg)', offset: 0.28 },
+            { transform: 'translateY(-1px) rotate(1.5deg)', offset: 0.55 },
+            { transform: 'translateY(0) rotate(0deg)' }
+          ], { duration: 220 });
+          setTimeout(() => { L.style.zIndex = 6; lid(0, 130, 0); }, 50);
+          setTimeout(exit, 240);
+        }, 150);
+      } else {
+        // промах
+        const w = mkBall(BALL_SZ, `position:fixed;left:${P1x - BALL_SZ / 2}px;top:${P1y - BALL_SZ / 2}px;z-index:${Z + 1}`);
+        B.appendChild(w);
+        const X = BX, Y = bt;
+        const d = (x, y, r) => `translate(${F(X + x - P1x)}px,${F(Y + y - P1y)}px) rotate(${r}deg)`;
+        A(w, [
+          { transform: d(P1x - X, P1y - Y, 0), offset: 0, easing: 'cubic-bezier(.5,0,.9,.7)' },
+          { transform: d(16, 6, 140), offset: 0.28, easing: 'cubic-bezier(.1,.7,.4,1)' },
+          { transform: d(38, -12, 240), offset: 0.52, easing: 'cubic-bezier(.5,0,.9,.6)' },
+          { transform: d(62, 48, 380), offset: 0.78, easing: 'cubic-bezier(.2,.8,.5,1)' },
+          { transform: d(78, 52, 480), offset: 1 }
+        ], { duration: 620 });
+        let tb = null;
+        setTimeout(() => {
+          HV(12);
+          L.style.zIndex = 6;
+          let k = 0;
+          const fl = () => {
+            if (k >= 5) return;
+            k % 2 ? lid(1, 90, 0) : lid(0, 90, 0);
+            k++;
+            setTimeout(fl, 110);
+          };
+          fl();
+          A(i, [
+            { transform: 'none', offset: 0 },
+            { transform: 'translateY(-4px) rotate(-2.5deg)', offset: 0.18 },
+            { transform: 'translateY(0)', offset: 0.35 },
+            { transform: 'translateY(-3px) rotate(2deg)', offset: 0.55 },
+            { transform: 'translateY(0)', offset: 0.75 },
+            { transform: 'none', offset: 1 }
+          ], { duration: 640 });
+          const jokes = ['Мимо!', 'Ха-ха!', 'Почти…', 'Рядом!'];
+          tb = mk(`position:fixed;left:${X + 30}px;top:${Y - 32}px;z-index:${Z + 2};padding:5px 10px;border-radius:14px 14px 14px 3px;background:#fff;color:#111;font:700 12.5px/1 system-ui,sans-serif;pointer-events:none;white-space:nowrap`, jokes[ri(0, jokes.length - 1)]);
+          B.appendChild(tb);
+          A(tb, [
+            { transform: 'scale(.15)', opacity: 0 },
+            { transform: 'scale(1.08)', opacity: 1, offset: 0.55 },
+            { transform: 'scale(1)', opacity: 1 }
+          ], { duration: 220, easing: 'ease-out' });
+        }, 190);
+        setTimeout(() => {
+          exit();
+          if (tb) A(tb, [{ opacity: 1 }, { opacity: 0 }], { duration: 180 });
+          setTimeout(() => tb && tb.remove(), 220);
+        }, 980);
+        setTimeout(() => {
+          A(w, [{ opacity: 1 }, { opacity: 0 }], { duration: 280 });
+          setTimeout(() => w.remove(), 300);
+        }, 1500);
+      }
+    }, T0);
+  }
+
+  // ---------- публичный API (переопределяем) ----------
+  function cancelAnim(g) {
+    if (!g) return;
+    const circle = g.kind === 'circle';
+    let r = null, cv = null, html = '';
+    try {
+      if (circle) {
+        const o = Q('.hcirc');
+        if (o) {
+          r = o.getBoundingClientRect();
+          const v = o.querySelector('video');
+          if (v) {
+            cv = document.createElement('canvas');
+            cv.width = cv.height = 160;
+            const x = cv.getContext('2d');
+            x.translate(160, 0);
+            x.scale(-1, 1);
+            const s = Math.min(v.videoWidth, v.videoHeight) || 0;
+            if (s) x.drawImage(v, (v.videoWidth - s) / 2, (v.videoHeight - s) / 2, s, s, 0, 0, 160, 160);
+            else { x.fillStyle = '#222'; x.fillRect(0, 0, 160, 160); }
+          }
+        }
+      } else {
+        const b = Q('#recb');
+        if (b) {
+          r = b.getBoundingClientRect();
+          html = b.innerHTML.replace(/ id="[^"]*"/g, '');
+        }
+      }
+    } catch (e) {}
+    // очистка состояния записи (вызываем оригинальные, если есть)
+    try {
+      if (typeof window.G !== 'undefined') window.G = null;
+      if (typeof clean === 'function') clean();
+      else document.querySelectorAll('.p3lk,.p3lc').forEach(e => e.remove());
+    } catch (e) {}
+    HV(9);
+    try {
+      if (typeof recCancel === 'function') recCancel();
+      else if (typeof holdClear === 'function') holdClear();
+    } catch (e) {}
+    if (r && r.width && !reduced()) crumple(r, circle, cv, html);
+  }
+
+  // надёжный flipCam (поверх существующего)
+  const _origFlip = window.flipCam;
+  window.flipCam = async function () {
+    if (!window.R || R.k !== 'circle' || R.flp) return;
+    if (R.phase !== 'pre' && R.phase !== 'rec') return;
+    R.flp = 1;
+    const nf = R.face === 'user' ? 'environment' : 'user';
+    const rec = R.phase === 'rec';
+    try {
+      const constraints = {
+        video: {
+          facingMode: { ideal: nf },
+          width: { ideal: 480 },
+          height: { ideal: 480 },
+          frameRate: { ideal: 30 }
+        },
+        audio: false
+      };
+      let s;
+      try {
+        s = await navigator.mediaDevices.getUserMedia(constraints);
+      } catch (err) {
+        // fallback без ideal
+        s = await navigator.mediaDevices.getUserMedia({
+          video: { facingMode: nf },
+          audio: false
+        });
+      }
+      if (!R) { s.getTracks().forEach(t => t.stop()); return; }
+      if (rec) {
+        R.vst?.getTracks().forEach(t => t.stop());
+        R.st.getVideoTracks().forEach(t => t.stop());
+        R.vst = s;
+        // если идёт запись через canvas — обновляем source
+        const v = Q('.hcirc video') || Q('#cvv');
+        if (v) {
+          v.srcObject = s;
+          v.style.transform = nf === 'user' ? 'scaleX(-1)' : 'none';
+          v.play?.().catch(() => {});
+        }
+      } else {
+        R.st.getTracks().forEach(t => t.stop());
+        R.st = s;
+        const v = Q('.hcirc video');
+        if (v) {
+          v.srcObject = s;
+          v.style.transform = nf === 'user' ? 'scaleX(-1)' : 'none';
+          v.play?.().catch(() => {});
+        }
+      }
+      R.face = nf;
+      HV(8);
+    } catch (e) {
+      try {
+        if (typeof toast === 'function') toast('Эта камера недоступна на устройстве');
+        else alert('Эта камера недоступна на устройстве');
+      } catch (x) {}
+    }
+    if (R) R.flp = 0;
+  };
+
+  // экспорт
+  window.__p3 = { crumple, cancelAnim };
+  window.p3cancel = () => {
+    try {
+      if (window.G) cancelAnim(window.G);
+    } catch (e) {}
+  };
+
+  // если оригинальный cancelAnim уже висит на pointer — подменяем
+  try {
+    if (window.cancelAnim) window.cancelAnim = cancelAnim;
+  } catch (e) {}
+
+  console.log('[logos-cancel-anim] v2 ready · faster crumple · smaller balls · 3D bin · solid flipCam');
 })();
