@@ -5822,12 +5822,21 @@ function boot(){
  document.addEventListener('animationend',function(){renderLater(90)},true);
  addEventListener('resize',function(){renderLater(150);schedSnap()});
  /* снимок страницы: тот же html2canvas, что в зипе, но панели скрываем, чтобы стекло не преломляло само себя */
+ /* html2canvas 1.4.1 падает на color(srgb …) / oklch() и т.п. (их даёт color-mix в computed-стилях) — переводим в rgba через canvas */
+ var cc=document.createElement('canvas');cc.width=cc.height=1;var cx=cc.getContext('2d',{willReadFrequently:true}),ccache={};
+ function toRGBA(str){if(ccache[str])return ccache[str];cx.clearRect(0,0,1,1);cx.fillStyle='#000';cx.fillStyle=str;cx.fillRect(0,0,1,1);var d=cx.getImageData(0,0,1,1).data;return ccache[str]='rgba('+d[0]+','+d[1]+','+d[2]+','+(+(d[3]/255).toFixed(3))+')'}
+ var CRX=/(?:color|oklch|oklab|lab|lch|hwb)\([^()]*\)/g,CTEST=/(?:color|oklch|oklab|lab|lch|hwb)\(/;
+ var CPROPS=['color','background-color','background-image','border-top-color','border-right-color','border-bottom-color','border-left-color','outline-color','box-shadow','text-shadow','text-decoration-color','-webkit-text-fill-color','-webkit-text-stroke-color','caret-color','column-rule-color','fill','stroke','filter','border-image-source'];
+ function fixColors(doc){var w=doc.defaultView,all=doc.querySelectorAll('*'),n=0;
+  for(var i=0;i<all.length;i++){var el=all[i],cs;try{cs=w.getComputedStyle(el)}catch(e){continue}
+   for(var k=0;k<CPROPS.length;k++){var pr=CPROPS[k],v=cs.getPropertyValue(pr);if(v&&CTEST.test(v)){try{el.style.setProperty(pr,v.replace(CRX,toRGBA),'important');n++}catch(e){}}}}
+  return n}
  function rebuild(){live.forEach(function(o,el){destroy(el)});ready=true;sweep()}
  function snapshot(){
   if(snapping||document.hidden)return;snapping=true;lastSnap=Date.now();var t0=performance.now();
   html2canvas(document.body,{scale:1,useCORS:true,allowTaint:false,imageTimeout:4000,logging:false,backgroundColor:null,width:innerWidth,height:innerHeight,windowWidth:innerWidth,windowHeight:innerHeight,x:0,y:0,scrollX:0,scrollY:0,
    ignoreElements:function(n){var c=n.classList;return !!c&&(c.contains('glass-container')||c.contains('glass-button')||c.contains('glass-button-text'))},
-   onclone:function(doc){try{var st=doc.createElement('style');st.textContent='.zg-hide,.zg-hide *{visibility:hidden!important}';doc.head.appendChild(st);doc.querySelectorAll(HIDE).forEach(function(e){e.classList.add('zg-hide')})}catch(e){}}})
+   onclone:function(doc){try{var st=doc.createElement('style');st.textContent='.zg-hide,.zg-hide *{visibility:hidden!important}';doc.head.appendChild(st);doc.querySelectorAll(HIDE).forEach(function(e){e.classList.add('zg-hide')})}catch(e){}try{fixColors(doc)}catch(e){console.warn('[lg] fixColors',e)}}})
   .then(function(cv){
    var o=document.createElement('canvas');o.width=cv.width;o.height=cv.height;var g=o.getContext('2d');
    g.fillStyle=light()?'#eef0f6':'#07050f';g.fillRect(0,0,o.width,o.height);g.drawImage(cv,0,0);
