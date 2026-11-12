@@ -2228,11 +2228,12 @@ R={k:'voice',st,phase:'pre',w:[],cid:cur?.id};beginRec()}
 async function recCircle(){if(R||!cur||!canRec())return;stopV();try{AC=AC||new(window.AudioContext||webkitAudioContext)();AC.resume?.()}catch(e){}
 let st;try{st=await getCam('user')}catch(e){return toast('Нет доступа к камере')}
 R={k:'circle',st,face:'user',phase:'pre',w:[],cid:cur?.id};camUI()}
-function camUI(){const o=document.createElement('div');o.className='cov';o.innerHTML=`<div class="cvw"><video id="cvv" playsinline muted autoplay></video><svg class="cring" viewBox="0 0 100 100"><circle class="bg" cx="50" cy="50" r="48"/><circle class="pg" cx="50" cy="50" r="48"/></svg><div class="ctm" id="ctm">0:00</div></div>
-<div class="cbt"><button class="cb pre" onclick="recCancel()">${ic('close')}</button><button class="cb rd2 pre" onclick="beginRec()"><i></i></button><button class="cb pre" onclick="flipCam()">${ic('flip')}</button><button class="cb rc" onclick="recCancel()">${ic('trash')}</button><button class="cb go rc" onclick="recStop()">${ic('check')}</button></div>`;
+function camUI(){const o=document.createElement('div');o.className='cov';o.innerHTML=`<div class="cvw" onclick="flipCam()"><video id="cvv" playsinline muted autoplay></video><svg class="cring" viewBox="0 0 100 100"><circle class="bg" cx="50" cy="50" r="48"/><circle class="pg" cx="50" cy="50" r="48"/></svg><div class="ctm" id="ctm">0:00</div></div>
+<div class="cbt"><button class="cb pre" onclick="recCancel()">${ic('close')}</button><button class="cb rd2 pre" onclick="beginRec()"><i></i></button><button class="cb pre" onclick="flipCam()">${ic('flip')}</button><button class="cb rc" onclick="recCancel()">${ic('trash')}</button><button class="cb rc" onclick="flipCam()">${ic('flip')}</button><button class="cb go rc" onclick="recStop()">${ic('check')}</button></div>`;
 document.body.appendChild(o);const v=o.querySelector('video');v.srcObject=R.st;v.style.transform='scaleX(-1)';v.play?.().catch(()=>{});requestAnimationFrame(()=>o.classList.add('in'))}
-async function flipCam(){if(!R||R.phase!=='pre')return;const nf=R.face==='user'?'environment':'user';try{const s=await getCam(nf);R.st.getTracks().forEach(t=>t.stop());R.st=s;R.face=nf;const v=$('#cvv');v.srcObject=s;v.style.transform=nf==='user'?'scaleX(-1)':'none';v.play?.().catch(()=>{})}catch(e){toast('Камера недоступна')}}
-function beginRec(){if(!R||R.mr)return;const st=R.st,k=R.k,mt=pickM(k==='voice'?MA:MV);let mr;
+async function flipCam(){if(!R||R.k!=='circle'||R.flp||(R.phase!=='pre'&&R.phase!=='rec'))return;R.flp=1;const nf=R.face==='user'?'environment':'user',rec=R.phase==='rec';try{const s=rec?await navigator.mediaDevices.getUserMedia({video:{facingMode:nf,width:{ideal:480},height:{ideal:480},frameRate:{ideal:30}}}):await getCam(nf);if(!R){s.getTracks().forEach(t=>t.stop());return}if(rec){R.vst?.getTracks().forEach(t=>t.stop());R.st.getVideoTracks().forEach(t=>t.stop());R.vst=s}else{R.st.getTracks().forEach(t=>t.stop());R.st=s}R.face=nf;const v=$('#cvv');v.srcObject=s;v.style.transform=nf==='user'?'scaleX(-1)':'none';v.play?.().catch(()=>{});vib(8)}catch(e){toast('Камера недоступна')}if(R)R.flp=0}
+function cvStream(){const v=$('#cvv'),c=document.createElement('canvas');c.width=c.height=480;const x=c.getContext('2d');R.cd=()=>{const w=v.videoWidth,h=v.videoHeight;if(!w)return;const s=Math.min(w,h);x.drawImage(v,(w-s)/2,(h-s)/2,s,s,0,0,480,480)};R.cd();const o=c.captureStream(30);R.st.getAudioTracks().forEach(t=>o.addTrack(t));R.cs=o;return o}
+function beginRec(){if(!R||R.mr)return;const k=R.k,st=k==='circle'&&window.HTMLCanvasElement&&HTMLCanvasElement.prototype.captureStream?cvStream():R.st,mt=pickM(k==='voice'?MA:MV);let mr;
 try{mr=new MediaRecorder(st,mt?{mimeType:mt,...(k==='circle'?{videoBitsPerSecond:900000,audioBitsPerSecond:64000}:{audioBitsPerSecond:48000})}:{})}catch(e){recKill();return toast('Запись не поддерживается')}
 R.mr=mr;R.mt=mt||mr.mimeType||'';R.ch=[];R.lv=Array(44).fill(.05);R.lt=0;R.cancel=false;mr.ondataavailable=e=>{if(e.data&&e.data.size)R.ch.push(e.data)};mr.onstop=recDone;
 try{mr.start(300)}catch(e){recKill();return toast('Не удалось начать запись')}
@@ -2241,14 +2242,14 @@ try{if(AC&&st.getAudioTracks().length){R.src=AC.createMediaStreamSource(st);R.an
 if(k==='voice'&&!R.hold){const b=$('#recb');if(b){b.innerHTML=`<button class="ib rcx" onclick="recCancel()">${ic('trash')}</button><span class="rdot"></span><span class="rtm" id="rtm">0:00</span><div class="rwv" id="rwv">${'<i></i>'.repeat(44)}</div><button class="sbtn" onclick="recStop()">${ic('send')}</button>`;requestAnimationFrame(()=>b.classList.add('on'))}}
 else document.querySelector('.cov')?.classList.add('rec');
 R.raf=requestAnimationFrame(recLoop)}
-function recLoop(ts){if(!R||!R.mr)return;const el=(Date.now()-R.t0)/1000,tm=document.getElementById(R.k==='voice'?'rtm':'ctm');if(tm)tm.textContent=mmss(el);
+function recLoop(ts){if(!R||!R.mr)return;R.cd&&R.cd();const el=(Date.now()-R.t0)/1000,tm=document.getElementById(R.k==='voice'?'rtm':'ctm');if(tm)tm.textContent=mmss(el);
 if(ts-R.lt>80){R.lt=ts;let lv;if(R.an&&AC.state==='running'){R.an.getByteTimeDomainData(R.buf);let s=0;for(let i=0;i<R.buf.length;i++){const x=(R.buf[i]-128)/128;s+=x*x}lv=Math.min(1,Math.sqrt(s/R.buf.length)*3.4)}else lv=.12+.5*Math.abs(Math.sin(ts/240))*Math.random();
 R.w.push(lv);R.lv.push(lv);R.lv.shift();const w=document.getElementById('rwv');if(w&&w.children.length===44)for(let i=0;i<44;i++)w.children[i].style.height=Math.max(6,R.lv[i]*100)+'%'}
 if(R.k==='circle'){const g=document.querySelector('.cring .pg');if(g)g.style.strokeDashoffset=301.6*(1-Math.min(1,el/60))}
 if(el>=(R.k==='circle'?60:600)){recStop();return}R.raf=requestAnimationFrame(recLoop)}
 function recStop(){if(R?.mr&&R.mr.state!=='inactive'){cancelAnimationFrame(R.raf);R.mr.stop()}}
 function recCancel(){if(!R)return;R.cancel=true;if(R.mr&&R.mr.state!=='inactive')R.mr.stop();else recKill()}
-function recKill(){const r=R;R=null;window.holdClear&&holdClear();if(!r)return;cancelAnimationFrame(r.raf);try{r.src?.disconnect()}catch(e){}r.st?.getTracks().forEach(t=>t.stop());
+function recKill(){const r=R;R=null;window.holdClear&&holdClear();if(!r)return;cancelAnimationFrame(r.raf);try{r.src?.disconnect()}catch(e){}r.st?.getTracks().forEach(t=>t.stop());r.vst?.getTracks().forEach(t=>t.stop());r.cs?.getTracks().forEach(t=>t.stop());
 document.getElementById('recb')?.classList.remove('on');const c=document.querySelector('.cov');if(c){c.classList.add('out');setTimeout(()=>c.remove(),300)}}
 const bars=(w,n)=>{if(!w.length)return Array(n).fill(20);const o=[];for(let i=0;i<n;i++){const a=Math.floor(i*w.length/n),b=Math.max(a+1,Math.floor((i+1)*w.length/n));let m=0;for(let j=a;j<b&&j<w.length;j++)m=Math.max(m,w[j]);o.push(Math.round(Math.max(.1,Math.min(1,m))*100))}return o};
 function recDone(){const r=R;if(!r)return;const dur=(Date.now()-r.t0)/1000,ch=r.ch,mt=r.mt,k=r.k,w=r.w,cn=r.cancel;recKill();if(cn||dur<.8){if(!cn&&r.hold)toast('Удерживайте кнопку для записи');return}
@@ -3762,7 +3763,7 @@ const SPK='<svg class="spk" viewBox="0 0 24 24" width="20" height="20"><defs><li
 settingsHTML=function(hd){
 const it=(i,t,f,c='',r='')=>`<div class="it ${c}" onclick='${f}'><span class="ib2">${ic(i)}</span><span>${t}</span>${r?`<small class="itr">${r}</small>`:''}${ic('chev')}</div>`;
 const on=prof.prime_until&&new Date(prof.prime_until)>Date.now(),thn=(TH.find(t=>t[0]===PF.th)||[])[1]||'';
-return hd('Настройки')+`<div class="sc"><div class="pc pc2" onclick="sheetProf()">${prof.banner_url?`<div class="pcb" style="background-image:url(${esc(prof.banner_url)})"></div>`:''}<div class="pci">${av(prof,80)}<div class="pm"><div class="pn">${esc(prof.name)}${badges(prof)}</div><div class="sub">@${esc(prof.username)}${prof.phone?' · '+esc(prof.phone):''}</div><div class="pr"><span class="cchip" onclick="event.stopPropagation();sheetWallet()">${SPK}<b>${nf(prof.coins)}</b></span><span class="sm">Изм.</span></div></div></div>${window.gshelf?gshelf(MYG.filter(x=>x.pinned)):''}</div>
+return hd('Настройки')+`<div class="sc"><div class="pc pc2" onclick="sheetProf()"><div class="pcb" style="${prof.banner_url?`background-image:url(${esc(prof.banner_url)})`:''}"></div><div class="pci">${av(prof,80)}<div class="pm"><div class="pn">${esc(prof.name)}${badges(prof)}</div><div class="sub">@${esc(prof.username)}${prof.phone?' · '+esc(prof.phone):''}</div><div class="pr"><span class="cchip" onclick="event.stopPropagation();sheetWallet()">${SPK}<b>${nf(prof.coins)}</b></span><span class="sm">Изм.</span></div></div></div>${window.gshelf?gshelf(MYG.filter(x=>x.pinned)):''}</div>
 <div class="grp">${it('lock','Конфиденциальность','sheetPriv()')}${it('bell','Звуки и уведомления','sheetNot()')}${it('palette','Оформление','sheetTheme()','',esc(thn))}${it('image','Узор фона чата','sheetWp()')}${it('image','Фон лобби','sheetLob()')}${it('sparkle','Анимации и эффекты','sheetFx()')}</div>
 <div class="grp"><div class="it prime" onclick='sheetPrime()'><span class="pti">${ic('sparkle')}</span><span class="ptx"><b>Logos Prime${on?' · активен':''}</b><small>Эксклюзив · эффекты · персонализация</small></span>${ic('chev')}</div></div>
 <div class="grp">${it('coin','Кошелёк','sheetWallet()')}${it('gift','Подарки'+(window.MYG&&MYG.length?' · '+MYG.length:''),'sheetGifts()')}</div>
@@ -5798,6 +5799,20 @@ html.nobl:root:root #tb .tbp,html.nobl:root:root #tb .tbs,html.nobl:root:root .i
 html.nobl:root:root .sh .shb,html.nobl:root:root .dlg>div{
  -webkit-backdrop-filter:none!important;backdrop-filter:none!important;
  background:color-mix(in srgb,var(--s2) 94%,transparent)!important}
+
+/* профиль: тёмнее панель, баннер до нижней линии с плавным переходом, аватар ниже */
+html:not(.lt):not(.lgl):root:root .pc2{background:linear-gradient(180deg,#1b1b1e,#0f0f11)!important}
+html:root:root .pc2{position:relative}
+html:root:root .pc2 .pcb{position:absolute!important;left:0;right:0;top:0;height:94px!important;z-index:0;
+ -webkit-mask-image:linear-gradient(180deg,#000 0,#000 48%,rgba(0,0,0,.55) 74%,transparent 100%);mask-image:linear-gradient(180deg,#000 0,#000 48%,rgba(0,0,0,.55) 74%,transparent 100%)}
+html:root:root .pc2 .pcb+.pci{position:relative;z-index:1;margin-top:0!important;padding:70px 14px 12px 100px!important;gap:0!important;align-items:flex-start!important}
+html:root:root .pc2 .pcb+.pci .av{position:absolute!important;margin:0!important;left:14px;top:38px;width:66px!important;height:66px!important;border:4px solid #0f0f11!important;box-sizing:content-box!important}
+html:root:root .pc2 .pn{text-shadow:0 1px 10px #000c}
+/* плавные свайпы */
+.sc,.list,#msgs,.msgs{-webkit-overflow-scrolling:touch;overscroll-behavior:contain}
+.sr>.row,.row,.sh .shb,.cov,.ov{will-change:transform;backface-visibility:hidden;-webkit-backface-visibility:hidden}
+.sr>.row,.row{touch-action:pan-y;transition-timing-function:cubic-bezier(.22,1,.36,1)}
+.cvw{cursor:pointer}
 </style>
 
 <script src="logos-groups-patch.js?v=6" defer></script>
