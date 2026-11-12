@@ -5758,6 +5758,8 @@ var r=0;new MutationObserver(function(){if(r)return;r=requestAnimationFrame(func
 <!-- ===== LOGOS · Liquid Glass: библиотека liquid-glass-js (dashersw, MIT) без изменений, лежит в liquid-glass/ ===== -->
 <link rel="stylesheet" href="liquid-glass/glass.css">
 <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+<script>if(!window.html2canvas)document.write('<script src="https://unpkg.com/html2canvas@1.4.1/dist/html2canvas.min.js"><\/script>');</script>
+<script>if(!window.html2canvas)document.write('<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"><\/script>');</script>
 <script src="liquid-glass/container.js"></script>
 <script src="liquid-glass/button.js"></script>
 <style id="zg-css">
@@ -5778,7 +5780,7 @@ if(/[?&]glass=(flat|css)/.test(Q))return;
 var dbgEl=null;
 function dbg(t){if(!DBG)return;try{if(!dbgEl){dbgEl=document.createElement('div');dbgEl.style.cssText='position:fixed;left:8px;right:8px;top:calc(env(safe-area-inset-top) + 4px);z-index:2147483647;font:11px/1.3 -apple-system,monospace;color:#0f0;background:#000c;padding:4px 8px;border-radius:8px;pointer-events:none;white-space:pre-wrap';document.body.appendChild(dbgEl)}dbgEl.textContent='LG: '+t}catch(e){}}
 function boot(){
- if(typeof Container==='undefined'||typeof html2canvas==='undefined'){dbg('не загрузились Container/html2canvas');console.warn('[lg] библиотека не загрузилась');return}
+ var miss=[];if(typeof Container==='undefined')miss.push('Container (файл liquid-glass/container.js не найден или не открылся)');if(typeof html2canvas==='undefined')miss.push('html2canvas (CDN не открылся)');if(miss.length){dbg('нет: '+miss.join(' + '));console.warn('[lg] не загрузилось:',miss.join(', '));return}
  /* что делаем стеклом: селектор, форма, прозрачность тинта (tintOpacity из API зипа) */
  var SPEC=[['#tb .tbp','pill',.12],['.srch','pill',.10],['.pc','rounded',.08],['.grp','rounded',.08],['.ib:not(.snd)','circle',.14]];
  var HIDE=SPEC.map(function(s){return s[0]}).join(',');
