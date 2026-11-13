@@ -1933,7 +1933,7 @@ if(rr.error)rr=await SB.from('chat_members').select('chat_id,role,archived,muted
 if(rr.error)rr=await SB.from('chat_members').select('chat_id,role,archived,muted,chats(id,kind,title,avatar_url)').eq('user_id',me.id);
 if(rr.error)rr=await SB.from('chat_members').select('chat_id,role,chats(id,kind,title,avatar_url)').eq('user_id',me.id);
 const mem=rr.data||[],ids=mem.map(m=>m.chat_id);if(!ids.length){chats=[];return}
-const PR='profiles(id,name,username,avatar_url,last_seen,bio,banner_url,pn,pfx,pem,pfr)',PRX='profiles(id,name,username,avatar_url,last_seen,bio,banner_url,phone,priv,verified,scam,prime_until,pn,pfx,pem,pfr)';
+const PR='profiles(id,name,username,avatar_url,last_seen,bio,banner_url,pn,pfx,pem,pfr)',PRX='profiles(id,name,username,avatar_url,last_seen,bio,banner_url,phone,priv,verified,scam,pn,pfx,pem,pfr)';
 let[o1,ms]=await Promise.all([SB.from('chat_members').select('chat_id,last_read,'+PRX).in('chat_id',ids).neq('user_id',me.id),SB.from('messages').select('chat_id,sender_id,body,kind,created_at').in('chat_id',ids).order('created_at',{ascending:false}).limit(300)]);
 for(const sel of ['chat_id,last_read,'+PR,'chat_id,'+PR,'chat_id,profiles(id,name,username,avatar_url)']){if(!o1.error)break;o1=await SB.from('chat_members').select(sel).in('chat_id',ids).neq('user_id',me.id)}
 const oth=o1.data||[],ml=ms.data||[];
@@ -1962,8 +1962,8 @@ const resHTML=()=>{if(sMode!=='contacts')return resAll();const q=sq.toLowerCase(
 return (r.length?r.map(p=>row(p,p.name,at(p.username),'',`dm('${p.id}')`)).join(''):`<div class="sub" style="padding:16px">${contacts.length?'В контактах такого нет':'Контактов пока нет'}</div>`)+`<button class="btn" style="margin:12px 16px;width:calc(100% - 32px);background:var(--s3);color:var(--tx)" onclick="sMode='all';sq='';found=[];drawList()">Искать во всём Logos</button>`};
 function closeSearch(){tab=sFrom||'chats';sq='';found=[];drawList();slide('ti-l')}
 let st;function doSearch(v){sq=String(v||'').trim();if(sMode==='contacts'){$('#res').innerHTML=resHTML();return}clearTimeout(st);st=setTimeout(async()=>{v=v.replace(/[,()%]/g,'').replace(/^@/,'').trim();if(v.length<2){found=[];$('#res').innerHTML=resHTML();return}
-if(DEMO){found=PEOPLE.filter(p=>(p.name+p.username).toLowerCase().includes(v.toLowerCase()));$('#res').innerHTML=resHTML();return}const{data}=await SB.from('profiles').select('id,name,username,avatar_url,prime_until,priv').or(`username.ilike.%${v}%,name.ilike.%${v}%`).neq('id',me.id).limit(20);found=data||[];$('#res').innerHTML=resHTML()},300)}
-async function loadContacts(){if(DEMO){drawList();return}let{data,error}=await SB.from('contacts').select('p:profiles!contact(id,name,username,avatar_url,verified,scam,prime_until,priv,pn,pfx,pem,pfr)').eq('owner',me.id);if(error)({data}=await SB.from('contacts').select('p:profiles!contact(id,name,username,avatar_url)').eq('owner',me.id));contacts=(data||[]).map(x=>x.p);if(tab==='contacts')drawList()}
+if(DEMO){found=PEOPLE.filter(p=>(p.name+p.username).toLowerCase().includes(v.toLowerCase()));$('#res').innerHTML=resHTML();return}const{data}=await SB.from('profiles').select('id,name,username,avatar_url,priv').or(`username.ilike.%${v}%,name.ilike.%${v}%`).neq('id',me.id).limit(20);found=data||[];$('#res').innerHTML=resHTML()},300)}
+async function loadContacts(){if(DEMO){drawList();return}let{data,error}=await SB.from('contacts').select('p:profiles!contact(id,name,username,avatar_url,verified,scam,priv,pn,pfx,pem,pfr)').eq('owner',me.id);if(error)({data}=await SB.from('contacts').select('p:profiles!contact(id,name,username,avatar_url)').eq('owner',me.id));contacts=(data||[]).map(x=>x.p);if(tab==='contacts')drawList()}
 async function addC(id){if(DEMO)return toast('Добавлен в контакты');const{error}=await SB.from('contacts').upsert({contact:id});toast(error?'Не удалось':'Добавлен в контакты')}
 async function dm(id){if(DEMO){const c=chats.find(x=>x.pid===id);return c&&openChat(c.id)}const{data,error}=await SB.rpc('create_dm',{other:id});if(error)return toast('Ошибка чата');PF.dl=(PF.dl||[]).filter(x=>x!==data);savePF();await loadChats();openChat(data)}
 
@@ -5333,7 +5333,7 @@ html:not(.lgl) #tb .tbp .tbl{background:linear-gradient(180deg,#32323a,#1f1f25)!
 </style>
 <script id="lg-prime-theme-js">
 (function(){
-function ok(){try{return !!(prof&&(prof.role==='owner'||(prof.prime_until&&new Date(prof.prime_until)>Date.now())))}catch(e){return false}}
+function ok(){return true}
 function inApp(){try{return !!prof}catch(e){return false}}
 /* Dark Fantasy — только для подписчиков Logos Prime (проверка на устройстве) */
 var _s=window.setTh;
@@ -6525,7 +6525,7 @@ html.lt .nb3 button{color:var(--nm)}html.lt .nb3 button.on{color:var(--nt)}html.
 
 #tb{background:none!important;border:0!important;box-shadow:none!important;-webkit-backdrop-filter:none!important;backdrop-filter:none!important;bottom:max(6px,calc(env(safe-area-inset-bottom,0px) - 26px))!important;left:14px!important;right:14px!important;gap:12px!important}
 #tb::before,#tb::after{display:none!important}
-.nic4{display:block;width:30px;height:30px;background:center/contain no-repeat;opacity:.5;filter:grayscale(1) brightness(.85);transition:opacity .3s,filter .3s,transform .45s cubic-bezier(.3,1.8,.5,1)}
+.nic4{display:block;width:24px;height:24px;background:center/contain no-repeat;opacity:.5;filter:grayscale(1) brightness(.85);transition:opacity .3s,filter .3s,transform .45s cubic-bezier(.3,1.8,.5,1)}
 .nb3 button.on .nic4{opacity:1;filter:drop-shadow(0 2px 6px #0008);transform:translateY(-1px) scale(1.12)}
 .nb3{height:60px!important}.nbs3{width:60px!important;height:60px!important}
 .pfs3{bottom:calc(max(6px,calc(env(safe-area-inset-bottom,0px) - 26px)) + 72px)!important}
@@ -6693,4 +6693,43 @@ fontCss();try{drawList()}catch(e){}
 .srch{background:linear-gradient(180deg,#ffffff1a,#ffffff08)!important;border:1px solid #ffffff22;box-shadow:inset 0 1px 0 #ffffff2a}
 .btn:active{transform:scale(.97)}
 </style>
+<style id="set6">
+@media all{
+.nic4{width:24px!important;height:24px!important}
+.it.prime,.lgprb,#pgb,.cchip.prime{display:none!important}
+.grp:empty{display:none}
+#lc[data-t=settings] .sc{padding-bottom:110px}
+.me6{position:relative;margin:4px 14px 14px;border-radius:30px;overflow:hidden;background:linear-gradient(180deg,#ffffff12,#ffffff06);border:1px solid #ffffff1a;box-shadow:0 14px 40px #0008,inset 0 1px 0 #ffffff2a;text-align:center;padding-bottom:20px;cursor:pointer}
+.me6 .b6{height:132px;background:linear-gradient(135deg,#3b3170,#15151f) center/cover;position:relative}
+.me6 .b6::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,transparent 40%,#000a)}
+.me6 .a6{margin-top:-48px;position:relative;display:flex;justify-content:center}
+.me6 .a6 .frw{width:96px;height:96px}.me6 .a6 .av,.me6 .a6 img{width:96px!important;height:96px!important;font-size:38px!important;object-fit:cover;border-radius:50%;box-shadow:0 0 0 4px #121216}
+.me6 .n6{font-size:24px;font-weight:700;margin-top:12px;padding:0 16px;display:flex;justify-content:center;align-items:center;gap:6px;font-family:var(--pfont,inherit)}
+.me6 .u6{color:#a9a9b2;font-size:14px;margin-top:3px}
+.me6 .s6{color:#d0d0d8;font-size:14px;margin:8px 20px 0}
+.me6 .e6{position:absolute;top:12px;right:12px;padding:8px 16px;border-radius:16px;background:#0006;-webkit-backdrop-filter:blur(14px);backdrop-filter:blur(14px);border:1px solid #ffffff2a;color:#fff;font-weight:600;font-size:13px}
+.st4{margin:0 14px 12px!important}.st4>div{padding:12px 4px!important;border-radius:20px!important}.st4 b{font-size:22px!important}
+.mc4{margin:0 14px 14px!important}
+#lc[data-t=settings] .grp{margin-left:14px!important;margin-right:14px!important;border-radius:24px!important;overflow:hidden;background:linear-gradient(180deg,#ffffff10,#ffffff06)!important}
+#lc[data-t=settings] .grp .it{padding:14px 16px;gap:14px}
+#lc[data-t=settings] .grp .it .ib2{width:34px;height:34px;border-radius:10px;display:grid;place-items:center;flex:none}
+#lc[data-t=settings] .grp .it .ib2 .i{width:20px;height:20px}
+}
+</style>
+<script id="set6-js">
+(()=>{
+const _dl=window.drawList||drawList;
+window.drawList=drawList=function(){const r=_dl.apply(this,arguments);try{
+ if(tab==='settings'){const L=document.getElementById('lc');if(!L)return r;
+  L.querySelectorAll('.it').forEach(e=>{if(/prime/i.test(e.textContent)&&!e.classList.contains('dx4'))e.remove()});
+  const pc=L.querySelector('.pc');
+  if(pc){const bn=prof.banner_url?`background-image:url(${esc(prof.banner_url)})`:'';
+   const h=document.createElement('div');h.className='me6';h.setAttribute('onclick','sheetProf()');
+   h.innerHTML=`<div class="b6" style="${bn}"></div><div class="a6"><span class="frw fr-${PF.frame||'none'}">${av(prof,96)}</span></div><div class="n6 pn">${esc(prof.name||'')}</div><div class="u6">@${esc(prof.username||'')}${prof.phone?' · '+esc(prof.phone):''}</div>${prof.status?`<div class="s6">${esc(prof.status)}</div>`:''}<button class="e6" onclick="event.stopPropagation();sheetProf()">Изм.</button>`;
+   pc.replaceWith(h)}}}catch(e){console.warn(e)}return r};
+/* подписка отключена */
+['sheetPrime','lxHub','primeGift','primeBuy','primeGiftSend','primeGiftPlan','crownPick','buyPrime'].forEach(n=>{try{window[n]=()=>{}}catch(e){}});
+try{drawList()}catch(e){}
+})();
+</script>
 </body></html>
