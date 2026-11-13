@@ -1946,7 +1946,7 @@ const nav=()=>`<div class="nav">${[['chats','chat','Чаты'],['contacts','user
 function render(){drawList();drawMain()}
 
 const CROWN='<img class="prm" src="'+SPR.scrown+'" style="width:16px;height:14px;object-fit:contain;margin-right:3px;vertical-align:-2px">';
-const badges0=p=>(p?.prime_until&&new Date(p.prime_until)>Date.now()?(window.crownOf?crownOf(p):CROWN):'')+((p?.verified||p?.vf)?'<svg class="vtick" viewBox="0 0 24 24"><path d=\"M22.25 12c0-1.43-.88-2.67-2.19-3.34.46-1.39.2-2.9-.81-3.91s-2.52-1.27-3.91-.81c-.66-1.31-1.91-2.19-3.34-2.19s-2.67.88-3.33 2.19c-1.4-.46-2.91-.2-3.92.81s-1.26 2.52-.8 3.91c-1.31.67-2.2 1.91-2.2 3.34s.89 2.67 2.2 3.34c-.46 1.39-.21 2.9.8 3.91s2.52 1.26 3.91.81c.67 1.31 1.91 2.19 3.34 2.19s2.68-.88 3.34-2.19c1.39.45 2.9.2 3.91-.81s1.27-2.52.81-3.91c1.31-.67 2.19-1.91 2.19-3.34zm-11.71 4.2L6.8 12.46l1.41-1.42 2.26 2.26 4.8-5.23 1.47 1.36-6.2 6.77z\"/></svg>':'')+((p?.scam||p?.sc)?'<span class="scamtag">SCAM</span>':'');
+const badges0=p=>((window.crownOf&&p&&p.priv&&(p.priv.crown||p.priv.crown_img))?crownOf(p):'')+((p?.verified||p?.vf)?'<svg class="vtick" viewBox="0 0 24 24"><path d=\"M22.25 12c0-1.43-.88-2.67-2.19-3.34.46-1.39.2-2.9-.81-3.91s-2.52-1.27-3.91-.81c-.66-1.31-1.91-2.19-3.34-2.19s-2.67.88-3.33 2.19c-1.4-.46-2.91-.2-3.92.81s-1.26 2.52-.8 3.91c-1.31.67-2.2 1.91-2.2 3.34s.89 2.67 2.2 3.34c-.46 1.39-.21 2.9.8 3.91s2.52 1.26 3.91.81c.67 1.31 1.91 2.19 3.34 2.19s2.68-.88 3.34-2.19c1.39.45 2.9.2 3.91-.81s1.27-2.52.81-3.91c1.31-.67 2.19-1.91 2.19-3.34zm-11.71 4.2L6.8 12.46l1.41-1.42 2.26 2.26 4.8-5.23 1.47 1.36-6.2 6.77z\"/></svg>':'')+((p?.scam||p?.sc)?'<span class="scamtag">SCAM</span>':'');
 const badges=p=>badges0(p)+(window.pxBadge?pxBadge(p):'');
 const row=(p,n,s,r,click)=>`<div class="row" onclick="${click}">${av(p)}<div class="b"><div class="n">${esc(n)}${badges(p)}</div><div class="sub">${esc(s)}</div></div>${r||''}</div>`;
 function drawList(){openRow=null;const st0=$('#lc .sc')?.scrollTop||0;const hd=t=>`<div class="hd"><h1>${t}</h1></div>`;let h='';
@@ -4214,10 +4214,10 @@ document.body.insertAdjacentHTML('beforeend',defs);
 const ico=(k,z=16)=>{if(/^s\d+$/.test(k||'')&&STK[+k.slice(1)])return `<img src="data:image/webp;base64,${STK[+k.slice(1)]}" width="${z}" height="${z}" style="display:block;object-fit:contain">`;const[a,b]=(k||'').split('-');if(!SH[a]||!PAL[b])return null;return `<svg viewBox="0 0 24 24" width="${z}" height="${z}" style="display:block"><path d="${SH[a]}" fill="url(#pg-${b})" stroke="rgba(0,0,0,.25)" stroke-width=".6" stroke-linejoin="round"/></svg>`};
 const sz=k=>/^s/.test(k||'')?28:21;
 const orig=z=>ico('s1',z+7);
-const pk=p=>{const k=p&&p.priv&&p.priv.crown;return SK.includes(k)?k:''};
+const pk=p=>{const k=p&&p.priv&&p.priv.crown;return SK.includes(k)?k:''};const ck=p=>(p&&p.priv&&p.priv.crown_img)||'';
 const isP=p=>p&&p.prime_until&&new Date(p.prime_until)>Date.now();
 const vb2=n=>{try{vib(n)}catch(e){}};
-window.crownOf=p=>{const k=pk(p);return `<span class="prm2" onclick="crownTap(event)">${ico(k||'s1',28)}</span>`};
+window.crownOf=p=>{const k=pk(p),u=ck(p);return `<span class="prm2" onclick="crownTap(event)">${u?`<img src="${u}" width="28" height="28" style="display:block;object-fit:contain;border-radius:7px">`:ico(k||'s1',28)}</span>`};
 const st=document.createElement('style');st.textContent=`
 .prm2{display:inline-flex;vertical-align:-7px;margin:-9px 3px -9px -4px;padding:9px 6px;cursor:pointer;transition:transform .3s cubic-bezier(.34,1.6,.5,1)}.prm2:active{transform:scale(.8)}
 .cpop{position:fixed;inset:0;z-index:99999;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,.5);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);animation:cpf .25s both}
@@ -4225,24 +4225,25 @@ const st=document.createElement('style');st.textContent=`
 .cpop .tlmi{display:flex;justify-content:center;margin-bottom:10px;filter:drop-shadow(0 6px 16px #a070ff88)}.cpop b{display:block;font-size:18px;margin-bottom:6px}.cpop p{margin:0 0 16px;color:#b9b9c3;font-size:14px;line-height:1.4}
 .cpop button{display:block;width:100%;padding:13px;border-radius:20px;border:0;font:inherit;font-weight:600;font-size:15px;margin-top:8px;color:#fff;background:#ffffff1a;transition:transform .25s cubic-bezier(.34,1.5,.5,1)}.cpop button:active{transform:scale(.95)}.cpop button.p{background:linear-gradient(180deg,#fff,#c9c9d2);color:#111}
 @keyframes cpf{from{opacity:0}}@keyframes cpp{from{opacity:0;transform:translateY(24px) scale(.88)}}
-.cpg{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;margin:6px 0}.cph{margin:12px 4px 4px;color:#9a9aa5;font-size:13px}.cpg.st button{padding:3px}.cpg button{aspect-ratio:1;border-radius:16px;border:1px solid #ffffff14;background:#ffffff0a;display:flex;align-items:center;justify-content:center;padding:0;transition:transform .3s cubic-bezier(.34,1.5,.5,1)}.cpg button.on{border-color:#fff;background:#ffffff26}.cpg button:active{transform:scale(.88)}
+.cpl{flex:1;display:flex;align-items:center;justify-content:center;padding:12px;border-radius:16px;background:#ffffff1a;border:1px solid #ffffff22;color:#fff;font:inherit;font-weight:600;font-size:14px;cursor:pointer}.cpg{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;margin:6px 0}.cph{margin:12px 4px 4px;color:#9a9aa5;font-size:13px}.cpg.st button{padding:3px}.cpg button{aspect-ratio:1;border-radius:16px;border:1px solid #ffffff14;background:#ffffff0a;display:flex;align-items:center;justify-content:center;padding:0;transition:transform .3s cubic-bezier(.34,1.5,.5,1)}.cpg button.on{border-color:#fff;background:#ffffff26}.cpg button:active{transform:scale(.88)}
 `;document.head.appendChild(st);
 const closeP=()=>{const e=document.querySelector('.cpop');if(e){e.style.transition='opacity .18s';e.style.opacity=0;setTimeout(()=>e.remove(),180)}};
 window.crownClose=closeP;
-window.crownTap=ev=>{try{ev&&ev.stopPropagation()}catch(e){}vb2(10);closeP();const mine=isP(prof);const k=pk(prof);
+window.crownTap=ev=>{try{ev&&ev.stopPropagation()}catch(e){}vb2(10);closeP();const mine=true;const k=pk(prof);
 const d=document.createElement('div');d.className='cpop';d.onclick=e=>{if(e.target===d)closeP()};
-d.innerHTML=`<div><div class="tlmi">${(k&&mine?ico(k||'s1',96):ico('s1',96))}</div><b>Талисман Prime</b><p>Такого друга рядом с ником заводят те, у кого активна подписка Logos Prime.${mine?' Твоя подписка активна — можешь выбрать другого талисмана из 106 стикеров.':' Оформи подписку — и такой друг появится и у тебя.'}</p>${mine?'<button class="p" onclick="crownClose();crownPick()">Сменить талисмана</button><button onclick="crownClose()">Закрыть</button>':'<button class="p" onclick="crownClose();sheetPrime()">Купить подписку</button><button onclick="crownClose()">Позже</button>'}</div>`;
+d.innerHTML=`<div><div class="tlmi">${ck(prof)?`<img src="${ck(prof)}" width="96" height="96" style="object-fit:contain;border-radius:18px">`:ico(k||'s1',96)}</div><b>Статус</b><p>Маленький стикер рядом с ником, его видят все. Выбери из 106 стикеров или сделай свой.</p><button class="p" onclick="crownClose();crownPick()">Сменить статус</button><button onclick="crownClose()">Закрыть</button></div>`;
 document.body.appendChild(d)};
-window.crownPick=()=>{if(!isP(prof)){toast('Талисман доступен с Logos Prime');return sheetPrime()}vb2(8);const cur=pk(prof)||'s1';
-sheet('Талисман Prime',`<div class="sub" style="margin:0 4px 6px;white-space:normal">Выбери друга, которого все увидят рядом с твоим ником</div><div class="cph">Талисманы</div><div class="cpg st">${SK.slice(0,30).map(k=>`<button data-k="${k}" class="${k===cur?'on':''}" onclick="crownSet('${k}')">${ico(k,52)}</button>`).join('')}</div><div class="cph">Значки</div><div class="cpg st">${SK.slice(30,66).map(k=>`<button data-k="${k}" class="${k===cur?'on':''}" onclick="crownSet('${k}')">${ico(k,52)}</button>`).join('')}</div><div class="cph">Мемы</div><div class="cpg st">${SK.slice(66).map(k=>`<button data-k="${k}" class="${k===cur?'on':''}" onclick="crownSet('${k}')">${ico(k,52)}</button>`).join('')}</div>`)};
-window.crownSet=async k=>{vb2(10);const v={...(typeof PV==='function'?PV():(prof.priv||{}))};if(k)v.crown=k;else delete v.crown;prof.priv=v;try{PF.priv=v;savePF()}catch(e){}
+window.crownPick=()=>{vb2(8);const cur=pk(prof)||(ck(prof)?'':'s1');
+sheet('Статус',`<div class="sub" style="margin:0 4px 6px;white-space:normal">Стикер рядом с твоим ником, его видят все</div><div style="display:flex;gap:8px;margin:6px 0"><label class="cpl">＋ Свой стикер<input type="file" accept="image/*" hidden onchange="crownUp(this.files[0])"></label><button class="cpl" onclick="crownSet('')">Убрать</button></div><div class="cph">Стикеры</div><div class="cpg st">${SK.slice(0,30).map(k=>`<button data-k="${k}" class="${k===cur?'on':''}" onclick="crownSet('${k}')">${ico(k,52)}</button>`).join('')}</div><div class="cph">Значки</div><div class="cpg st">${SK.slice(30,66).map(k=>`<button data-k="${k}" class="${k===cur?'on':''}" onclick="crownSet('${k}')">${ico(k,52)}</button>`).join('')}</div><div class="cph">Мемы</div><div class="cpg st">${SK.slice(66).map(k=>`<button data-k="${k}" class="${k===cur?'on':''}" onclick="crownSet('${k}')">${ico(k,52)}</button>`).join('')}</div>`)};
+window.crownSet=async k=>{vb2(10);const v={...(typeof PV==='function'?PV():(prof.priv||{}))};if(k)v.crown=k;else delete v.crown;delete v.crown_img;prof.priv=v;try{PF.priv=v;savePF()}catch(e){}
 document.querySelectorAll('.cpg button').forEach(b=>b.classList.toggle('on',b.dataset.k===(k||'')));
 try{drawList()}catch(e){}
-const r=await SB.from('profiles').update({priv:v}).eq('id',me.id);if(r.error)toast('Талисман сохранён только у тебя');else toast('Талисман изменён')};
+const r=await SB.from('profiles').update({priv:v}).eq('id',me.id);if(r.error)toast('Статус сохранён только у тебя');else toast('Статус изменён')};
+window.crownUp=async f=>{if(!f)return;vb2(10);let url=null;try{const bl=(f.type==='image/gif'||f.type==='image/webp')&&f.size<2e6?f:await img(f,128,128);url=await up('avatars',bl)}catch(e){}if(!url)return toast('Не загрузилось');const v={...(typeof PV==='function'?PV():(prof.priv||{}))};v.crown_img=url;delete v.crown;prof.priv=v;try{PF.priv=v;savePF()}catch(e){}try{drawList()}catch(e){}try{closeSheet()}catch(e){}const r=await SB.from('profiles').update({priv:v}).eq('id',me.id);toast(r.error?'Статус сохранён только у тебя':'Статус изменён')};
 /* Prime: список возможностей + выбор значка */
 const sp=window.sheetPrime;
 window.sheetPrime=function(){sp.apply(this,arguments);const go=()=>{const ul=document.querySelector('.sh .pml');if(!ul)return false;const CKI=ul.querySelector('i')?ul.querySelector('i').innerHTML:'';
-const L=['Эксклюзивные подарки','Талисман у ника — его видят все','106 стикеров-талисманов на выбор','Нажми на талисмана — увидишь, что это Prime','Премиум анимации'];
+const L=['Эксклюзивные подарки','Статус у ника — его видят все','106 стикеров-талисманов на выбор','Нажми на талисмана — увидишь, что это Prime','Премиум анимации'];
 ul.innerHTML=L.map(t=>`<li><i>${CKI}</i>${t}</li>`).join('');
 if(isP(prof)&&!document.getElementById('pkb')){const b=document.createElement('button');b.id='pkb';b.className='pmb';b.style.margin='10px 0 0';b.textContent='Сменить талисмана';b.onclick=crownPick;ul.insertAdjacentElement('afterend',b)}return true};
 if(!go())setTimeout(go,40)};
@@ -5633,7 +5634,7 @@ const PIL=[
  {id:'exclusive',t:'Exclusive · Коллекции',d:'Титулы, достижения, события',ic:'star'},
  {id:'personal',t:'Personalization · Настройка',d:'Чаты, интерфейс, уведомления',ic:'sliders'}];
 const FX=[
- {id:'talisman',p:'identity',t:'Талисман у ника',d:'Друг рядом с именем, его видят все',st:'on',go:'crownPick()'},
+ {id:'talisman',p:'identity',t:'Статус у ника',d:'Друг рядом с именем, его видят все',st:'on',go:'crownPick()'},
  {id:'card',p:'identity',t:'Рамка аватара и Prime-карточка',d:'Уже включены в подписку',st:'on',go:"lxHub('me')"},
  {id:'avatar',p:'identity',t:'Анимированный аватар',d:'Живое кольцо и орбита вокруг фото',st:'pv',sc:'avatar'},
  {id:'status',p:'identity',t:'Уникальные статусы',d:'Статус-строка с оформлением',st:'soon'},
@@ -6722,13 +6723,14 @@ const _dl=window.drawList||drawList;
 window.drawList=drawList=function(){const r=_dl.apply(this,arguments);try{
  if(tab==='settings'){const L=document.getElementById('lc');if(!L)return r;
   L.querySelectorAll('.it').forEach(e=>{if(/prime/i.test(e.textContent)&&!e.classList.contains('dx4'))e.remove()});
+  const g0=L.querySelector('.grp');if(g0&&!g0.querySelector('.st7'))g0.insertAdjacentHTML('afterbegin','<div class="it st7" onclick="crownPick()"><span class="ib2" style="background:#7c6cff;color:#fff;display:grid;place-items:center">☺</span><span>Статус у ника</span><span style="margin-left:auto;color:#a9a9b2">›</span></div>');
   const pc=L.querySelector('.pc');
   if(pc){const bn=prof.banner_url?`background-image:url(${esc(prof.banner_url)})`:'';
    const h=document.createElement('div');h.className='me6';h.setAttribute('onclick','sheetProf()');
-   h.innerHTML=`<div class="b6" style="${bn}"></div><div class="a6"><span class="frw fr-${PF.frame||'none'}">${av(prof,96)}</span></div><div class="n6 pn">${esc(prof.name||'')}</div><div class="u6">@${esc(prof.username||'')}${prof.phone?' · '+esc(prof.phone):''}</div>${prof.status?`<div class="s6">${esc(prof.status)}</div>`:''}<button class="e6" onclick="event.stopPropagation();sheetProf()">Изм.</button>`;
+   h.innerHTML=`<div class="b6" style="${bn}"></div><div class="a6"><span class="frw fr-${PF.frame||'none'}">${av(prof,96)}</span></div><div class="n6 pn">${esc(prof.name||'')}${(prof.priv&&(prof.priv.crown||prof.priv.crown_img))?crownOf(prof):''}</div><div class="u6">@${esc(prof.username||'')}${prof.phone?' · '+esc(prof.phone):''}</div>${prof.status?`<div class="s6">${esc(prof.status)}</div>`:''}<button class="e6" onclick="event.stopPropagation();sheetProf()">Изм.</button>`;
    pc.replaceWith(h)}}}catch(e){console.warn(e)}return r};
 /* подписка отключена */
-['sheetPrime','lxHub','primeGift','primeBuy','primeGiftSend','primeGiftPlan','crownPick','buyPrime'].forEach(n=>{try{window[n]=()=>{}}catch(e){}});
+['sheetPrime','lxHub','primeGift','primeBuy','primeGiftSend','primeGiftPlan','buyPrime'].forEach(n=>{try{window[n]=()=>{}}catch(e){}});
 try{drawList()}catch(e){}
 })();
 </script>
