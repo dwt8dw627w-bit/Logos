@@ -7338,4 +7338,287 @@ html body .top::before,html body .top::after,html body .comp::before,html body .
 #pov .xact,#pov .xr,#pov .xtabs{animation:pvIn .5s cubic-bezier(.2,1,.3,1) both}
 #pov .xr:nth-child(2){animation-delay:.05s}#pov .xr:nth-child(3){animation-delay:.1s}#pov .xr:nth-child(4){animation-delay:.15s}
 </style>
+<style id="fx13">
+/* ================= 1. ЧАТ: шапка и панель ввода без серого фона ================= */
+html body .main>.top,
+html body #app .main>.top,
+html body .main>.comp,
+html body #app .main>.comp{
+  background:none!important;background-color:transparent!important;background-image:none!important;
+  border:0!important;box-shadow:none!important;
+  -webkit-backdrop-filter:none!important;backdrop-filter:none!important;
+  pointer-events:none}
+html body .main>.top>*,html body .main>.comp>*{pointer-events:auto}
+html body .main>.top::before,html body .main>.top::after,
+html body .main>.comp::before,html body .main>.comp::after{display:none!important}
+
+/* переписка уходит под шапку и под поле ввода и мягко растворяется */
+html body .main>.msgs{
+  --fxt:calc(var(--th,64px) + env(safe-area-inset-top,0px));
+  margin-top:calc(var(--fxt)*-1)!important;
+  margin-bottom:calc(var(--ch,64px)*-1)!important;
+  padding-top:calc(var(--fxt) + 12px)!important;
+  padding-bottom:calc(var(--ch,64px) + 12px)!important;
+  -webkit-mask-image:linear-gradient(180deg,#00000040 0,#000 calc(var(--fxt) + 16px),#000 calc(100% - var(--ch,64px) - 16px),#00000040 100%);
+  mask-image:linear-gradient(180deg,#00000040 0,#000 calc(var(--fxt) + 16px),#000 calc(100% - var(--ch,64px) - 16px),#00000040 100%)}
+
+/* стеклянные кнопки и поле ввода — чат виден сквозь них */
+html body .main>.top .ib,html body .main>.comp .ib,html body .main>.comp #in{
+  -webkit-backdrop-filter:blur(20px) saturate(170%);backdrop-filter:blur(20px) saturate(170%);
+  background-color:#ffffff14!important;border:1px solid #ffffff1c}
+
+/* появление чата */
+@keyframes fx13dn{from{opacity:0;transform:translateY(-14px);filter:blur(10px)}to{opacity:1;transform:none;filter:blur(0)}}
+@keyframes fx13up{from{opacity:0;transform:translateY(18px);filter:blur(10px)}to{opacity:1;transform:none;filter:blur(0)}}
+@keyframes fx13fi{from{opacity:0;filter:blur(8px)}to{opacity:1;filter:blur(0)}}
+html body .main>.top{animation:fx13dn .5s cubic-bezier(.2,1,.3,1) backwards}
+html body .main>.comp{animation:fx13up .5s cubic-bezier(.2,1,.3,1) backwards}
+html body .main>.msgs{animation:fx13fi .5s ease backwards}
+
+/* ================= 2. НАСТРОЙКИ: баннер со скруглёнными углами ================= */
+.me6{border-radius:32px!important;overflow:hidden;isolation:isolate}
+.me6 .b6,.me6>div:first-child{border-radius:32px!important;overflow:hidden}
+.me6 .b6::after{border-radius:inherit}
+.me6 .e6{top:14px;right:14px;padding:9px 18px;border-radius:999px;background:#00000066;
+  -webkit-backdrop-filter:blur(18px) saturate(160%);backdrop-filter:blur(18px) saturate(160%);
+  border:1px solid #ffffff30;transition:transform .3s cubic-bezier(.3,1.5,.5,1),background .25s}
+.me6 .e6:active{transform:scale(.92);background:#00000099}
+
+/* плавное появление вкладок */
+@keyframes fx13in{from{opacity:0;transform:translateY(16px) scale(.985);filter:blur(9px)}to{opacity:1;transform:none;filter:blur(0)}}
+#lc.tabin .me6,#lc.tabin .st4,#lc.tabin .mc4,#lc.tabin .grp,#lc.tabin .row,#lc.tabin .hd{animation:fx13in .55s cubic-bezier(.2,1,.3,1) backwards}
+#lc.tabin>*:nth-child(2) .me6,#lc.tabin .st4{animation-delay:.05s}
+#lc.tabin .mc4{animation-delay:.1s}
+#lc.tabin .grp:nth-of-type(1),#lc.tabin .row:nth-child(1){animation-delay:.12s}
+#lc.tabin .grp:nth-of-type(2),#lc.tabin .row:nth-child(2){animation-delay:.18s}
+#lc.tabin .grp:nth-of-type(3),#lc.tabin .row:nth-child(3){animation-delay:.24s}
+#lc.tabin .grp:nth-of-type(n+4),#lc.tabin .row:nth-child(n+4){animation-delay:.3s}
+
+/* лёгкий отклик на нажатие везде */
+.ib,.btn,.sm,.b2,.it,.row,.sg,.nav button,.nav a,.nav>*{transition:transform .3s cubic-bezier(.3,1.5,.5,1),background .25s,opacity .25s,filter .25s}
+.ib:active,.btn:active,.sm:active,.nav button:active{transform:scale(.92)}
+
+/* ================= 3. МУЗЫКА ================= */
+.lib9 .sg.old{animation:none!important}
+.lib9 .empty small{display:block;margin-top:10px;font-size:12px;color:#6f6f78}
+.lib9 .empty .btn{margin-top:6px}
+
+/* блок «Музыка в профиле» внутри «Изм.» */
+#mu13{margin:14px 0 6px;padding:14px;border-radius:24px;background:linear-gradient(180deg,#1d1d1d,#121212);
+  border:1px solid #ffffff14;box-shadow:inset 0 1px 0 #ffffff14,0 10px 26px #0006;animation:fx13in .5s cubic-bezier(.2,1,.3,1) backwards}
+#mu13 .mu13t{display:flex;align-items:center;gap:10px;font-weight:700;font-size:16px;margin-bottom:12px}
+#mu13 .mu13i{width:34px;height:34px;border-radius:12px;display:grid;place-items:center;color:#fff;
+  background:linear-gradient(135deg,#ff375f,#ff6b9d);box-shadow:0 6px 16px #ff375f44}
+#mu13 .mu13i svg{width:19px;height:19px}
+#mu13 .mu13e{color:#8e8e96;font-size:14px;margin:-2px 0 12px}
+#mu13 .mu13c{display:flex;align-items:center;gap:12px;padding:10px;margin-bottom:12px;border-radius:18px;background:#ffffff0d;border:1px solid #ffffff10}
+#mu13 .mu13c .cv{width:48px;height:48px;border-radius:14px;flex:none;background:linear-gradient(145deg,#7c6cff,#c45bff) center/cover;box-shadow:0 4px 12px #0007}
+#mu13 .mu13c .tx{flex:1;min-width:0;display:flex;flex-direction:column;gap:2px}
+#mu13 .mu13c b{font-size:15px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#mu13 .mu13c small{color:#9a9aa3;font-size:12.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#mu13 .mu13c .x{width:34px;height:34px;border-radius:50%;flex:none;background:#ffffff14;color:#fff;font-size:14px;display:grid;place-items:center;transition:transform .25s,background .2s}
+#mu13 .mu13c .x:active{transform:scale(.85);background:#ffffff2a}
+#mu13 .mu13b{display:flex;gap:8px}
+#mu13 .mu13b>*{flex:1;text-align:center;padding:12px 8px;border-radius:16px;background:#ffffff14;border:1px solid #ffffff14;
+  color:#fff;font-size:14px;font-weight:600;cursor:pointer;transition:transform .3s cubic-bezier(.3,1.5,.5,1),background .2s}
+#mu13 .mu13b>:first-child{background:#fff;color:#000;border-color:#fff}
+#mu13 .mu13b>*:active{transform:scale(.94)}
+</style>
+
+<script id="fx13-js">
+(()=>{
+const $=s=>document.querySelector(s),enc=encodeURIComponent;
+const E=s=>String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const fm=s=>isFinite(s)&&s>0?Math.floor(s/60)+':'+String(Math.floor(s%60)).padStart(2,'0'):'0:00';
+
+/* ---------- чат: высота шапки и панели ввода → CSS-переменные ---------- */
+const root=document.documentElement;let ro=null,raf=0;
+function fit(){
+  raf=0;
+  const t=$('.main>.top'),c=$('.main>.comp');
+  if(t)root.style.setProperty('--th',t.offsetHeight+'px');
+  if(c)root.style.setProperty('--ch',c.offsetHeight+'px');
+  if(ro){ro.disconnect();if(t)ro.observe(t);if(c)ro.observe(c)}
+}
+const sched=()=>{if(!raf)raf=requestAnimationFrame(fit)};
+if('ResizeObserver' in window)ro=new ResizeObserver(sched);
+const mn=document.getElementById('main');
+new MutationObserver(sched).observe(mn||document.body,mn?{childList:true}:{childList:true,subtree:true});
+addEventListener('resize',sched);sched();setTimeout(sched,400);
+
+/* ---------- вкладки: плавное появление при смене ---------- */
+let lastTab=null;
+const _dl=window.drawList||drawList;
+window.drawList=drawList=function(){
+  const r=_dl.apply(this,arguments);
+  try{
+    const L=document.getElementById('lc');
+    if(L&&typeof tab!=='undefined'&&tab!==lastTab){
+      lastTab=tab;L.classList.remove('tabin');void L.offsetWidth;L.classList.add('tabin');
+      setTimeout(()=>L.classList.remove('tabin'),900);
+    }
+  }catch(e){}
+  return r;
+};
+
+/* ---------- поиск музыки: все источники параллельно ---------- */
+function jsonp(url,param,ms){
+  return new Promise((res,rej)=>{
+    const cb='__jp'+Math.random().toString(36).slice(2),s=document.createElement('script');
+    const cl=()=>{clearTimeout(to);delete window[cb];s.remove()};
+    const to=setTimeout(()=>{cl();rej(new Error('timeout'))},ms||7000);
+    window[cb]=d=>{cl();res(d)};
+    s.onerror=()=>{cl();rej(new Error('jsonp'))};
+    s.src=url+(url.indexOf('?')>-1?'&':'?')+param+'='+cb;
+    document.head.appendChild(s);
+  });
+}
+async function getJ(u,ms,jpUrl){
+  const c=new AbortController(),t=setTimeout(()=>c.abort(),ms||7000);
+  try{
+    const r=await fetch(u,{signal:c.signal});
+    if(!r.ok)throw new Error('HTTP '+r.status);
+    return await r.json();
+  }catch(e){
+    if(jpUrl)return await jsonp(jpUrl,'callback',ms);
+    throw e;
+  }finally{clearTimeout(t)}
+}
+
+const AH=['https://api.audius.co','https://discoveryprovider.audius.co'];
+async function audius(q){
+  let last;
+  for(const h of AH){
+    try{
+      const j=await getJ(h+(q?'/v1/tracks/search?query='+enc(q)+'&limit=30&app_name=logos':'/v1/tracks/trending?limit=30&app_name=logos'),7000);
+      return (j.data||[]).filter(t=>t&&t.id&&t.is_streamable!==false).map(t=>({
+        url:h+'/v1/tracks/'+t.id+'/stream?app_name=logos',
+        cover:(t.artwork&&(t.artwork['480x480']||t.artwork['150x150']))||'',
+        title:t.title,artist:(t.user&&t.user.name)||'',dur:t.duration||0,lyrics:'',cat:1}));
+    }catch(e){last=e}
+  }
+  throw last;
+}
+const JK='56d30c95';
+async function jam(q){
+  const j=await getJ('https://api.jamendo.com/v3.0/tracks/?client_id='+JK+'&format=json&limit=30&imagesize=300&audioformat=mp32&include=musicinfo'+(q?'&search='+enc(q):'&order=popularity_week'),7000);
+  if(j.headers&&j.headers.status==='failed')throw new Error('jamendo');
+  return (j.results||[]).filter(t=>t.audio).map(t=>({url:t.audio,cover:t.image,title:t.name,artist:t.artist_name,dur:t.duration,lyrics:'',cat:1}));
+}
+async function itunes(q){
+  const one=async c=>{
+    const u='https://itunes.apple.com/search?term='+enc(q||'хиты')+'&media=music&entity=song&limit=30&country='+c;
+    const j=await getJ(u,7000,u);
+    return (j.results||[]).filter(t=>t.previewUrl).map(t=>({
+      url:t.previewUrl,cover:(t.artworkUrl100||'').replace('100x100','300x300'),
+      title:t.trackName,artist:t.artistName,dur:30,lyrics:'',cat:1,preview:1}));
+  };
+  const a=await one('RU');
+  return a.length||!q?a:await one('US');
+}
+async function deezer(q){
+  const u='https://api.deezer.com/search?q='+enc(q||'chill')+'&limit=30';
+  const j=await getJ(u,7000,u+'&output=jsonp');
+  return (j.data||[]).filter(t=>t.preview).map(t=>({
+    url:t.preview,cover:(t.album&&t.album.cover_medium)||'',title:t.title,artist:(t.artist&&t.artist.name)||'',
+    dur:30,lyrics:'',cat:1,preview:1}));
+}
+const PROV=[['Audius',audius],['Jamendo',jam],['iTunes',itunes],['Deezer',deezer]];
+const GEN=[['Хиты','хиты 2026'],['Поп','pop'],['Рэп','рэп'],['Рок','rock'],['Lofi','lofi'],['Электро','electronic'],['Джаз','jazz'],['Классика','classical']];
+const SK='<div class="msk"><i></i><div><u></u><u></u></div></div>'.repeat(7);
+let TOK=0;
+
+window.catGo=function(){
+  const my=++TOK;
+  const inp=$('#mcq'),l=$('#mcl'),h=$('#mhd');
+  if(!l)return;
+  const typed=((inp&&inp.value)||'').trim();
+  const on=document.querySelector('#lib9 .mch button.on');
+  const g=on?GEN[+on.dataset.g]:null;
+  const q=typed||(g?g[1]:'');
+  if(h)h.textContent=typed?'Результаты':(g?g[0]:'Рекомендации');
+  l.innerHTML=SK;
+  const res=PROV.map(()=>null),fails=[];let settled=0,shown=0;
+
+  const merge=()=>{
+    const seen=new Set(),out=[];
+    res.forEach(a=>(a||[]).forEach(s=>{
+      const k=((s.title||'')+'|'+(s.artist||'')).toLowerCase();
+      if(!seen.has(k)){seen.add(k);out.push(s)}
+    }));
+    return out;
+  };
+  const paint=list=>{
+    window.CAT9=list;
+    const prev=shown;shown=list.length;
+    l.innerHTML=list.map((s,i)=>`<div class="sg${i<prev?' old':''}" style="animation-delay:${Math.min(i-prev,12)*34}ms" onclick="playQ(CAT9,${i})">
+      <div class="c" style="background-image:url('${E(s.cover||'').replace(/'/g,'%27')}'),linear-gradient(145deg,#3a3a3a,#161616)"></div>
+      <div><div class="t">${E(s.title)}</div><div class="a">${E(s.artist)} · ${fm(s.dur)}${s.preview?' · превью':''}</div></div>
+      <button onclick="event.stopPropagation();catAdd(${i})">В профиль</button></div>`).join('');
+  };
+  const empty=()=>{
+    const all=fails.length>=PROV.length;
+    l.innerHTML=`<div class="empty"><span>${all?'⚠':'♪'}</span>${all?'Не удалось загрузить музыку.<br>Проверь интернет и попробуй ещё раз.':'Ничего не найдено.<br>Попробуй другой запрос.'}`+
+      (fails.length&&!all?`<small>Не ответили: ${fails.join(', ')}</small>`:'')+
+      (all?'<br><br><button class="btn p" onclick="catGo()">Повторить</button>':'')+`</div>`;
+  };
+
+  PROV.forEach(([name,f],k)=>{
+    Promise.resolve().then(()=>f(q)).then(a=>{res[k]=a||[]}).catch(()=>{res[k]=[];fails.push(name)}).then(()=>{
+      if(my!==TOK)return;
+      settled++;
+      const list=merge();
+      if(list.length&&list.length!==shown)paint(list);
+      else if(!list.length&&settled===PROV.length)empty();
+    });
+  });
+};
+window.catAdd=i=>{
+  const s=(window.CAT9||[])[i];if(!s)return;
+  PF.music={...s};try{savePF()}catch(e){}
+  try{toast('Песня в профиле')}catch(e){}
+  try{drawList()}catch(e){}
+};
+
+/* ---------- «Изм.»: вкладка «Музыка в профиле» ---------- */
+const NOTE='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg>';
+window.mu13Draw=()=>{
+  const d=document.getElementById('mu13');if(!d)return;
+  const m=PF.music;
+  d.innerHTML=`<div class="mu13t"><span class="mu13i">${NOTE}</span>Музыка в профиле</div>`+
+    (m?`<div class="mu13c"><div class="cv" style="background-image:url('${E(m.cover||'').replace(/'/g,'%27')}')"></div><div class="tx"><b>${E(m.title)}</b><small>${E(m.artist||'')}</small></div><button class="x" aria-label="Убрать" onclick="mu13Rm()">✕</button></div>`
+      :'<div class="mu13e">Пока ничего не выбрано</div>')+
+    `<div class="mu13b"><button onclick="mu13Cat()">Найти в каталоге</button><label>Свой файл<input type="file" accept="audio/*" hidden onchange="mu13Pick(this.files[0])"></label></div>`;
+};
+window.mu13Cat=()=>{try{closeSheet()}catch(e){}setTimeout(()=>{if(window.openLib)openLib()},220)};
+window.mu13Rm=()=>{
+  try{if(typeof AU!=='undefined'&&AU)AU.pause()}catch(e){}
+  delete PF.music;try{savePF()}catch(e){}
+  mu13Draw();try{drawList()}catch(e){}
+};
+window.mu13Pick=f=>{
+  if(!f)return;
+  const before=PF.music&&PF.music.url;let n=0;
+  try{pickMusic(f)}catch(e){}
+  const iv=setInterval(()=>{if((PF.music&&PF.music.url)!==before||++n>24){clearInterval(iv);mu13Draw()}},250);
+};
+const _sp=window.sheetProf;
+window.sheetProf=function(){
+  const r=_sp.apply(this,arguments);
+  try{
+    const b=document.querySelector('#sh .shc')||document.querySelector('.sh .shc');
+    if(!b)return r;
+    const old=b.querySelector('#sgb');if(old)old.remove();
+    if(b.querySelector('#mu13'))return r;
+    const d=document.createElement('div');d.id='mu13';
+    const f=b.firstElementChild;
+    b.insertBefore(d,f?f.nextSibling:null);
+    mu13Draw();
+  }catch(e){console.warn(e)}
+  return r;
+};
+try{drawList()}catch(e){}
+})();
+</script>
+
 </body></html>
