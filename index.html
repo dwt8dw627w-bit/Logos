@@ -7621,4 +7621,236 @@ try{drawList()}catch(e){}
 })();
 </script>
 
+<style id="mus14">
+/* --- плавная смена вкладок: сильнее блюр + «призрак» старого экрана --- */
+@keyframes fx13in{from{opacity:0;transform:translateY(18px) scale(.985);filter:blur(16px)}to{opacity:1;transform:none;filter:blur(0)}}
+@keyframes t14out{to{opacity:0;transform:scale(.985);filter:blur(18px)}}
+.t14g{position:fixed!important;z-index:2;pointer-events:none;overflow:hidden;animation:t14out .4s ease both}
+@keyframes t14in{from{opacity:0;transform:translateY(14px) scale(.985);filter:blur(14px)}to{opacity:1;transform:none;filter:blur(0)}}
+@keyframes t14row{from{opacity:0;transform:translateY(12px);filter:blur(8px)}to{opacity:1;transform:none;filter:blur(0)}}
+/* --- экран музыки --- */
+#lib9.m14{position:fixed;inset:0;z-index:65;overflow:hidden!important;padding:0!important;background:#000}
+#lib9.m14 .mw{height:100%;display:flex;flex-direction:column;padding:calc(12px + env(safe-area-inset-top,0px)) 18px 0;max-width:560px;margin:0 auto}
+#lib9.m14 .dxh{flex:none}
+#lib9.m14 .dxh b{font-size:24px;letter-spacing:-.02em}
+#lib9.m14 .mb{flex:1;overflow-y:auto;overflow-x:hidden;margin:0 -18px;padding:6px 18px 200px;-webkit-overflow-scrolling:touch;scrollbar-width:none}
+#lib9.m14 .mb::-webkit-scrollbar{display:none}
+#lib9.m14 .mb.bi>*{animation:t14in .6s cubic-bezier(.2,1,.3,1) backwards}
+#lib9.m14 .mb.bi>*:nth-child(2){animation-delay:.05s}#lib9.m14 .mb.bi>*:nth-child(3){animation-delay:.1s}#lib9.m14 .mb.bi>*:nth-child(4){animation-delay:.15s}#lib9.m14 .mb.bi>*:nth-child(n+5){animation-delay:.2s}
+.m14 .mhd{font-size:21px;font-weight:700;letter-spacing:-.01em;margin:20px 2px 10px}
+.m14 .mhd small{font-size:13px;font-weight:500;color:#8e8e96;margin-left:8px}
+.m14 .hs{display:flex;gap:14px;overflow-x:auto;margin:0 -18px;padding:2px 18px 6px;scrollbar-width:none}.m14 .hs::-webkit-scrollbar{display:none}
+.m14 .ar{flex:none;width:86px;text-align:center;cursor:pointer;transition:transform .3s cubic-bezier(.3,1.5,.5,1)}.m14 .ar:active{transform:scale(.92)}
+.m14 .ar i{display:block;width:86px;height:86px;border-radius:50%;background:#222 center/cover;box-shadow:0 8px 20px #000a,0 0 0 1px #ffffff18}
+.m14 .ar span{display:block;margin-top:8px;font-size:12.5px;color:#d8d8de;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.m14 .mx{flex:none;width:138px;height:138px;border-radius:24px;padding:14px;display:flex;align-items:flex-end;font-weight:800;font-size:18px;letter-spacing:-.02em;color:#fff;position:relative;overflow:hidden;cursor:pointer;box-shadow:0 10px 24px #0008,inset 0 1px 0 #ffffff30;transition:transform .3s cubic-bezier(.3,1.5,.5,1)}
+.m14 .mx:active{transform:scale(.94)}.m14 .mx::after{content:"";position:absolute;right:-26px;top:-26px;width:90px;height:90px;border-radius:50%;background:#ffffff26;filter:blur(2px)}
+.m14 .sg .tx{flex:1;min-width:0}
+.m14 .sg button.hb,.m14 .sg button.mo{flex:none;width:38px!important;height:38px!important;padding:0!important;border-radius:50%!important;display:grid;place-items:center;background:none!important;border:0!important;color:#a0a0a8}
+.m14 .hb svg{width:21px;height:21px;fill:none;stroke:currentColor;stroke-width:2;transition:transform .35s cubic-bezier(.3,1.8,.5,1)}
+.m14 .hb.on{color:#ff4d6d}.m14 .hb.on svg{fill:#ff4d6d;transform:scale(1.15)}
+.m14 .mo{font-size:22px;font-weight:700;line-height:1}
+.m14 .mac{display:flex;gap:10px;margin:8px 0 14px}
+.m14 .mac button{flex:1;padding:13px;border-radius:16px;font-weight:700;font-size:14.5px;color:#fff;background:#ffffff14;border:1px solid #ffffff14}
+.m14 .mac button.pr{background:#fff;color:#000}
+.m14 .mac button:active{transform:scale(.96)}
+.m14 .pc{display:flex;gap:12px;align-items:center;padding:12px;margin-bottom:8px;border-radius:22px;background:linear-gradient(180deg,#1a1a1a,#121212);border:1px solid #ffffff10;cursor:pointer;transition:transform .25s}
+.m14 .pc:active{transform:scale(.97)}.m14 .pc i{width:56px;height:56px;border-radius:16px;flex:none;display:grid;place-items:center;font-size:24px;font-style:normal;background:linear-gradient(145deg,#6d5df0,#c45bff)}
+.m14 .pc b{display:block;font-size:15.5px}.m14 .pc small{color:#8e8e96;font-size:12.5px}
+.m14 .mnav{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(14px + env(safe-area-inset-bottom,0px));z-index:3;width:min(calc(100% - 28px),520px);display:flex;gap:4px;padding:6px;border-radius:28px;background:linear-gradient(180deg,#2a2a2ad0,#161616d8);-webkit-backdrop-filter:blur(28px) saturate(170%);backdrop-filter:blur(28px) saturate(170%);border:1px solid #ffffff20;box-shadow:0 14px 40px #000c,inset 0 1px 0 #ffffff22;transition:bottom .45s cubic-bezier(.2,1,.3,1)}
+body:has(#mmini.show:not(.dis)) #lib9 .mnav{bottom:calc(92px + env(safe-area-inset-bottom,0px))}
+.m14 .mnav button{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;padding:9px 0 7px;border-radius:22px;color:#9a9aa2;font-size:11px;font-weight:600;background:none;transition:background .35s,color .35s,transform .3s cubic-bezier(.3,1.5,.5,1)}
+.m14 .mnav button svg{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.m14 .mnav button.on{background:#ffffff1f;color:#fff;box-shadow:inset 0 1px 0 #ffffff26}.m14 .mnav button:active{transform:scale(.9)}
+.m14 .eqc{padding:16px;border-radius:24px;background:linear-gradient(180deg,#1a1a1a,#121212);border:1px solid #ffffff10;margin-bottom:12px}
+.m14 .eqr{display:flex;align-items:center;justify-content:space-between;gap:12px;font-weight:600}
+.m14 .eqr small{display:block;color:#8e8e96;font-weight:400;font-size:12.5px;margin-top:2px}
+.m14 .sw{flex:none;width:52px;height:31px;border-radius:99px;background:#ffffff22;position:relative;transition:background .3s}
+.m14 .sw::after{content:"";position:absolute;left:3px;top:3px;width:25px;height:25px;border-radius:50%;background:#fff;box-shadow:0 2px 6px #0006;transition:transform .35s cubic-bezier(.3,1.5,.5,1)}
+.m14 .sw.on{background:#34c759}.m14 .sw.on::after{transform:translateX(21px)}
+.m14 .bd{display:flex;align-items:center;gap:10px;margin-top:14px;font-size:12.5px;color:#b8b8c0}.m14 .bd span:first-child{width:52px;flex:none}.m14 .bd span:last-child{width:34px;text-align:right;font-variant-numeric:tabular-nums}
+.m14 .bd input{flex:1;accent-color:#fff;height:28px}
+.m14 .mch{margin-top:12px}
+#m14s{position:fixed;inset:0;z-index:95;background:#0000;-webkit-backdrop-filter:blur(0);backdrop-filter:blur(0);transition:background .35s,backdrop-filter .35s,-webkit-backdrop-filter .35s}
+#m14s.in{background:#0007;-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px)}
+#m14s .p{position:absolute;left:10px;right:10px;bottom:calc(10px + env(safe-area-inset-bottom,0px));max-width:520px;margin:0 auto;padding:10px;border-radius:30px;background:linear-gradient(180deg,#262626f2,#161616f8);border:1px solid #ffffff20;box-shadow:0 20px 60px #000c;transform:translateY(40px) scale(.97);opacity:0;filter:blur(10px);transition:transform .5s cubic-bezier(.2,1,.3,1),opacity .35s,filter .45s}
+#m14s.in .p{transform:none;opacity:1;filter:blur(0)}
+#m14s .p button,#m14s .p input{display:block;width:100%;text-align:left;padding:15px 16px;border-radius:18px;font:inherit;font-size:16px;color:#fff;background:none;border:0}
+#m14s .p button:active{background:#ffffff14}#m14s .p button.rd{color:#ff6b6b}
+#m14s .p input{background:#ffffff12;margin:4px 0 8px;outline:0}
+#m14s .p h4{margin:8px 16px 6px;color:#8e8e96;font-size:13px;font-weight:600}
+/* --- мини-плеер: свайп влево → «Удалить» --- */
+#mmini{transition:transform .4s cubic-bezier(.2,1,.3,1),opacity .3s;touch-action:pan-y}
+#mmini.dis{display:none!important}
+#mmdel{position:fixed;right:12px;bottom:calc(12px + env(safe-area-inset-bottom,0px));width:88px;z-index:69;border-radius:22px;background:linear-gradient(180deg,#ff5a4f,#e0342a);color:#fff;font-weight:700;font-size:14px;opacity:0;pointer-events:none;transform:scale(.9);transition:opacity .3s,transform .4s cubic-bezier(.3,1.5,.5,1)}
+#mmdel.on{opacity:1;pointer-events:auto;transform:none}#mmdel:active{transform:scale(.94)}
+</style>
+<script id="mus14-js">
+(()=>{
+const $=s=>document.querySelector(s),enc=encodeURIComponent;
+const E=s=>String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const fm=s=>isFinite(s)&&s>0?Math.floor(s/60)+':'+String(Math.floor(s%60)).padStart(2,'0'):'';
+const sv=()=>{try{savePF()}catch(e){}},tt=t=>{try{toast(t)}catch(e){}};
+const cfg=()=>{const m=PF.m14=PF.m14||{};m.eq=m.eq||{on:0,p:'Обычный',g:[0,0,0,0,0]};m.src=m.src||{audius:1,jamendo:1};PF.likes=PF.likes||[];PF.pls=PF.pls||[];return m};
+const key=s=>((s.title||'')+'|'+(s.artist||'')).toLowerCase(),liked=s=>(cfg(),PF.likes.some(x=>key(x)===key(s)));
+const cov=u=>`background-image:url('${E(u||'').replace(/'/g,'%27')}'),linear-gradient(145deg,#3a3a3a,#161616)`;
+const sk=n=>'<div class="msk"><i></i><div><u></u><u></u></div></div>'.repeat(n||6);
+
+/* ---------- источники: только ПОЛНЫЕ треки (Audius + Jamendo) ---------- */
+async function gj(u,ms){const c=new AbortController(),t=setTimeout(()=>c.abort(),ms||7000);try{const r=await fetch(u,{signal:c.signal});if(!r.ok)throw new Error('HTTP');return await r.json()}finally{clearTimeout(t)}}
+const AH=['https://api.audius.co','https://discoveryprovider.audius.co'],JK='56d30c95';
+const trk=(h,t)=>({url:h+'/v1/tracks/'+t.id+'/stream?app_name=logos',cover:(t.artwork&&(t.artwork['480x480']||t.artwork['150x150']))||'',title:t.title,artist:(t.user&&t.user.name)||'',dur:t.duration||0,lyrics:'',cat:1,uid:t.user&&t.user.id,ava:(t.user&&t.user.profile_picture&&(t.user.profile_picture['150x150']||t.user.profile_picture['480x480']))||''});
+async function au(p){let l;for(const h of AH){try{const j=await gj(h+p+(p.includes('?')?'&':'?')+'app_name=logos');return (j.data||[]).filter(t=>t&&t.id&&t.is_streamable!==false).map(t=>trk(h,t))}catch(e){l=e}}throw l}
+const audius=q=>au(q?'/v1/tracks/search?query='+enc(q)+'&limit=30':'/v1/tracks/trending?limit=30&time=week');
+async function jam(q){const j=await gj('https://api.jamendo.com/v3.0/tracks/?client_id='+JK+'&format=json&limit=25&imagesize=300&audioformat=mp32&include=musicinfo'+(q?'&search='+enc(q):'&order=popularity_week'));if(j.headers&&j.headers.status==='failed')throw new Error('j');return (j.results||[]).filter(t=>t.audio).map(t=>({url:t.audio,cover:t.image,title:t.name,artist:t.artist_name,dur:t.duration,lyrics:'',cat:1}))}
+async function find(q){const s=cfg().src,P=[];if(s.audius)P.push(audius(q));if(s.jamendo)P.push(jam(q));if(!P.length)throw new Error('off');const r=await Promise.allSettled(P),seen=new Set(),out=[];let ok=0;r.forEach(x=>{if(x.status==='fulfilled'){ok++;x.value.forEach(s=>{const k=key(s);if(!seen.has(k)){seen.add(k);out.push(s)}})}});if(!ok)throw new Error('net');return out}
+async function findArtists(q){try{const j=await gj(AH[0]+'/v1/users/search?query='+enc(q)+'&limit=10&app_name=logos');return (j.data||[]).filter(u=>u.track_count>0).map(u=>({id:u.id,name:u.name,ava:(u.profile_picture&&(u.profile_picture['150x150']||u.profile_picture['480x480']))||''}))}catch(e){return []}}
+const artistsOf=l=>{const m=new Map();l.forEach(s=>{if(s.uid&&!m.has(s.uid))m.set(s.uid,{id:s.uid,name:s.artist,ava:s.ava||s.cover})});return [...m.values()].slice(0,12)};
+const GEN=[['Хиты','хиты 2026'],['Поп','pop'],['Рэп','рэп'],['Рок','rock'],['Lofi','lofi'],['Электро','electronic'],['Джаз','jazz'],['Классика','classical']];
+const MIX=[['Фокус','lofi','#4f46e5','#06b6d4'],['Тренировка','workout','#ef4444','#f59e0b'],['Ночной город','synthwave','#7c3aed','#ec4899'],['Chill','chill','#0ea5e9','#22c55e'],['Рэп-волна','rap','#52525b','#18181b'],['Поп-волна','pop','#f43f5e','#fb923c'],['Рок','rock','#b91c1c','#1f2937'],['Классика','classical','#a16207','#3f3f46']];
+
+/* ---------- иконки ---------- */
+const S=p=>`<svg viewBox="0 0 24 24">${p}</svg>`;
+const IC={home:S('<path d="M3 11l9-8 9 8v9a1 1 0 01-1 1h-5v-6H9v6H4a1 1 0 01-1-1z"/>'),pls:S('<path d="M4 6h12M4 12h12M4 18h8"/><circle cx="19" cy="17" r="2.5"/><path d="M21.5 17V8"/>'),likes:S('<path d="M12 20s-7.5-4.6-9.3-9.3C1.5 7.4 3.6 4.5 6.7 4.5c1.9 0 3.5 1 5.3 3 1.8-2 3.4-3 5.3-3 3.1 0 5.2 2.9 4 6.2C19.5 15.4 12 20 12 20z"/>'),set:S('<path d="M4 7h10M18 7h2M4 17h2M10 17h10"/><circle cx="16" cy="7" r="2"/><circle cx="8" cy="17" r="2"/>')};
+const BACK='<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M15 5l-7 7 7 7"/></svg>';
+const SRCH='<svg viewBox="0 0 24 24" width="19" height="19" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>';
+const TT={home:'Музыка',pls:'Плейлисты',likes:'Нравится',set:'Настройки музыки'};
+
+/* ---------- состояние и экран ---------- */
+const ST={tab:'home',stack:[],q:'',chip:-1,t:0,ars:[]};window.M14L=[];
+function open(){let o=$('#lib9');if(o)o.remove();o=document.createElement('div');o.id='lib9';o.className='dx lib9 m14';document.body.appendChild(o);ST.stack=[];ST.q='';ST.chip=-1;draw()}
+window.openLib=open;window.drawLib9=()=>{ST.stack=[];draw()};
+const nav=()=>`<div class="mnav">${['home','pls','likes','set'].map(k=>`<button class="${ST.tab===k&&!ST.stack.length?'on':''}" onclick="M14.go('${k}')">${IC[k]}<span>${{home:'Главная',pls:'Плейлисты',likes:'Нравится',set:'Настройки'}[k]}</span></button>`).join('')}</div>`;
+function draw(){
+  const o=$('#lib9');if(!o)return;o.classList.add('m14');const v=ST.stack[ST.stack.length-1];
+  o.innerHTML=`<div class="mw"><div class="dxh"><button onclick="M14.back()">${BACK}</button><b>${E(v?v.title:TT[ST.tab])}</b></div><div class="mb bi" id="m14b"></div></div>${nav()}`;
+  const b=$('#m14b');v?view(b,v):({home,pls,likes,set})[ST.tab](b);
+}
+function rows(l,own){window.M14L=l;return l.map((s,i)=>`<div class="sg" style="animation-delay:${Math.min(i,10)*40}ms" onclick="M14.play(${i})"><div class="c" style="${cov(s.cover)}"></div><div class="tx"><div class="t">${E(s.title)}</div><div class="a">${E(s.artist)}${s.dur?' · '+fm(s.dur):''}</div></div><button class="hb${liked(s)?' on':''}" onclick="event.stopPropagation();M14.like(${i},this)">${IC.likes}</button><button class="mo" onclick="event.stopPropagation();M14.more(${i})">⋯</button></div>`).join('')}
+const err=()=>'<div class="empty"><span>⚠</span>Не удалось загрузить музыку.<br>Проверь интернет.<br><br><button class="btn p" onclick="M14.re()">Повторить</button></div>';
+const arRow=a=>a.length?`<div class="hs">${a.map((x,i)=>`<div class="ar" onclick="M14.artist(${i})"><i style="${cov(x.ava)}"></i><span>${E(x.name)}</span></div>`).join('')}</div>`:'';
+const mixRow=()=>`<div class="hs">${MIX.map((m,i)=>`<div class="mx" style="background:linear-gradient(145deg,${m[2]},${m[3]})" onclick="M14.mix(${i})">${m[0]}</div>`).join('')}</div>`;
+
+/* Главная: поиск → исполнители → плейлисты → рекомендации */
+function home(b){
+  b.innerHTML=`<div class="msb">${SRCH}<input type="search" id="m14q" placeholder="Песня или исполнитель" autocomplete="off" value="${E(ST.q)}"></div><div class="mch">${GEN.map((g,i)=>`<button class="${ST.chip===i?'on':''}" onclick="M14.chip(${i})">${g[0]}</button>`).join('')}</div><div id="m14h"></div>`;
+  const q=$('#m14q');let tm;q.oninput=()=>{ST.q=q.value;ST.chip=-1;chips();clearTimeout(tm);tm=setTimeout(feed,420)};q.onkeydown=e=>{if(e.key==='Enter'){clearTimeout(tm);q.blur();feed()}};feed();
+}
+const chips=()=>document.querySelectorAll('#lib9 .mch button').forEach((b,i)=>b.classList.toggle('on',i===ST.chip));
+async function feed(){
+  const h=$('#m14h');if(!h)return;const tk=++ST.t,typed=ST.q.trim(),g=ST.chip>=0?GEN[ST.chip]:null;h.innerHTML=sk(7);
+  try{
+    if(typed||g){
+      const [l,ar]=await Promise.all([find(typed||g[1]),typed?findArtists(typed):[]]);if(tk!==ST.t)return;ST.ars=ar;
+      h.innerHTML=(ar.length?`<div class="mhd">Исполнители</div>${arRow(ar)}`:'')+`<div class="mhd">${typed?'Результаты':g[0]}</div>`+(l.length?rows(l):'<div class="empty"><span>♪</span>Ничего не найдено.<br>Попробуй другой запрос.</div>');
+    }else{
+      const l=await find('');if(tk!==ST.t)return;ST.ars=artistsOf(l);
+      h.innerHTML=`<div class="mhd">Исполнители для тебя</div>${arRow(ST.ars)}<div class="mhd">Плейлисты</div>${mixRow()}<div class="mhd">Рекомендации</div>${rows(l)}`;
+    }
+  }catch(e){if(tk===ST.t)h.innerHTML=err()}
+}
+/* вложенный экран: исполнитель / плейлист */
+async function view(b,v){
+  b.innerHTML=sk(7);let l;
+  try{l=v.tracks?v.tracks():await v.load()}catch(e){b.innerHTML=err();return}
+  if(ST.stack[ST.stack.length-1]!==v)return;
+  b.innerHTML=l.length?`<div class="mac"><button class="pr" onclick="M14.all(0)">▶ Слушать</button><button onclick="M14.all(1)">Вперемешку</button>${v.save?'<button onclick="M14.saveMix()">＋ В мои</button>':''}</div>`+rows(l):'<div class="empty"><span>♪</span>Здесь пока пусто.</div>';
+  v.cur=l;window.M14L=l;
+}
+function pls(b){
+  const c=cfg(),own=PF.songs||[];
+  b.innerHTML=`<div class="mac"><button class="pr" onclick="M14.newpl()">＋ Новый плейлист</button><button onclick="M14.upload()">Своя песня</button></div>`+
+  (own.length?`<div class="pc" onclick="M14.openOwn()"><i>♪</i><div><b>Мои файлы</b><small>${own.length} песен</small></div></div>`:'')+
+  PF.pls.map((p,i)=>`<div class="pc" onclick="M14.openPl(${i})"><i>${p.tracks[0]&&p.tracks[0].cover?`<span style="width:100%;height:100%;border-radius:16px;${cov(p.tracks[0].cover)};background-size:cover"></span>`:'♫'}</i><div style="flex:1;min-width:0"><b>${E(p.name)}</b><small>${p.tracks.length} песен</small></div><button class="mo" style="color:#a0a0a8;font-size:22px" onclick="event.stopPropagation();M14.delPl(${i})">✕</button></div>`).join('')||(own.length?'':'<div class="empty"><span>♫</span>Создай плейлист и добавляй песни через «⋯».</div>');
+}
+function likes(b){cfg();b.innerHTML=PF.likes.length?`<div class="mac"><button class="pr" onclick="M14.all(0)">▶ Слушать</button><button onclick="M14.all(1)">Вперемешку</button></div>`+rows(PF.likes):'<div class="empty"><span>♡</span>Пока ничего не понравилось.<br>Нажми сердечко у песни.</div>';window.M14L=PF.likes}
+const PRE={'Обычный':[0,0,0,0,0],'Бас+':[7,4,0,0,0],'Вокал':[-2,0,4,3,0],'Высокие':[0,0,0,4,7],'Рок':[5,2,-2,3,5],'Электро':[6,3,0,2,5],'Лофи':[3,2,-1,-3,-5]},EQN=['60 Гц','230 Гц','910 Гц','3.6 кГц','14 кГц'];
+function set(b){
+  const c=cfg(),e=c.eq;
+  b.innerHTML=`<div class="eqc"><div class="eqr"><div>Эквалайзер<small>Работает со следующего трека, если источник не разрешает обработку</small></div><div class="sw${e.on?' on':''}" onclick="M14.eqOn()"></div></div>
+  <div class="mch" style="margin-bottom:0">${Object.keys(PRE).map(k=>`<button class="${e.p===k?'on':''}" onclick="M14.pre('${k}')">${k}</button>`).join('')}</div>
+  ${EQN.map((n,i)=>`<div class="bd"><span>${n}</span><input type="range" min="-12" max="12" step="1" value="${e.g[i]}" oninput="M14.band(${i},this.value,this)"><span>${e.g[i]>0?'+':''}${e.g[i]}</span></div>`).join('')}</div>
+  <div class="eqc"><div class="eqr"><div>Audius<small>Полные треки независимых артистов</small></div><div class="sw${c.src.audius?' on':''}" onclick="M14.src('audius',this)"></div></div>
+  <div class="eqr" style="margin-top:16px"><div>Jamendo<small>Полные треки, свободная музыка</small></div><div class="sw${c.src.jamendo?' on':''}" onclick="M14.src('jamendo',this)"></div></div>
+  <div style="margin-top:14px;font-size:12.5px;color:#8e8e96">30-секундные превью (iTunes, Deezer) отключены — только полные песни.</div></div>`;
+}
+
+/* ---------- действия ---------- */
+function sheet(h){const o=document.createElement('div');o.id='m14s';o.innerHTML=`<div class="p" onclick="event.stopPropagation()">${h}</div>`;o.onclick=()=>shut();document.body.appendChild(o);requestAnimationFrame(()=>requestAnimationFrame(()=>o.classList.add('in')))}
+function shut(){const o=$('#m14s');if(!o)return;o.classList.remove('in');setTimeout(()=>o.remove(),380)}
+const cur=()=>{const v=ST.stack[ST.stack.length-1];return v};
+const M14=window.M14={
+  go(k){if(ST.tab===k&&!ST.stack.length)return;ST.tab=k;ST.stack=[];draw()},
+  back(){if(ST.stack.length){ST.stack.pop();draw()}else{const o=$('#lib9');if(o){o.classList.add('out9');setTimeout(()=>o.remove(),340)}}},
+  re(){draw()},
+  play(i){if(window.playQ)playQ(window.M14L,i)},
+  all(sh){let l=(window.M14L||[]).slice();if(!l.length)return;if(sh)l.sort(()=>Math.random()-.5);playQ(l,0)},
+  chip(i){ST.chip=ST.chip===i?-1:i;ST.q='';const q=$('#m14q');if(q)q.value='';chips();feed()},
+  artist(i){const a=ST.ars[i];if(!a)return;ST.stack.push({title:a.name,load:()=>au('/v1/users/'+a.id+'/tracks?limit=40')});draw()},
+  mix(i){const m=MIX[i];ST.stack.push({title:m[0],save:1,load:()=>find(m[1])});draw()},
+  saveMix(){const v=cur();if(!v||!v.cur)return;cfg();PF.pls.push({id:Date.now(),name:v.title,tracks:v.cur.slice(0,40)});sv();tt('Плейлист сохранён')},
+  openOwn(){ST.stack.push({title:'Мои файлы',own:1,tracks:()=>PF.songs||[]});draw()},
+  openPl(i){const p=PF.pls[i];if(!p)return;ST.stack.push({title:p.name,pl:i,tracks:()=>p.tracks});draw()},
+  delPl(i){PF.pls.splice(i,1);sv();draw()},
+  upload(){const o=$('#lib9');if(o)o.classList.remove('m14');window.songForm&&songForm()},
+  like(i,b){const s=window.M14L[i];if(!s)return;cfg();const k=key(s),j=PF.likes.findIndex(x=>key(x)===k);if(j>=0)PF.likes.splice(j,1);else PF.likes.unshift({...s});sv();if(b)b.classList.toggle('on',j<0);if(ST.tab==='likes'&&!ST.stack.length&&j>=0)setTimeout(draw,250)},
+  more(i){const s=window.M14L[i];if(!s)return;const v=cur();
+    sheet(`<h4>${E(s.title)}</h4><button onclick="M14.prof(${i})">В профиль</button><button onclick="M14.toPl(${i})">Добавить в плейлист</button>`+(v&&v.pl!=null?`<button class="rd" onclick="M14.rmPl(${i})">Убрать из плейлиста</button>`:'')+(v&&v.own?`<button class="rd" onclick="M14.delOwn(${i})">Удалить файл</button>`:''))},
+  prof(i){shut();const s=window.M14L[i];if(!s)return;PF.music={...s};sv();tt('Песня в профиле');try{drawList()}catch(e){}},
+  toPl(i){const s=window.M14L[i];cfg();M14._s=s;sheet(`<h4>В какой плейлист?</h4>${PF.pls.map((p,k)=>`<button onclick="M14.addTo(${k})">${E(p.name)} <small style="color:#8e8e96">· ${p.tracks.length}</small></button>`).join('')}<input id="m14n" placeholder="Новый плейлист…" maxlength="40"><button onclick="M14.addNew()" style="background:#fff;color:#000;text-align:center;font-weight:700">Создать и добавить</button>`)},
+  addTo(k){const p=PF.pls[k],s=M14._s;if(!p||!s)return;if(!p.tracks.some(x=>key(x)===key(s)))p.tracks.push({...s});sv();shut();tt('Добавлено в «'+p.name+'»')},
+  addNew(){const n=(($('#m14n')||{}).value||'').trim()||'Мой плейлист',s=M14._s;if(!s)return;cfg();PF.pls.push({id:Date.now(),name:n,tracks:[{...s}]});sv();shut();tt('Плейлист «'+n+'» создан')},
+  newpl(){sheet(`<h4>Новый плейлист</h4><input id="m14n" placeholder="Название" maxlength="40"><button onclick="M14.mk()" style="background:#fff;color:#000;text-align:center;font-weight:700">Создать</button>`);setTimeout(()=>{const n=$('#m14n');n&&n.focus()},400)},
+  mk(){const n=(($('#m14n')||{}).value||'').trim()||'Мой плейлист';cfg();PF.pls.push({id:Date.now(),name:n,tracks:[]});sv();shut();draw()},
+  rmPl(i){const v=cur();if(v&&v.pl!=null){PF.pls[v.pl].tracks.splice(i,1);sv();shut();draw()}},
+  delOwn(i){PF.songs.splice(i,1);sv();shut();draw()},
+  eqOn(){const e=cfg().eq;e.on=e.on?0:1;sv();applyEq();if(e.on)eqLive();draw2()},
+  pre(k){const e=cfg().eq;e.p=k;e.g=PRE[k].slice();sv();applyEq();draw2()},
+  band(i,v,el){const e=cfg().eq;e.g[i]=+v;e.p='';sv();applyEq();if(el&&el.nextElementSibling)el.nextElementSibling.textContent=(+v>0?'+':'')+v;document.querySelectorAll('#lib9 .mch button').forEach(b=>b.classList.remove('on'))},
+  src(k,el){const s=cfg().src;if(s[k]&&!Object.values(s).some((v,j)=>v&&Object.keys(s)[j]!==k)){tt('Нужен хотя бы один источник');return}s[k]=s[k]?0:1;sv();el.classList.toggle('on',!!s[k])}
+};
+function draw2(){const b=$('#m14b');if(b&&ST.tab==='set'){const y=b.scrollTop;b.classList.remove('bi');set(b);b.scrollTop=y}}
+
+/* ---------- эквалайзер (Web Audio) ---------- */
+const EQF=[60,230,910,3600,14000];let ctx=null,flt=null,srcN=null,curA=null;
+function graph(){if(ctx)return true;try{const C=window.AudioContext||window.webkitAudioContext;ctx=new C();flt=EQF.map((f,i)=>{const b=ctx.createBiquadFilter();b.type=i===0?'lowshelf':i===4?'highshelf':'peaking';b.frequency.value=f;b.Q.value=1;return b});for(let i=0;i<4;i++)flt[i].connect(flt[i+1]);flt[4].connect(ctx.destination);applyEq();return true}catch(e){ctx=null;return false}}
+function applyEq(){if(!flt)return;const c=cfg().eq;flt.forEach((f,i)=>{f.gain.value=c.on?c.g[i]:0})}
+function attach(a){if(a._eq||!graph())return;try{ctx.resume&&ctx.resume();if(srcN)try{srcN.disconnect()}catch(e){}srcN=ctx.createMediaElementSource(a);srcN.connect(flt[0]);a._eq=1}catch(e){}}
+const A0=window.Audio;
+window.Audio=function(src){const web=cfg().eq.on&&/^https?:/.test(src||'');let a;if(web){a=new A0();a.crossOrigin='anonymous';a.src=src;a.addEventListener('canplay',()=>attach(a),{once:true});a.addEventListener('error',()=>{if(a.crossOrigin&&!a._eq&&!a._rt){a._rt=1;a.removeAttribute('crossorigin');a.src=src;a.load();try{a.play()}catch(e){}}})}else a=new A0(src);curA=a;return a};
+window.Audio.prototype=A0.prototype;
+function eqLive(){const a=curA;if(!a||a._eq||!/^https?:/.test(a.currentSrc||''))return;const t=a.currentTime,pl=!a.paused,s=a.currentSrc;a.crossOrigin='anonymous';a.addEventListener('canplay',()=>attach(a),{once:true});a.addEventListener('loadedmetadata',()=>{try{a.currentTime=t}catch(e){}},{once:true});a.src=s;if(pl)try{a.play()}catch(e){}}
+
+/* ---------- мини-плеер: свайп влево → «Удалить» (музыка продолжает играть) ---------- */
+['playQ','playSong','openMusic'].forEach(n=>{const f=window[n];if(!f)return;window[n]=function(){const m=$('#mmini');if(m)m.classList.remove('dis');return f.apply(this,arguments)}});
+const W=96;
+function miniInit(){const m=$('#mmini');if(!m||m.dataset.sw)return;m.dataset.sw=1;
+  const d=document.createElement('button');d.id='mmdel';d.textContent='Удалить';document.body.appendChild(d);
+  let x0=0,y0=0,dx=0,op=0,dr=0,lk=0;const mv=v=>{m.style.transform=`translateX(${v}px)`};
+  const sync=()=>{d.style.height=m.offsetHeight+'px';if(!m.classList.contains('show')||m.classList.contains('dis')){d.classList.remove('on');op=0;mv(0)}};
+  new MutationObserver(sync).observe(m,{attributes:true,attributeFilter:['class']});
+  d.onclick=()=>{m.classList.add('dis');d.classList.remove('on');op=0;mv(0)};
+  m.addEventListener('touchstart',e=>{const t=e.touches[0];x0=t.clientX;y0=t.clientY;dr=0;lk=0;m.style.transition='none';d.style.height=m.offsetHeight+'px'},{passive:true});
+  m.addEventListener('touchmove',e=>{const t=e.touches[0],ax=t.clientX-x0,ay=t.clientY-y0;if(!lk){if(Math.abs(ax)>8&&Math.abs(ax)>Math.abs(ay))lk=1;else if(Math.abs(ay)>8)lk=2}if(lk!==1)return;dr=1;dx=Math.max(-W-16,Math.min(0,(op?-W:0)+ax));mv(dx)},{passive:true});
+  m.addEventListener('touchend',()=>{m.style.transition='';if(!dr)return;op=dx<-W/2?1:0;mv(op?-W:0);d.classList.toggle('on',!!op)});
+  m.addEventListener('click',e=>{if(dr||op){e.stopPropagation();e.preventDefault();if(!dr&&op){op=0;mv(0);d.classList.remove('on')}dr=0}},true);
+}
+new MutationObserver(miniInit).observe(document.body,{childList:true});miniInit();
+
+/* ---------- смена вкладок: размытие ушедшего экрана ---------- */
+const _dl=window.drawList||drawList;let lt=null;
+window.drawList=drawList=function(){
+  let g=null;
+  try{const L=document.getElementById('lc');
+    if(L&&typeof tab!=='undefined'){
+      if(lt!==null&&tab!==lt&&L.firstElementChild){const r=L.getBoundingClientRect();g=L.cloneNode(true);g.classList.remove('tabin');g.classList.add('t14g');g.style.left=r.left+'px';g.style.top=r.top+'px';g.style.width=r.width+'px';g.style.height=r.height+'px'}
+      lt=tab}
+  }catch(e){}
+  const r=_dl.apply(this,arguments);
+  if(g){document.body.appendChild(g);setTimeout(()=>g.remove(),440)}
+  return r;
+};
+})();
+</script>
+
 </body></html>
