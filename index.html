@@ -7691,7 +7691,7 @@ const $=s=>document.querySelector(s),enc=encodeURIComponent;
 const E=s=>String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const fm=s=>isFinite(s)&&s>0?Math.floor(s/60)+':'+String(Math.floor(s%60)).padStart(2,'0'):'';
 const sv=()=>{try{savePF()}catch(e){}},tt=t=>{try{toast(t)}catch(e){}};
-const cfg=()=>{const m=PF.m14=PF.m14||{};m.eq=m.eq||{on:0,p:'Обычный',g:[0,0,0,0,0]};m.src=m.src||{audius:1,jamendo:1};PF.likes=PF.likes||[];PF.pls=PF.pls||[];return m};
+const cfg=()=>{const m=PF.m14=PF.m14||{};m.eq=m.eq||{on:0,p:'Обычный',g:[0,0,0,0,0]};m.src=m.src||{audius:1,jamendo:1};if(m.src.yt==null)m.src.yt=1;PF.likes=PF.likes||[];PF.pls=PF.pls||[];return m};
 const key=s=>((s.title||'')+'|'+(s.artist||'')).toLowerCase(),liked=s=>(cfg(),PF.likes.some(x=>key(x)===key(s)));
 const cov=u=>`background-image:url('${E(u||'').replace(/'/g,'%27')}'),linear-gradient(145deg,#3a3a3a,#161616)`;
 const sk=n=>'<div class="msk"><i></i><div><u></u><u></u></div></div>'.repeat(n||6);
@@ -7703,7 +7703,11 @@ const trk=(h,t)=>({url:h+'/v1/tracks/'+t.id+'/stream?app_name=logos',cover:(t.ar
 async function au(p){let l;for(const h of AH){try{const j=await gj(h+p+(p.includes('?')?'&':'?')+'app_name=logos');return (j.data||[]).filter(t=>t&&t.id&&t.is_streamable!==false).map(t=>trk(h,t))}catch(e){l=e}}throw l}
 const audius=q=>au(q?'/v1/tracks/search?query='+enc(q)+'&limit=30':'/v1/tracks/trending?limit=30&time=week');
 async function jam(q){const j=await gj('https://api.jamendo.com/v3.0/tracks/?client_id='+JK+'&format=json&limit=25&imagesize=300&audioformat=mp32&include=musicinfo'+(q?'&search='+enc(q):'&order=popularity_week'));if(j.headers&&j.headers.status==='failed')throw new Error('j');return (j.results||[]).filter(t=>t.audio).map(t=>({url:t.audio,cover:t.image,title:t.name,artist:t.artist_name,dur:t.duration,lyrics:'',cat:1}))}
-async function find(q){const s=cfg().src,P=[];if(s.audius)P.push(audius(q));if(s.jamendo)P.push(jam(q));if(!P.length)throw new Error('off');const r=await Promise.allSettled(P),seen=new Set(),out=[];let ok=0;r.forEach(x=>{if(x.status==='fulfilled'){ok++;x.value.forEach(s=>{const k=key(s);if(!seen.has(k)){seen.add(k);out.push(s)}})}});if(!ok)throw new Error('net');return out}
+const PH=['https://pipedapi.kavin.rocks','https://pipedapi.adminforge.de','https://api.piped.private.coffee','https://pipedapi.leptons.xyz'];
+async function pj(p){let l;for(const h of PH){try{return await gj(h+p,3500)}catch(e){l=e}}throw l}
+async function yt(q){const j=await pj('/search?q='+enc(q)+'&filter=music_songs');return (j.items||[]).filter(t=>t.url&&t.url.includes('v=')).slice(0,20).map(t=>({url:'yt:'+t.url.split('v=')[1].split('&')[0],cover:t.thumbnail||'',title:t.title,artist:(t.uploaderName||'').replace(/ - Topic$/,''),dur:t.duration>0?t.duration:0,lyrics:'',cat:1}))}
+async function ytStream(id){const j=await pj('/streams/'+id),a=(j.audioStreams||[]).slice().sort((x,y)=>(y.bitrate||0)-(x.bitrate||0)),m=a.find(x=>/mp4|m4a/.test(x.mimeType||''))||a[0];if(!m)throw new Error('no');return m.url}
+async function find(q){const s=cfg().src,P=[];if(s.audius)P.push(audius(q));if(s.jamendo)P.push(jam(q));if(s.yt&&q)P.unshift(Promise.race([yt(q),new Promise((_,r)=>setTimeout(()=>r(0),7000))]));if(!P.length)throw new Error('off');const r=await Promise.allSettled(P),seen=new Set(),out=[];let ok=0;r.forEach(x=>{if(x.status==='fulfilled'){ok++;x.value.forEach(s=>{const k=key(s);if(!seen.has(k)){seen.add(k);out.push(s)}})}});if(!ok)throw new Error('net');return out}
 async function findArtists(q){try{const j=await gj(AH[0]+'/v1/users/search?query='+enc(q)+'&limit=10&app_name=logos');return (j.data||[]).filter(u=>u.track_count>0).map(u=>({id:u.id,name:u.name,ava:(u.profile_picture&&(u.profile_picture['150x150']||u.profile_picture['480x480']))||''}))}catch(e){return []}}
 const artistsOf=l=>{const m=new Map();l.forEach(s=>{if(s.uid&&!m.has(s.uid))m.set(s.uid,{id:s.uid,name:s.artist,ava:s.ava||s.cover})});return [...m.values()].slice(0,12)};
 const GEN=[['Хиты','хиты 2026'],['Поп','pop'],['Рэп','рэп'],['Рок','rock'],['Lofi','lofi'],['Электро','electronic'],['Джаз','jazz'],['Классика','classical']];
@@ -7718,7 +7722,7 @@ const TT={home:'Музыка',pls:'Плейлисты',likes:'Нравится',
 
 /* ---------- состояние и экран ---------- */
 const ST={tab:'home',stack:[],q:'',chip:-1,t:0,ars:[]};window.M14L=[];
-function open(){let o=$('#lib9');if(o)o.remove();o=document.createElement('div');o.id='lib9';o.className='dx lib9 m14';document.body.appendChild(o);ST.stack=[];ST.q='';ST.chip=-1;draw()}
+function open(){const mm=$('#mmini');if(mm)mm.classList.remove('dis');let o=$('#lib9');if(o)o.remove();o=document.createElement('div');o.id='lib9';o.className='dx lib9 m14';document.body.appendChild(o);ST.stack=[];ST.q='';ST.chip=-1;draw()}
 window.openLib=open;window.drawLib9=()=>{ST.stack=[];draw()};
 const nav=()=>`<div class="mnav">${['home','pls','likes','set'].map(k=>`<button class="${ST.tab===k&&!ST.stack.length?'on':''}" onclick="M14.go('${k}')">${IC[k]}<span>${{home:'Главная',pls:'Плейлисты',likes:'Нравится',set:'Настройки'}[k]}</span></button>`).join('')}</div>`;
 function draw(){
@@ -7772,7 +7776,7 @@ function set(b){
   ${EQN.map((n,i)=>`<div class="bd"><span>${n}</span><input type="range" min="-12" max="12" step="1" value="${e.g[i]}" oninput="M14.band(${i},this.value,this)"><span>${e.g[i]>0?'+':''}${e.g[i]}</span></div>`).join('')}</div>
   <div class="eqc"><div class="eqr"><div>Audius<small>Полные треки независимых артистов</small></div><div class="sw${c.src.audius?' on':''}" onclick="M14.src('audius',this)"></div></div>
   <div class="eqr" style="margin-top:16px"><div>Jamendo<small>Полные треки, свободная музыка</small></div><div class="sw${c.src.jamendo?' on':''}" onclick="M14.src('jamendo',this)"></div></div>
-  <div style="margin-top:14px;font-size:12.5px;color:#8e8e96">30-секундные превью (iTunes, Deezer) отключены — только полные песни.</div></div>`;
+  <div class="eqr" style="margin-top:16px"><div>YouTube<small>Любые песни в поиске (через Piped)</small></div><div class="sw${c.src.yt?' on':''}" onclick="M14.src('yt',this)"></div></div><div style="margin-top:14px;font-size:12.5px;color:#8e8e96">30-секундные превью (iTunes, Deezer) отключены — только полные песни.</div></div>`;
 }
 
 /* ---------- действия ---------- */
@@ -7819,6 +7823,9 @@ function attach(a){if(a._eq||!graph())return;try{ctx.resume&&ctx.resume();if(src
 const A0=window.Audio;
 window.Audio=function(src){const web=cfg().eq.on&&/^https?:/.test(src||'');let a;if(web){a=new A0();a.crossOrigin='anonymous';a.src=src;a.addEventListener('canplay',()=>attach(a),{once:true});a.addEventListener('error',()=>{if(a.crossOrigin&&!a._eq&&!a._rt){a._rt=1;a.removeAttribute('crossorigin');a.src=src;a.load();try{a.play()}catch(e){}}})}else a=new A0(src);curA=a;return a};
 window.Audio.prototype=A0.prototype;
+const A1=window.Audio;
+window.Audio=function(src){if(typeof src==='string'&&src.startsWith('yt:')){const a=new A1(),pr=ytStream(src.slice(3)).then(u=>{a.src=u}),p=a.play.bind(a);pr.catch(()=>tt('YouTube недоступен, попробуй другую песню'));a.play=()=>pr.then(()=>p()).catch(()=>{});curA=a;return a}return new A1(src)};
+window.Audio.prototype=A0.prototype;
 function eqLive(){const a=curA;if(!a||a._eq||!/^https?:/.test(a.currentSrc||''))return;const t=a.currentTime,pl=!a.paused,s=a.currentSrc;a.crossOrigin='anonymous';a.addEventListener('canplay',()=>attach(a),{once:true});a.addEventListener('loadedmetadata',()=>{try{a.currentTime=t}catch(e){}},{once:true});a.src=s;if(pl)try{a.play()}catch(e){}}
 
 /* ---------- мини-плеер: свайп влево → «Удалить» (музыка продолжает играть) ---------- */
@@ -7853,4 +7860,34 @@ window.drawList=drawList=function(){
 })();
 </script>
 
+<style id="mus15">
+@keyframes dr1{from{transform:scale(1.5) translate(-6%,-4%) rotate(0)}to{transform:scale(1.9) translate(6%,5%) rotate(25deg)}}
+@keyframes dr2{from{transform:scale(1.7) translate(5%,6%) rotate(180deg)}to{transform:scale(1.4) translate(-6%,-5%) rotate(160deg)}}
+.mpl{background:#000!important}
+.mpl .bg{inset:-30%!important;filter:blur(60px) saturate(2.1) brightness(.85)!important;transform:none!important;animation:dr1 16s ease-in-out infinite alternate}
+.mpl .bg::after{content:"";position:absolute;inset:0;background:var(--cv) center/cover;opacity:.65;mix-blend-mode:screen;animation:dr2 20s ease-in-out infinite alternate}
+.mpl::before,.mpl::after,.mpl .in::before,.mpl .in::after{display:none!important}
+.mpl .in,.mpl .cv,.mpl .ct,.mpl .top,.mpl .tm,.mpl .hint{background:none!important;box-shadow:none!important;border:0!important;-webkit-backdrop-filter:none!important;backdrop-filter:none!important}
+.mpl .cv>div{box-shadow:0 30px 70px #0009,0 0 0 1px #ffffff1f!important}
+.mpl .ct button:not(.pp){background:none!important}
+.mpl .top button{background:#ffffff1c!important;-webkit-backdrop-filter:blur(22px);backdrop-filter:blur(22px)}
+.mpl .bar{background:#ffffff30}
+#lib9.m14{background:#00000059!important;-webkit-backdrop-filter:blur(36px) saturate(150%);backdrop-filter:blur(36px) saturate(150%)}
+#lib9.m14::before{content:"";position:fixed;inset:-25%;background:var(--cv) center/cover;filter:blur(90px) saturate(2);opacity:.4;z-index:-1;pointer-events:none}
+</style>
+<script id="mus15-js">
+(()=>{
+const $=s=>document.querySelector(s);let la=null;
+const cur=()=>window.mpCur&&mpCur();
+function meta(){const s=cur(),ms=navigator.mediaSession;if(!s||!ms)return;try{ms.metadata=new MediaMetadata({title:s.title||'',artist:s.artist||'',artwork:s.cover?[{src:s.cover,sizes:'512x512'}]:[]})}catch(e){}}
+try{const ms=navigator.mediaSession,h=(n,f)=>{try{ms.setActionHandler(n,f)}catch(e){}};
+h('play',()=>la&&la.play());h('pause',()=>la&&la.pause());h('nexttrack',()=>nextS(1));h('previoustrack',()=>nextS(-1));h('seekto',e=>{if(la&&e.seekTime!=null)la.currentTime=e.seekTime})}catch(e){}
+const A=window.Audio;
+window.Audio=function(src){const a=new A(src);la=a;a.addEventListener('play',meta);a.addEventListener('loadedmetadata',meta);return a};
+window.Audio.prototype=A.prototype;
+const url=()=>{const s=cur();return s&&s.cover?`url("${String(s.cover).replace(/"/g,'%22')}")`:'none'};
+new MutationObserver(()=>{const p=$('#mpl9');if(p&&!p.dataset.c){p.dataset.c=1;const b=p.querySelector('.bg');p.style.setProperty('--cv',(b&&b.style.backgroundImage)||url())}
+const l=$('#lib9');if(l&&!l.dataset.c){l.dataset.c=1;l.style.setProperty('--cv',url())}}).observe(document.body,{childList:true});
+})();
+</script>
 </body></html>
