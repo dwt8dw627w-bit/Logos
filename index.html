@@ -7296,4 +7296,46 @@ try{drawList()}catch(e){}
 .mpl .ct button{transition:transform .3s cubic-bezier(.3,1.6,.5,1),background .2s}
 #mmini{border-radius:24px;background:linear-gradient(135deg,#1c1c1cee,#101010f2)}
 </style>
+<style id="prof12">
+/* ===== чат: без серых плашек у шапки и панели ввода ===== */
+html body .main>.top,html body .top,html body .main>.comp,html body .comp,
+html:not(.nobl) body .top,html:not(.nobl) body .comp{
+  background:transparent!important;border:0!important;box-shadow:none!important;
+  -webkit-backdrop-filter:none!important;backdrop-filter:none!important}
+html body .top::before,html body .top::after,html body .comp::before,html body .comp::after{display:none!important}
+
+/* ===== профиль собеседника ===== */
+#pov .bn{height:250px!important;margin-bottom:68px!important;border-radius:0!important;background-size:cover!important;background-position:center!important}
+#pov .bn::before{content:"";position:absolute;inset:0;z-index:1;pointer-events:none;
+  background:linear-gradient(180deg,#000a 0,#0000 34%,#0000 46%,var(--bg) 100%)}
+#pov .bn>button{z-index:3}
+#pov .bn .ib,#pov .bn .xpen{width:42px;height:42px;border-radius:50%;background:#0006!important;
+  -webkit-backdrop-filter:blur(14px);backdrop-filter:blur(14px);border:1px solid #ffffff2e;box-shadow:0 6px 18px #0006}
+#pov .avw{z-index:3;left:20px!important;bottom:-56px!important;border:0!important;padding:4px;
+  background:linear-gradient(145deg,#ffffff66,#ffffff12)!important;
+  box-shadow:0 0 0 5px var(--bg),0 16px 40px #000c,0 0 44px #ffffff1c}
+#pov [style*="font-size:22px"]{font-size:30px!important;font-weight:800!important;letter-spacing:-.02em;line-height:1.15}
+#pov [style*="font-size:22px"]+.sub{font-size:15px;margin-top:3px}
+
+/* кнопки действий: без обводки вокруг блока */
+#pov .xact{background:none!important;border:0!important;box-shadow:none!important;border-radius:0!important;padding:0!important;gap:9px;margin:20px 0 6px}
+#pov .xact:has(.nkx){grid-template-columns:repeat(5,1fr)}
+#pov .xact button{background:linear-gradient(180deg,#252525,#171717)!important;border:1px solid #ffffff12!important;
+  box-shadow:inset 0 1px 0 #ffffff1a,0 8px 18px #0007!important;border-radius:22px!important;padding:14px 2px 12px;
+  font-size:12px;font-weight:600;white-space:nowrap;min-width:0}
+#pov .xact:has(.nkx) button{font-size:11px}
+#pov .xact button:active{transform:scale(.93);background:#2c2c2c!important}
+#pov .xact .i{width:24px;height:24px}
+
+/* поля информации */
+#pov .xr{margin-top:10px!important;padding:14px 16px!important;border-radius:22px!important;
+  background:linear-gradient(180deg,#1a1a1a,#111)!important;border:1px solid #ffffff10;box-shadow:inset 0 1px 0 #ffffff0d}
+#pov .xr small{font-size:11.5px;letter-spacing:.4px;text-transform:uppercase;color:#8a8a92;margin-bottom:4px}
+#pov .xr div{font-size:17px}
+#pov .xtabs button{border-radius:999px!important;padding:9px 16px}
+#pov .xtabs button.on{background:#fff!important;color:#000!important;box-shadow:0 6px 18px #ffffff22}
+@keyframes pvIn{from{opacity:0;transform:translateY(14px);filter:blur(6px)}to{opacity:1;transform:none;filter:blur(0)}}
+#pov .xact,#pov .xr,#pov .xtabs{animation:pvIn .5s cubic-bezier(.2,1,.3,1) both}
+#pov .xr:nth-child(2){animation-delay:.05s}#pov .xr:nth-child(3){animation-delay:.1s}#pov .xr:nth-child(4){animation-delay:.15s}
+</style>
 </body></html>
