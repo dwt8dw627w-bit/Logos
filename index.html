@@ -6878,16 +6878,12 @@ function showMini(){
 }
 function hideMini(){const m=$('#mmini');if(m)m.classList.remove('show')}
 
-window.openLib=()=>{let o=$('#lib9');if(o)o.remove();o=document.createElement('div');o.id='lib9';o.className='dx lib9';document.body.appendChild(o);LIBTAB=PF.songs.length?'my':'cat';drawLib()};
+window.openLib=()=>{let o=$('#lib9');if(o)o.remove();o=document.createElement('div');o.id='lib9';o.className='dx lib9';document.body.appendChild(o);LIBTAB='cat';drawLib()};
 function drawLib(){
   const o=$('#lib9');if(!o)return;
   const isCat=LIBTAB==='cat';
   o.innerHTML=`<div>
     <div class="dxh"><button onclick="document.getElementById('lib9').remove()"></button><b style="font-size:18px">Музыка</b></div>
-    <div class="tabs">
-      <button class="${!isCat?'on':''}" onclick="LIBTAB='my';drawLib()">Мои песни</button>
-      <button class="${isCat?'on':''}" onclick="LIBTAB='cat';drawLib();openCat()">Каталог</button>
-    </div>
     <div id="libbody"></div>
   </div>`;
   if(isCat){openCat()}else{drawMy()}
@@ -6904,7 +6900,7 @@ function drawMy(){
     <button onclick="event.stopPropagation();songDel(${i})"></button>
   </div>`).join(''):'<div class="empty"><span></span>Пока пусто.<br>Добавь свою песню или выбери из каталога.</div>'}`;
 }
-window.drawLib9=()=>{LIBTAB='my';drawLib()};
+window.drawLib9=()=>{LIBTAB='cat';drawLib()};
 window.songForm=()=>{const o=$('#lib9');window._sf={};o.innerHTML=`<div><div class="dxh"><button onclick="drawLib9()"></button>Новая песня</div><div class="fm"><div class="pk"><label> Аудио<input type="file" accept="audio/*" hidden onchange="_sf.a=this.files[0];this.parentNode.firstChild.nodeValue=' '+this.files[0].name.slice(0,14)"></label><label> Обложка<input type="file" accept="image/*" hidden onchange="_sf.c=this.files[0];this.parentNode.firstChild.nodeValue=' Обложка'"></label></div><input type="text" id="sf_t" placeholder="Название"><input type="text" id="sf_a" placeholder="Исполнитель"><textarea id="sf_l" placeholder="Текст песни (можно с таймкодами LRC: [00:12.50] строка)"></textarea><button class="btn p" onclick="songSave()">Сохранить</button></div></div>`};
 window.songSave=async()=>{const f=_sf.a;if(!f)return toast('Выбери аудиофайл');toast('Загружаю…');let url=null;try{url=await up('avatars',f)}catch(e){}if(!url){url=URL.createObjectURL(f);toast('Песня доступна до закрытия приложения')}
  const cover=_sf.c?await coverOf(_sf.c):'';const a=new Audio(url);const fin=()=>{PF.songs.push({url,cover,title:$('#sf_t').value||f.name.replace(/\.[^.]+$/,''),artist:$('#sf_a').value,lyrics:$('#sf_l').value,dur:a.duration||0});savePF();LIBTAB='my';drawLib()};a.onloadedmetadata=fin;a.onerror=()=>toast('Не удалось прочитать аудио')};
@@ -6978,84 +6974,77 @@ try{drawList()}catch(e){}
 (()=>{
 const enc=encodeURIComponent,$=s=>document.querySelector(s);let CAT=[],busy=0;
 const fm=s=>isFinite(s)?Math.floor(s/60)+':'+String(Math.floor(s%60)).padStart(2,'0'):'0:00';
-const key=()=>PF.jid||'56d30c95';
-const norm=t=>({url:t.audio,cover:t.image,title:t.name,artist:t.artist_name,dur:t.duration,lyrics:'',cat:1});
+const JK='56d30c95';
 
-/* Deezer fallback (30s previews, no key needed) */
-async function deezer(q){
-  const u='https://api.deezer.com/search?q='+enc(q||'lofi chill')+'&limit=30';
-  const r=await fetch(u);
-  const j=await r.json();
-  return (j.data||[]).filter(t=>t.preview).map(t=>({
-    url:t.preview,
-    cover:t.album&&t.album.cover_medium||'',
-    title:t.title,
-    artist:t.artist&&t.artist.name||'',
-    dur:t.duration||30,
-    lyrics:'',
-    cat:1,
-    preview:1
-  }));
+/* запрос с таймаутом */
+async function getJ(u,ms){
+  const c=new AbortController(),t=setTimeout(()=>c.abort(),ms||8000);
+  try{const r=await fetch(u,{signal:c.signal});if(!r.ok)throw new Error('HTTP '+r.status);return await r.json()}
+  finally{clearTimeout(t)}
 }
 
+/* 1) Jamendo — полные треки */
 async function jam(q){
-  const u='https://api.jamendo.com/v3.0/tracks/?client_id='+key()+'&format=json&limit=30&imagesize=300&audioformat=mp32&include=musicinfo'+(q?'&search='+enc(q):'&order=popularity_week');
-  const r=await fetch(u);
-  const j=await r.json();
-  if(j.headers&&j.headers.status==='failed')throw new Error(j.headers.error_message||'ошибка');
-  return (j.results||[]).filter(t=>t.audio).map(norm);
+  const j=await getJ('https://api.jamendo.com/v3.0/tracks/?client_id='+JK+'&format=json&limit=30&imagesize=300&audioformat=mp32&include=musicinfo'+(q?'&search='+enc(q):'&order=popularity_week'),8000);
+  if(j.headers&&j.headers.status==='failed')throw new Error('jamendo');
+  return (j.results||[]).filter(t=>t.audio).map(t=>({url:t.audio,cover:t.image,title:t.name,artist:t.artist_name,dur:t.duration,lyrics:'',cat:1}));
+}
+/* 2) iTunes — превью 30 сек, работает из браузера без ключа */
+async function itunes(q){
+  const j=await getJ('https://itunes.apple.com/search?term='+enc(q||'хиты')+'&media=music&entity=song&limit=30&country=RU',8000);
+  return (j.results||[]).filter(t=>t.previewUrl).map(t=>({
+    url:t.previewUrl,
+    cover:(t.artworkUrl100||'').replace('100x100','300x300'),
+    title:t.trackName,artist:t.artistName,dur:Math.round((t.trackTimeMillis||30000)/1000)>30?30:Math.round((t.trackTimeMillis||30000)/1000),
+    lyrics:'',cat:1,preview:1}));
+}
+/* 3) Deezer — запасной */
+async function deezer(q){
+  const j=await getJ('https://api.deezer.com/search?q='+enc(q||'chill')+'&limit=30',8000);
+  return (j.data||[]).filter(t=>t.preview).map(t=>({
+    url:t.preview,cover:t.album&&t.album.cover_medium||'',title:t.title,artist:t.artist&&t.artist.name||'',
+    dur:30,lyrics:'',cat:1,preview:1}));
 }
 
 window.openCat=async()=>{
-  const body=$('#libbody')||$('#lib9');
+  const body=$('#libbody');
   if(!body)return;
-  if($('#libbody')){
-    $('#libbody').innerHTML=`<div class="fm" style="margin-bottom:12px">
-      <input type="text" id="cq" placeholder="Поиск песни или исполнителя" onkeydown="if(event.key==='Enter')catGo()">
-      <details style="color:#a9a9b2;font-size:12px;margin-top:6px"><summary>Ключ Jamendo (client_id) — для полных треков</summary>
-        <input type="text" id="cjk" value="${PF.jid||''}" placeholder="свой client_id с devportal.jamendo.com" onchange="PF.jid=this.value.trim();savePF()" style="margin-top:6px;width:100%;padding:10px;border-radius:12px;background:#ffffff12;border:1px solid #ffffff18;color:#fff">
-      </details>
-    </div><div id="cl"><p style="text-align:center;color:#a9a9b2;padding:30px 0">Загружаю…</p></div>`;
-  }else{
-    // fallback if called standalone
-    const o=$('#lib9');if(!o)return;
-    o.innerHTML=`<div><div class="dxh"><button onclick="drawLib9()"></button>Каталог</div><div class="fm" style="margin-bottom:10px"><input type="text" id="cq" placeholder="Поиск..." onkeydown="if(event.key==='Enter')catGo()"></div><div id="cl"><p style="text-align:center;color:#a9a9b2">Загружаю…</p></div></div>`;
-  }
+  body.innerHTML=`<div class="fm" style="margin-bottom:12px">
+    <input type="text" id="cq" placeholder="Поиск песни или исполнителя" onkeydown="if(event.key==='Enter')catGo()">
+  </div><div id="cl"></div>`;
   catGo();
 };
 
 window.catGo=async()=>{
   if(busy)return;busy=1;
-  const q=($('#cq')||{}).value||'';
+  const q=(($('#cq')||{}).value||'').trim();
   const l=$('#cl');if(!l){busy=0;return}
   l.innerHTML='<p style="text-align:center;color:#a9a9b2;padding:30px 0">Загружаю…</p>';
-  try{
-    let list=[];
-    try{list=await jam(q.trim())}catch(e){/* jamendo failed */}
-    if(!list.length){
-      // fallback to Deezer previews
-      list=await deezer(q.trim()||'chill lofi');
-      if(list.length)toast('Jamendo недоступен — показываю превью Deezer (30 сек)');
-    }
-    CAT=list;
-    l.innerHTML=CAT.length?CAT.map((s,i)=>`<div class="sg" style="animation-delay:${i*28}ms" onclick="playQ(CAT9,${i})">
-      <div class="c" style="background-image:url(${s.cover||''})"></div>
-      <div><div class="t">${esc(s.title)}</div><div class="a">${esc(s.artist)} · ${fm(s.dur)}${s.preview?' · превью':''}</div></div>
-      <button onclick="event.stopPropagation();catAdd(${i})"></button>
-    </div>`).join(''):'<div class="empty"><span></span>Ничего не найдено.<br>Попробуй другой запрос или добавь свой ключ Jamendo.</div>';
-    window.CAT9=CAT;
-  }catch(e){
-    l.innerHTML='<div class="empty"><span>⚠</span>Не удалось загрузить: '+esc(String(e.message||e))+'<br><br>Добавь свой client_id Jamendo в настройках выше.</div>';
+  let list=[],err=0;
+  for(const f of [jam,itunes,deezer]){
+    try{list=await f(q);if(list.length)break}catch(e){err++}
   }
+  CAT=list;window.CAT9=CAT;
+  if(!list.length){
+    l.innerHTML=err>=3
+      ?'<div class="empty"><span>⚠</span>Не удалось загрузить музыку.<br>Проверь интернет и попробуй ещё раз.<br><br><button class="btn p" onclick="catGo()">Повторить</button></div>'
+      :'<div class="empty"><span></span>Ничего не найдено.<br>Попробуй другой запрос.</div>';
+    busy=0;return;
+  }
+  l.innerHTML=list.map((s,i)=>`<div class="sg" style="animation-delay:${i*28}ms" onclick="playQ(CAT9,${i})">
+    <div class="c" style="background-image:url(${esc(s.cover||'')})"></div>
+    <div><div class="t">${esc(s.title)}</div><div class="a">${esc(s.artist)} · ${fm(s.dur)}${s.preview?' · превью':''}</div></div>
+    <button onclick="event.stopPropagation();catAdd(${i})">В профиль</button>
+  </div>`).join('');
   busy=0;
 };
 
+/* «В профиль» — песня показывается в профиле */
 window.catAdd=i=>{
-  const s=CAT[i];
-  if(PF.songs.some(x=>x.url===s.url))return toast('Уже в музыке');
-  PF.songs.push({...s});
-  savePF();
-  toast('Добавлено в мои песни');
+  const s=CAT[i];if(!s)return;
+  PF.music={...s};savePF();
+  toast('Песня в профиле');
+  try{drawList()}catch(e){}
 };
 
 /* тексты из LRCLIB */
@@ -7148,6 +7137,106 @@ function swipeDown(o){if(o.dataset.sd)return;o.dataset.sd=1;let y=0,x=0,ly=0;
  o.addEventListener('touchend',e=>{const q=e.changedTouches[0],dy=q.clientY-y,dx=q.clientX-x;if(!ly&&innerWidth<900&&dy>110&&Math.abs(dx)<70)window.mpClose&&mpClose();if(innerWidth>=900&&!ly&&dx>140&&Math.abs(dy)<80)window.mpClose&&mpClose()},{passive:true})}
 new MutationObserver(()=>{const l=$('#lib9');if(l)swipe(l,backLib);const d=$('#dx');if(d)swipe(d,backDx);const p=$('#mpl9');if(p)swipeDown(p)}).observe(document.body,{childList:true,subtree:true});
 document.addEventListener('keydown',e=>{if(e.key!=='Escape')return;const p=$('#mpl9');if(p){p.classList.contains('ly')?mpLy(0):mpClose();return}if($('#lib9'))return backLib();if($('#dx'))backDx()});
+})();
+</script>
+<style id="set7">
+/* ===== баннер: убрана прозрачная плашка, остальное как было ===== */
+.me6{background:none!important;border:0!important;box-shadow:none!important}
+.me6 .b6{border-radius:30px}
+
+/* ===== группы кнопок в настройках ===== */
+#lc[data-t=settings] .grp{
+  margin:0 14px 14px!important;padding:5px!important;border-radius:28px!important;overflow:hidden;
+  background:linear-gradient(180deg,#1b1b1b,#101010)!important;
+  border:1px solid #ffffff14!important;
+  box-shadow:0 12px 32px #0008,inset 0 1px 0 #ffffff1a!important}
+#lc[data-t=settings] .grp .it{
+  position:relative;display:flex;align-items:center;gap:14px;padding:10px 12px!important;margin:0;
+  border-radius:22px;background:transparent;font-size:16.5px;font-weight:500;letter-spacing:.1px;
+  transition:background .2s,transform .2s cubic-bezier(.3,1.4,.5,1)}
+#lc[data-t=settings] .grp .it+.it::before{content:"";position:absolute;top:0;left:66px;right:14px;height:1px;
+  background:linear-gradient(90deg,#ffffff17,#ffffff04)}
+#lc[data-t=settings] .grp .it:active{background:#ffffff12;transform:scale(.975)}
+#lc[data-t=settings] .grp .it .ib2{
+  width:40px!important;height:40px!important;border-radius:13px!important;flex:none;display:grid;place-items:center;
+  background:linear-gradient(145deg,#3d3d3d,#1a1a1a)!important;color:#fff!important;
+  box-shadow:inset 0 1px 0 #ffffff33,inset 0 0 0 1px #ffffff12,0 4px 10px #0007!important}
+#lc[data-t=settings] .grp .it .ib2 .i,#lc[data-t=settings] .grp .it .ib2 svg{width:21px!important;height:21px!important}
+#lc[data-t=settings] .grp .it>svg.i:last-child,#lc[data-t=settings] .grp .it>.i:last-child{
+  width:26px!important;height:26px!important;padding:5px;box-sizing:border-box;margin-left:auto;flex:none;
+  border-radius:50%;background:#ffffff0d;color:#8a8a92!important;stroke-width:2.2}
+#lc[data-t=settings] .grp .it.rd .ib2{background:linear-gradient(145deg,#4a2020,#1d0d0d)!important;color:#ff7a7a!important}
+#lc[data-t=settings] .grp .it.rd{color:#ff7a7a}
+
+/* строка «Звёзды» с нашей иконкой */
+#lc[data-t=settings] .grp .it.stx2{
+  background:linear-gradient(120deg,#2b220e,#15120a 60%,#101010);
+  box-shadow:inset 0 0 0 1px #f5b82e2e}
+#lc[data-t=settings] .grp .it.stx2 .ib2{
+  width:46px!important;height:46px!important;border-radius:15px!important;
+  background:radial-gradient(circle at 30% 22%,#5a4513,#17130a 75%)!important;
+  box-shadow:inset 0 1px 0 #ffe9a044,inset 0 0 0 1px #f5b82e55,0 0 22px #f5b82e33!important}
+#lc[data-t=settings] .grp .it.stx2 .ib2 img{width:30px;height:30px;object-fit:contain;filter:drop-shadow(0 2px 6px #f5b82e66);animation:stxf 3.2s ease-in-out infinite}
+#lc[data-t=settings] .grp .it.stx2 .itx{display:flex;flex-direction:column;gap:2px;min-width:0}
+#lc[data-t=settings] .grp .it.stx2 .itx b{font-weight:600;font-size:16.5px}
+#lc[data-t=settings] .grp .it.stx2 .itx small{color:#b9a56a;font-size:12.5px}
+#lc[data-t=settings] .grp .it.stx2 .stb{margin-left:auto;display:flex;align-items:center;gap:6px;padding:6px 11px;border-radius:999px;
+  background:#f5b82e1c;border:1px solid #f5b82e44;color:#ffd978;font-weight:700;font-size:15px;font-variant-numeric:tabular-nums}
+#lc[data-t=settings] .grp .it.stx2 .stb img{width:16px;height:16px;object-fit:contain}
+#lc[data-t=settings] .grp .it.stx2>.i:last-child{margin-left:2px}
+@keyframes stxf{0%,100%{transform:translateY(0) rotate(0)}50%{transform:translateY(-2px) rotate(6deg)}}
+
+/* плитки Контакты / Чаты / Звёзды */
+.st4>div{background:linear-gradient(180deg,#1b1b1b,#101010)!important;border:1px solid #ffffff14!important;
+  box-shadow:inset 0 1px 0 #ffffff14,0 8px 20px #0006;border-radius:22px!important}
+.st4 .hy{background:linear-gradient(180deg,#2b220e,#13100a)!important;border-color:#f5b82e40!important;cursor:pointer}
+.st4 .hy .hyl{display:flex;align-items:center;justify-content:center;gap:5px}
+.st4 .hy .hyl img{width:15px;height:15px;object-fit:contain}
+.st4 .hy b{color:#ffd978!important}
+
+/* окно «Звёзды» */
+.sthd{padding:14px;border-radius:24px;background:radial-gradient(120% 140% at 0 0,#3a2d0e,#121212 70%);
+  border:1px solid #f5b82e33;box-shadow:inset 0 1px 0 #ffe9a022}
+.sthd>img,.sthd>.coin{filter:drop-shadow(0 4px 14px #f5b82e88);animation:stxf 3.2s ease-in-out infinite}
+.stbal{background:linear-gradient(180deg,#1c1c1c,#111)!important;border:1px solid #f5b82e33!important;
+  box-shadow:inset 0 1px 0 #ffffff12}
+.stbal span{color:#ffd978}
+.pk{background:linear-gradient(165deg,#1d1d1d,#0d0d0d)!important;border:1px solid #ffffff16!important;
+  box-shadow:inset 0 1px 0 #ffffff14,0 8px 18px #0006}
+.pk:active{border-color:#f5b82e66!important}
+</style>
+<script id="set7-js">
+(()=>{
+const _dl=window.drawList||drawList;
+window.drawList=drawList=function(){
+  const r=_dl.apply(this,arguments);
+  try{
+    if(tab==='settings'){
+      const L=document.getElementById('lc');if(!L)return r;
+      const star=(n)=>window.coin3d?window.coin3d(n):'';
+      const coins=(window.nf?nf(prof.coins):(prof.coins||0));
+      /* строка «Звёзды» */
+      L.querySelectorAll('.grp .it').forEach(it=>{
+        if(it.classList.contains('stx2'))return;
+        const t=(it.querySelector('span:not(.ib2)')||{}).textContent||'';
+        if(/^Звёзды/.test(t.trim())){
+          const chev=it.lastElementChild&&it.lastElementChild.tagName!=='SPAN'?it.lastElementChild:null;
+          it.classList.add('stx2');
+          it.innerHTML=`<span class="ib2">${star(30)}</span><span class="itx"><b>Звёзды</b><small>Подарки и реакции</small></span><span class="stb">${star(16)}${coins}</span>`;
+          if(chev)it.appendChild(chev);
+        }
+      });
+      /* плитка «Звёзды» */
+      const hy=L.querySelector('.st4 .hy');
+      if(hy&&!hy.querySelector('.hyl')){
+        hy.innerHTML=`<span class="hyl">${star(15)}Звёзды</span><b>${coins}</b>`;
+        hy.setAttribute('onclick','sheetWallet()');
+      }
+    }
+  }catch(e){console.warn(e)}
+  return r;
+};
+try{drawList()}catch(e){}
 })();
 </script>
 </body></html>
