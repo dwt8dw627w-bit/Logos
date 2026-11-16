@@ -6727,7 +6727,7 @@ window.drawList=drawList=function(){const r=_dl.apply(this,arguments);try{
   const pc=L.querySelector('.pc');
   if(pc){const bn=prof.banner_url?`background-image:url(${esc(prof.banner_url)})`:'';
    const h=document.createElement('div');h.className='me6';h.setAttribute('onclick','sheetProf()');
-   h.innerHTML=`<div class="b6" style="${bn}"></div><div class="a6"><span class="frw fr-${PF.frame||'none'}">${av(prof,96)}</span></div><div class="n6 pn">${esc(prof.name||'')}${(prof.priv&&(prof.priv.crown||prof.priv.crown_img))?crownOf(prof):''}</div><div class="u6">@${esc(prof.username||'')}${prof.phone?' · '+esc(prof.phone):''}</div>${prof.status?`<div class="s6">${esc(prof.status)}</div>`:''}<button class="e6" onclick="event.stopPropagation();sheetProf()">Изм.</button>`;
+   h.innerHTML=`<div class="b6" style="${bn}"></div><div class="a6"><span class="frw fr-${PF.frame||'none'}">${av(prof,96)}</span></div><div class="n6 pn">${esc(prof.name||'')}${badges(prof)}</div><div class="u6">@${esc(prof.username||'')}${prof.phone?' · '+esc(prof.phone):''}</div>${prof.status?`<div class="s6">${esc(prof.status)}</div>`:''}<button class="e6" onclick="event.stopPropagation();sheetProf()">Изм.</button>`;
    pc.replaceWith(h)}}}catch(e){console.warn(e)}return r};
 /* подписка отключена */
 ['sheetPrime','lxHub','primeGift','primeBuy','primeGiftSend','primeGiftPlan','buyPrime'].forEach(n=>{try{window[n]=()=>{}}catch(e){}});
@@ -8189,6 +8189,43 @@ window.ctApply=k=>{PF.wpk=k||'t'+(ci+1);PF.wpn=k==='none'?1:0;savePF();applyPF()
 /* настройки: убрать «Фон лобби» и лишний «Узор фона», переименовать пункт */
 let q=0;const fix=()=>{const a=document.querySelectorAll('.it[onclick*="sheetWp"]');a.forEach((it,k)=>{if(k){it.remove();return}if(it.dataset.t18)return;it.dataset.t18=1;it.setAttribute('onclick','sheetThemes()');const t=it.querySelector('span:not(.ib2)');if(t)t.textContent='Темы для чатов'});document.querySelectorAll('.it[onclick*="sheetLob"]').forEach(e=>e.remove())};
 new MutationObserver(()=>{if(!q){q=1;requestAnimationFrame(()=>{q=0;fix()})}}).observe(document.body,{childList:true,subtree:true});fix();
+})();
+</script>
+<style id="ps18">
+.it.st7,.it.dx4{display:none!important}
+.sh .cpg,.sh .cph{display:none!important}
+.me6 .n6 .vtick{width:21px;height:21px;margin:0}
+.ps18{margin:14px 0 8px;padding:14px;border-radius:28px;background:linear-gradient(160deg,color-mix(in srgb,var(--ac,#8a5cff) 20%,transparent),#ffffff08);border:1px solid #ffffff1f;box-shadow:inset 0 1px 0 #ffffff2a,0 10px 30px #0004;animation:ps18in .5s cubic-bezier(.2,1,.3,1) both}
+@keyframes ps18in{from{opacity:0;transform:translateY(10px);filter:blur(8px)}}
+.ps18h{display:flex;align-items:center;gap:12px;margin-bottom:12px}
+.ps18h i{width:42px;height:42px;border-radius:15px;display:grid;place-items:center;flex:none;background:linear-gradient(135deg,var(--ac,#8a5cff),var(--ac2,var(--ac,#5b6bff)));color:var(--acx,#fff);box-shadow:0 6px 16px #0005}
+.ps18h svg{width:22px;height:22px}
+.ps18h b{display:block;font-size:16.5px}.ps18h small{display:block;margin-top:2px;color:var(--mu,#9a9aa5);font-size:12.5px}
+.ps18pv{display:flex;align-items:center;gap:14px;padding:12px 14px;border-radius:20px;background:#00000030;margin-bottom:12px}
+.ps18pv .frw{flex:none}
+.ps18n{display:flex;align-items:center;gap:6px;min-width:0;font-size:20px;font-weight:700;font-family:var(--pfont,inherit)}
+.ps18n>span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.ps18g{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
+.ps18g button{display:flex;flex-direction:column;align-items:center;gap:8px;padding:12px 2px 10px;border-radius:18px;background:#ffffff10;border:1px solid #ffffff16;color:var(--tx,#fff);font-size:12.5px;font-weight:600;transition:transform .25s cubic-bezier(.3,1.5,.5,1),background .2s}
+.ps18g button:active{transform:scale(.92);background:#ffffff1c}
+.ps18g i{width:36px;height:36px;display:grid;place-items:center;border-radius:13px;background:#ffffff16;font-style:normal;font-weight:800;font-size:15px}
+.ps18g svg{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round}
+</style>
+<script id="ps18-js">
+(()=>{
+/* талисманы: остаются только свои картинки (по нажатию их можно сменить) */
+const co=window.crownOf;if(co)window.crownOf=p=>{const r=co(p);return /<img/.test(r)?r:''};
+const ct=window.crownTap;if(ct)window.crownTap=function(){const r=ct.apply(this,arguments);const p=document.querySelector('.cpop p');if(p)p.textContent='Маленькая картинка рядом с ником, её видят все. Загрузи свою или убери.';return r};
+/* «Изм.»: красивый блок оформления (обводки, шрифты, стикер, награды) */
+const S=d=>`<svg viewBox="0 0 24 24">${d}</svg>`,E=s=>String(s==null?'':s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const P=[['fr','Обводки',S('<circle cx="12" cy="12" r="8.5"/><circle cx="12" cy="12" r="4"/>')],['fn','Шрифты','Aa'],['st','Стикер',S('<circle cx="12" cy="12" r="9"/><path d="M8.5 14c1 1.5 2.2 2 3.5 2s2.5-.5 3.5-2M9 9.5v.01M15 9.5v.01"/>')],['ac','Награды',S('<path d="M8 4h8v5a4 4 0 0 1-8 0zM8 6H5a3 3 0 0 0 3 4M16 6h3a3 3 0 0 1-3 4M12 13v4M9 20h6M10 17h4"/>')]];
+let back=0;const cd=window.closeDX;
+if(cd)window.closeDX=function(){const r=cd.apply(this,arguments);if(back){back=0;setTimeout(()=>{try{sheetProf()}catch(e){}},220)}return r};
+window.ps18=k=>{try{vib(8)}catch(e){}closeSheet();setTimeout(()=>{if(k==='st')return crownPick();back=1;openDX();dxTab(k)},260)};
+const sp=window.sheetProf;
+window.sheetProf=sheetProf=function(){const r=sp.apply(this,arguments);const add=()=>{const sc=document.querySelector('.sh .shc');if(!sc||document.getElementById('ps18'))return;const b=document.createElement('div');b.id='ps18';b.className='ps18';
+  b.innerHTML=`<div class="ps18h"><i>${S('<path d="M12 3l2.2 6.8L21 12l-6.8 2.2L12 21l-2.2-6.8L3 12l6.8-2.2z"/>').replace('<svg','<svg fill="currentColor"')}</i><div><b>Оформление профиля</b><small>Так вас видят в чатах и в профиле</small></div></div><div class="ps18pv"><span class="frw fr-${E(PF.frame||'none')}" style="width:64px;height:64px">${av(prof,64)}</span><div class="ps18n"><span>${E(prof.name)}</span>${badges(prof)}</div></div><div class="ps18g">${P.map(p=>`<button onclick="ps18('${p[0]}')"><i>${p[2]}</i>${p[1]}</button>`).join('')}</div>`;
+  const f=sc.firstElementChild;f?f.insertAdjacentElement('afterend',b):sc.prepend(b)};add();requestAnimationFrame(add);return r};
 })();
 </script>
 </body></html>
